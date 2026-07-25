@@ -9,6 +9,7 @@ import { PaginationBar } from "@/components/pagination-bar";
 import { ServersView, type ServerRow } from "@/components/sunucular/servers-view";
 import type { ServerLink } from "@/components/sunucular/server-link-manager";
 import { SERVER_STATUS_OPTIONS } from "@/lib/validation/server";
+import { getExchangeRates } from "@/lib/exchange-rate";
 
 export const metadata = { title: "Sunucular · Operasyon Merkezi" };
 
@@ -32,7 +33,7 @@ export default async function ServersPage({
     ];
   }
 
-  const [servers, total, projects] = await Promise.all([
+  const [servers, total, projects, rates] = await Promise.all([
     db.server.findMany({
       where,
       orderBy: { created_at: "desc" },
@@ -50,6 +51,7 @@ export default async function ServersPage({
       orderBy: { code: "asc" },
       select: { id: true, code: true, name: true },
     }),
+    getExchangeRates(),
   ]);
 
   const rows: ServerRow[] = servers.map((s) => ({
@@ -87,7 +89,9 @@ export default async function ServersPage({
       status: s.status,
       renewal_at: s.renewal_at ? s.renewal_at.toISOString().slice(0, 10) : "",
       monthly_cost: s.monthly_cost ? s.monthly_cost.toString() : "",
+      cost_period: s.cost_period,
       currency: s.currency,
+      manual_fx_rate: s.manual_fx_rate ? s.manual_fx_rate.toString() : "",
     },
   }));
 
@@ -100,7 +104,13 @@ export default async function ServersPage({
     <div className="space-y-6">
       <PageHeader title="Sunucu Envanteri" description="Sunucularınızı ve proje eşleştirmelerini yönetin." />
       <ListToolbar statusOptions={SERVER_STATUS_OPTIONS} searchPlaceholder="Ad, hostname veya IP ara..." />
-      <ServersView servers={rows} projects={projectOptions} canManage={canManage} canArchive={canArchive} />
+      <ServersView
+        servers={rows}
+        projects={projectOptions}
+        rates={rates}
+        canManage={canManage}
+        canArchive={canArchive}
+      />
       <PaginationBar page={page} totalPages={pageCount(total)} totalItems={total} />
     </div>
   );

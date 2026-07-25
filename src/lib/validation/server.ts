@@ -1,10 +1,18 @@
 import { z } from "zod";
+import { CURRENCY_CODES } from "@/lib/currency";
 
 export const SERVER_STATUS_OPTIONS = [
   { value: "active", label: "Aktif" },
   { value: "maintenance", label: "Bakım" },
   { value: "suspended", label: "Askıda" },
   { value: "terminated", label: "Sonlandırıldı" },
+];
+
+export const COST_PERIODS = ["monthly", "yearly"] as const;
+
+export const COST_PERIOD_OPTIONS = [
+  { value: "monthly", label: "Aylık" },
+  { value: "yearly", label: "Yıllık" },
 ];
 
 const optStr = (max = 300) =>
@@ -51,7 +59,21 @@ export const serverSchema = z.object({
     .refine((v) => v === undefined || (Number.isFinite(v) && v >= 0), {
       message: "Geçerli bir tutar girin.",
     }),
-  currency: z.string().trim().default("TRY"),
+  cost_period: z.enum(COST_PERIODS).default("monthly"),
+  currency: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .pipe(z.enum(CURRENCY_CODES, { message: "Desteklenmeyen para birimi." }))
+    .default("TRY"),
+  /** Boş bırakılırsa TCMB'nin o günkü kuru kullanılır. */
+  manual_fx_rate: z
+    .union([z.string(), z.number(), z.literal("")])
+    .optional()
+    .transform((v) => (v === "" || v === undefined ? undefined : Number(v)))
+    .refine((v) => v === undefined || (Number.isFinite(v) && v > 0), {
+      message: "Kur sıfırdan büyük olmalıdır.",
+    }),
 });
 
 export type ServerInput = z.infer<typeof serverSchema>;

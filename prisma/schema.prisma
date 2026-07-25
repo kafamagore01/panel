@@ -85,6 +85,13 @@ enum LicenseEventType {
   validation_failed
 }
 
+enum DomainStatus {
+  active
+  expired
+  transferred
+  cancelled
+}
+
 enum ServerType {
   vds
   vps
@@ -98,6 +105,11 @@ enum ServerStatus {
   maintenance
   suspended
   terminated
+}
+
+enum CostPeriod {
+  monthly
+  yearly
 }
 
 enum IntervalUnit {
@@ -138,6 +150,11 @@ enum WebhookDeliveryStatus {
   failed
 }
 
+enum GithubAuthType {
+  oauth
+  pat
+}
+
 // ─── Çekirdek: Workspace / User / Üyelik / Oturum ────────────────────────────
 
 model Workspace {
@@ -157,11 +174,13 @@ model Workspace {
   projects           Project[]
   licenses           License[]
   servers            Server[]
+  domains            Domain[]
   billing_schedules  BillingSchedule[]
   invoices           Invoice[]
   payments           Payment[]
   webhook_deliveries WebhookDelivery[]
   audit_logs         AuditLog[]
+  github_connection  GithubConnection?
 
   @@map("workspaces")
 }
@@ -186,6 +205,8 @@ model User {
   owned_projects    Project[]       @relation("ProjectOwner")
   license_events    LicenseEvent[]
   audit_logs        AuditLog[]
+
+  github_connections GithubConnection[] @relation("GithubConnectionAuthor")
 
   @@map("users")
 }
@@ -261,6 +282,7 @@ model Customer {
   workspace         Workspace         @relation(fields: [workspace_id], references: [id])
   products          Product[]
   projects          Project[]
+  domains           Domain[]
   billing_schedules BillingSchedule[]
   invoices          Invoice[]
   payments          Payment[]
@@ -307,9 +329,14 @@ model Project {
   live_at                DateTime?
   budget                 Decimal?      @db.Decimal(14, 2)
   currency               String        @default("TRY")
+  /// Elle girilen sabit kur; null ise güncel TCMB günlük kuru kullanılır.
+  manual_fx_rate         Decimal?      @db.Decimal(18, 6)
   live_url               String?
   admin_url              String?
   repository_url         String?
+  // GitHub bağlantısı: repo yeniden adlandırılsa da id sabit kalır
+  github_repo_id         String?
+  github_repo_full_name  String?
   license_webhook_url    String?
   license_webhook_secret String?
   tech_stack             Json?
@@ -324,6 +351,7 @@ model Project {
   owner              User?             @relation("ProjectOwner", fields: [owner_user_id], references: [id], onDelete: SetNull)
   licenses           License[]
   server_links       ProjectServer[]
+  domains            Domain[]
   billing_schedules  BillingSchedule[]
   invoices           Invoice[]
   webhook_deliveries WebhookDelivery[]
@@ -332,6 +360,7 @@ model Project {
   @@index([workspace_id])
   @@index([workspace_id, status])
   @@index([customer_id])
+  @@index([workspace_id, github_repo_full_name])
   @@map("projects")
 }
 
@@ -451,7 +480,10 @@ model Server {
   status           ServerStatus @default(active)
   renewal_at       DateTime?
   monthly_cost     Decimal?     @db.Decimal(14, 2)
+  cost_period      CostPeriod   @default(monthly)
   currency         String       @default("TRY")
+  /// Elle girilen sabit kur; null ise güncel TCMB günlük kuru kullanılır.
+  manual_fx_rate   Decimal?     @db.Decimal(18, 6)
   created_at       DateTime     @default(now())
   updated_at       DateTime     @updatedAt
   deleted_at       DateTime?
@@ -482,6 +514,46 @@ model ProjectServer {
   @@map("project_server")
 }
 
+// ─── Domain Takibi ───────────────────────────────────────────────────────────
+
+/**
+ * Alan adı envanteri. Lisans domainleri (license_domains) ile bağ, ayrı bir FK
+ * yerine normalized_name üzerinden doğal anahtarla kurulur — aynı alan adı
+ * birden çok lisansta geçebilir ve eşleşme her zaman güncel kalır.
+ */
+model Domain {
+  id              String       @id @default(uuid(4)) @db.Uuid
+  workspace_id    String       @db.Uuid
+  customer_id     String?      @db.Uuid
+  project_id      String?      @db.Uuid
+  name            String
+  normalized_name String
+  registrar       String?
+  registrar_url   String?
+  status          DomainStatus @default(active)
+  registered_at   DateTime?
+  expires_at      DateTime?
+  ssl_expires_at  DateTime?
+  auto_renew      Boolean      @default(true)
+  nameservers     String?
+  annual_cost     Decimal?     @db.Decimal(14, 2)
+  currency        String       @default("TRY")
+  notes           String?
+  created_at      DateTime     @default(now())
+  updated_at      DateTime     @updatedAt
+  deleted_at      DateTime?
+
+  workspace Workspace @relation(fields: [workspace_id], references: [id])
+  customer  Customer? @relation(fields: [customer_id], references: [id])
+  project   Project?  @relation(fields: [project_id], references: [id])
+
+  @@unique([workspace_id, normalized_name])
+  @@index([workspace_id])
+  @@index([workspace_id, status])
+  @@index([workspace_id, expires_at])
+  @@map("domains")
+}
+
 // ─── Finans ──────────────────────────────────────────────────────────────────
 
 model BillingSchedule {
@@ -492,6 +564,8 @@ model BillingSchedule {
   title             String
   amount            Decimal        @db.Decimal(14, 2)
   currency          String         @default("TRY")
+  /// Elle girilen sabit kur; null ise güncel TCMB günlük kuru kullanılır.
+  manual_fx_rate    Decimal?       @db.Decimal(18, 6)
   tax_rate          Decimal        @default(20.00) @db.Decimal(5, 2)
   interval_unit     IntervalUnit   @default(month)
   interval_count    Int            @default(1)
@@ -527,6 +601,8 @@ model Invoice {
   due_on              DateTime      @db.Date
   status              InvoiceStatus @default(issued)
   currency            String        @default("TRY")
+  /// Fatura kesilirken geçerli olan kur; null ise güncel TCMB kuru kullanılır.
+  manual_fx_rate      Decimal?      @db.Decimal(18, 6)
   subtotal            Decimal       @db.Decimal(14, 2)
   tax_total           Decimal       @db.Decimal(14, 2)
   total               Decimal       @db.Decimal(14, 2)
@@ -573,6 +649,34 @@ model Payment {
   @@index([workspace_id])
   @@index([invoice_id])
   @@map("payments")
+}
+
+// ─── Entegrasyonlar ──────────────────────────────────────────────────────────
+
+/**
+ * Çalışma alanı başına tek GitHub bağlantısı. Token AES-256-GCM ile şifreli
+ * saklanır (lib/crypto/encryption) ve yalnızca sunucu tarafında çözülür.
+ * Repo istatistikleri kalıcı olarak tutulmaz; her okumada canlı çekilir.
+ */
+model GithubConnection {
+  id                 String         @id @default(uuid(4)) @db.Uuid
+  workspace_id       String         @unique @db.Uuid
+  auth_type          GithubAuthType @default(pat)
+  access_token       String
+  scopes             String?
+  account_login      String
+  account_name       String?
+  account_type       String?
+  account_avatar_url String?
+  connected_by       String?        @db.Uuid
+  last_verified_at   DateTime?
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+
+  workspace Workspace @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+  author    User?     @relation("GithubConnectionAuthor", fields: [connected_by], references: [id], onDelete: SetNull)
+
+  @@map("github_connections")
 }
 
 // ─── Webhook & Denetim ───────────────────────────────────────────────────────

@@ -50,7 +50,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 İsteğe bağlı (üretim): `UPSTASH_REDIS_*`, `QSTASH_*`, `EMAIL_DRIVER` + SMTP/Resend,
-`CRON_SECRET`, `APP_URL`, `DEPLOY_HOOK_URL`.
+`CRON_SECRET`, `APP_URL`, `GITHUB_CLIENT_ID` + `GITHUB_CLIENT_SECRET`.
 
 ### 3. Veritabanı
 
@@ -88,6 +88,33 @@ npm run dev
   `[REDACTED]` maskeler.
 - **Lisans kriptografisi:** anahtar yalnızca HMAC-SHA256 (`key_hash`) ile aranır; düz
   anahtar ve webhook secret AES-256-GCM (`iv:ciphertext:authTag`) ile şifreli saklanır.
+
+## GitHub Entegrasyonu
+
+Çalışma alanı başına **tek** GitHub bağlantısı tutulur (`github_connections`); token
+AES-256-GCM ile şifreli saklanır ve hiçbir zaman istemciye gönderilmez. Bağlantıyı
+yalnızca **Owner** (`system.manage`) kurar veya kaldırır.
+
+**Bağlanma — Ayarlar → GitHub Bağlantısı**
+
+1. *OAuth App:* `GITHUB_CLIENT_ID` + `GITHUB_CLIENT_SECRET` tanımlıysa "GitHub ile
+   Bağlan" butonu görünür. GitHub'da OAuth App oluştururken callback adresi
+   `<APP_URL>/api/github/callback` olmalıdır. Akış CSRF `state` çerezi ile korunur.
+2. *Personal Access Token:* Kurulum gerektirmez. Gereken kapsamlar: `repo`
+   (özel repolar için) ve `read:org`.
+
+**Kullanım**
+
+- Proje formunda **hızlı repo seçimi**: aranabilir liste (`GET /user/repos`), seçimde
+  repo URL, proje adı, branch, açıklama ve dil alanları otomatik dolar.
+- Proje kaydında yalnızca eşleşme saklanır: `github_repo_id` + `github_repo_full_name`.
+- Repo istatistikleri **veritabanına yazılmaz**; varsayılan dal, son commit, açık issue
+  ve yıldız sayısı her sayfa açılışında GitHub'dan canlı okunur
+  ([src/lib/github/repos.ts](src/lib/github/repos.ts)). Oran limitini korumak için
+  süreç içi kısa ömürlü cache kullanılır (repo listesi 120 sn, repo durumu 60 sn) —
+  yanıtlar Next.js data cache'ine yazılmaz, böylece kiracılar arası sızma olmaz.
+- Bağlantı kaldırıldığında projelerdeki repo eşleşmeleri silinmez, yalnızca canlı veri
+  çekimi durur.
 
 ## Genel Lisans Doğrulama API'si
 

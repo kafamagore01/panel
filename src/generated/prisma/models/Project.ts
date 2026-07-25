@@ -28,10 +28,12 @@ export type AggregateProject = {
 
 export type ProjectAvgAggregateOutputType = {
   budget: runtime.Decimal | null
+  manual_fx_rate: runtime.Decimal | null
 }
 
 export type ProjectSumAggregateOutputType = {
   budget: runtime.Decimal | null
+  manual_fx_rate: runtime.Decimal | null
 }
 
 export type ProjectMinAggregateOutputType = {
@@ -50,9 +52,12 @@ export type ProjectMinAggregateOutputType = {
   live_at: Date | null
   budget: runtime.Decimal | null
   currency: string | null
+  manual_fx_rate: runtime.Decimal | null
   live_url: string | null
   admin_url: string | null
   repository_url: string | null
+  github_repo_id: string | null
+  github_repo_full_name: string | null
   license_webhook_url: string | null
   license_webhook_secret: string | null
   notes: string | null
@@ -77,9 +82,12 @@ export type ProjectMaxAggregateOutputType = {
   live_at: Date | null
   budget: runtime.Decimal | null
   currency: string | null
+  manual_fx_rate: runtime.Decimal | null
   live_url: string | null
   admin_url: string | null
   repository_url: string | null
+  github_repo_id: string | null
+  github_repo_full_name: string | null
   license_webhook_url: string | null
   license_webhook_secret: string | null
   notes: string | null
@@ -104,9 +112,12 @@ export type ProjectCountAggregateOutputType = {
   live_at: number
   budget: number
   currency: number
+  manual_fx_rate: number
   live_url: number
   admin_url: number
   repository_url: number
+  github_repo_id: number
+  github_repo_full_name: number
   license_webhook_url: number
   license_webhook_secret: number
   tech_stack: number
@@ -120,10 +131,12 @@ export type ProjectCountAggregateOutputType = {
 
 export type ProjectAvgAggregateInputType = {
   budget?: true
+  manual_fx_rate?: true
 }
 
 export type ProjectSumAggregateInputType = {
   budget?: true
+  manual_fx_rate?: true
 }
 
 export type ProjectMinAggregateInputType = {
@@ -142,9 +155,12 @@ export type ProjectMinAggregateInputType = {
   live_at?: true
   budget?: true
   currency?: true
+  manual_fx_rate?: true
   live_url?: true
   admin_url?: true
   repository_url?: true
+  github_repo_id?: true
+  github_repo_full_name?: true
   license_webhook_url?: true
   license_webhook_secret?: true
   notes?: true
@@ -169,9 +185,12 @@ export type ProjectMaxAggregateInputType = {
   live_at?: true
   budget?: true
   currency?: true
+  manual_fx_rate?: true
   live_url?: true
   admin_url?: true
   repository_url?: true
+  github_repo_id?: true
+  github_repo_full_name?: true
   license_webhook_url?: true
   license_webhook_secret?: true
   notes?: true
@@ -196,9 +215,12 @@ export type ProjectCountAggregateInputType = {
   live_at?: true
   budget?: true
   currency?: true
+  manual_fx_rate?: true
   live_url?: true
   admin_url?: true
   repository_url?: true
+  github_repo_id?: true
+  github_repo_full_name?: true
   license_webhook_url?: true
   license_webhook_secret?: true
   tech_stack?: true
@@ -311,9 +333,12 @@ export type ProjectGroupByOutputType = {
   live_at: Date | null
   budget: runtime.Decimal | null
   currency: string
+  manual_fx_rate: runtime.Decimal | null
   live_url: string | null
   admin_url: string | null
   repository_url: string | null
+  github_repo_id: string | null
+  github_repo_full_name: string | null
   license_webhook_url: string | null
   license_webhook_secret: string | null
   tech_stack: runtime.JsonValue | null
@@ -362,9 +387,12 @@ export type ProjectWhereInput = {
   live_at?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   budget?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFilter<"Project"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.StringNullableFilter<"Project"> | string | null
   admin_url?: Prisma.StringNullableFilter<"Project"> | string | null
   repository_url?: Prisma.StringNullableFilter<"Project"> | string | null
+  github_repo_id?: Prisma.StringNullableFilter<"Project"> | string | null
+  github_repo_full_name?: Prisma.StringNullableFilter<"Project"> | string | null
   license_webhook_url?: Prisma.StringNullableFilter<"Project"> | string | null
   license_webhook_secret?: Prisma.StringNullableFilter<"Project"> | string | null
   tech_stack?: Prisma.JsonNullableFilter<"Project">
@@ -378,6 +406,7 @@ export type ProjectWhereInput = {
   owner?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   licenses?: Prisma.LicenseListRelationFilter
   server_links?: Prisma.ProjectServerListRelationFilter
+  domains?: Prisma.DomainListRelationFilter
   billing_schedules?: Prisma.BillingScheduleListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   webhook_deliveries?: Prisma.WebhookDeliveryListRelationFilter
@@ -399,9 +428,12 @@ export type ProjectOrderByWithRelationInput = {
   live_at?: Prisma.SortOrderInput | Prisma.SortOrder
   budget?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrderInput | Prisma.SortOrder
   live_url?: Prisma.SortOrderInput | Prisma.SortOrder
   admin_url?: Prisma.SortOrderInput | Prisma.SortOrder
   repository_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  github_repo_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  github_repo_full_name?: Prisma.SortOrderInput | Prisma.SortOrder
   license_webhook_url?: Prisma.SortOrderInput | Prisma.SortOrder
   license_webhook_secret?: Prisma.SortOrderInput | Prisma.SortOrder
   tech_stack?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -415,6 +447,7 @@ export type ProjectOrderByWithRelationInput = {
   owner?: Prisma.UserOrderByWithRelationInput
   licenses?: Prisma.LicenseOrderByRelationAggregateInput
   server_links?: Prisma.ProjectServerOrderByRelationAggregateInput
+  domains?: Prisma.DomainOrderByRelationAggregateInput
   billing_schedules?: Prisma.BillingScheduleOrderByRelationAggregateInput
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
   webhook_deliveries?: Prisma.WebhookDeliveryOrderByRelationAggregateInput
@@ -440,9 +473,12 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   live_at?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   budget?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFilter<"Project"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.StringNullableFilter<"Project"> | string | null
   admin_url?: Prisma.StringNullableFilter<"Project"> | string | null
   repository_url?: Prisma.StringNullableFilter<"Project"> | string | null
+  github_repo_id?: Prisma.StringNullableFilter<"Project"> | string | null
+  github_repo_full_name?: Prisma.StringNullableFilter<"Project"> | string | null
   license_webhook_url?: Prisma.StringNullableFilter<"Project"> | string | null
   license_webhook_secret?: Prisma.StringNullableFilter<"Project"> | string | null
   tech_stack?: Prisma.JsonNullableFilter<"Project">
@@ -456,6 +492,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   owner?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   licenses?: Prisma.LicenseListRelationFilter
   server_links?: Prisma.ProjectServerListRelationFilter
+  domains?: Prisma.DomainListRelationFilter
   billing_schedules?: Prisma.BillingScheduleListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   webhook_deliveries?: Prisma.WebhookDeliveryListRelationFilter
@@ -477,9 +514,12 @@ export type ProjectOrderByWithAggregationInput = {
   live_at?: Prisma.SortOrderInput | Prisma.SortOrder
   budget?: Prisma.SortOrderInput | Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrderInput | Prisma.SortOrder
   live_url?: Prisma.SortOrderInput | Prisma.SortOrder
   admin_url?: Prisma.SortOrderInput | Prisma.SortOrder
   repository_url?: Prisma.SortOrderInput | Prisma.SortOrder
+  github_repo_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  github_repo_full_name?: Prisma.SortOrderInput | Prisma.SortOrder
   license_webhook_url?: Prisma.SortOrderInput | Prisma.SortOrder
   license_webhook_secret?: Prisma.SortOrderInput | Prisma.SortOrder
   tech_stack?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -513,9 +553,12 @@ export type ProjectScalarWhereWithAggregatesInput = {
   live_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
   budget?: Prisma.DecimalNullableWithAggregatesFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  manual_fx_rate?: Prisma.DecimalNullableWithAggregatesFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   admin_url?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   repository_url?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  github_repo_id?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  github_repo_full_name?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   license_webhook_url?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   license_webhook_secret?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   tech_stack?: Prisma.JsonNullableWithAggregatesFilter<"Project">
@@ -537,9 +580,12 @@ export type ProjectCreateInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -553,6 +599,7 @@ export type ProjectCreateInput = {
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
@@ -574,9 +621,12 @@ export type ProjectUncheckedCreateInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -586,6 +636,7 @@ export type ProjectUncheckedCreateInput = {
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
@@ -603,9 +654,12 @@ export type ProjectUpdateInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -619,6 +673,7 @@ export type ProjectUpdateInput = {
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
@@ -640,9 +695,12 @@ export type ProjectUncheckedUpdateInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -652,6 +710,7 @@ export type ProjectUncheckedUpdateInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
@@ -673,9 +732,12 @@ export type ProjectCreateManyInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -697,9 +759,12 @@ export type ProjectUpdateManyMutationInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -725,9 +790,12 @@ export type ProjectUncheckedUpdateManyInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -768,9 +836,12 @@ export type ProjectCountOrderByAggregateInput = {
   live_at?: Prisma.SortOrder
   budget?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   live_url?: Prisma.SortOrder
   admin_url?: Prisma.SortOrder
   repository_url?: Prisma.SortOrder
+  github_repo_id?: Prisma.SortOrder
+  github_repo_full_name?: Prisma.SortOrder
   license_webhook_url?: Prisma.SortOrder
   license_webhook_secret?: Prisma.SortOrder
   tech_stack?: Prisma.SortOrder
@@ -782,6 +853,7 @@ export type ProjectCountOrderByAggregateInput = {
 
 export type ProjectAvgOrderByAggregateInput = {
   budget?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
 }
 
 export type ProjectMaxOrderByAggregateInput = {
@@ -800,9 +872,12 @@ export type ProjectMaxOrderByAggregateInput = {
   live_at?: Prisma.SortOrder
   budget?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   live_url?: Prisma.SortOrder
   admin_url?: Prisma.SortOrder
   repository_url?: Prisma.SortOrder
+  github_repo_id?: Prisma.SortOrder
+  github_repo_full_name?: Prisma.SortOrder
   license_webhook_url?: Prisma.SortOrder
   license_webhook_secret?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -827,9 +902,12 @@ export type ProjectMinOrderByAggregateInput = {
   live_at?: Prisma.SortOrder
   budget?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   live_url?: Prisma.SortOrder
   admin_url?: Prisma.SortOrder
   repository_url?: Prisma.SortOrder
+  github_repo_id?: Prisma.SortOrder
+  github_repo_full_name?: Prisma.SortOrder
   license_webhook_url?: Prisma.SortOrder
   license_webhook_secret?: Prisma.SortOrder
   notes?: Prisma.SortOrder
@@ -840,6 +918,7 @@ export type ProjectMinOrderByAggregateInput = {
 
 export type ProjectSumOrderByAggregateInput = {
   budget?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
 }
 
 export type ProjectScalarRelationFilter = {
@@ -1060,6 +1139,22 @@ export type ProjectUpdateOneRequiredWithoutServer_linksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutServer_linksInput, Prisma.ProjectUpdateWithoutServer_linksInput>, Prisma.ProjectUncheckedUpdateWithoutServer_linksInput>
 }
 
+export type ProjectCreateNestedOneWithoutDomainsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDomainsInput, Prisma.ProjectUncheckedCreateWithoutDomainsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDomainsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneWithoutDomainsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDomainsInput, Prisma.ProjectUncheckedCreateWithoutDomainsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDomainsInput
+  upsert?: Prisma.ProjectUpsertWithoutDomainsInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutDomainsInput, Prisma.ProjectUpdateWithoutDomainsInput>, Prisma.ProjectUncheckedUpdateWithoutDomainsInput>
+}
+
 export type ProjectCreateNestedOneWithoutBilling_schedulesInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutBilling_schedulesInput, Prisma.ProjectUncheckedCreateWithoutBilling_schedulesInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutBilling_schedulesInput
@@ -1118,9 +1213,12 @@ export type ProjectCreateWithoutWorkspaceInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1133,6 +1231,7 @@ export type ProjectCreateWithoutWorkspaceInput = {
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
@@ -1153,9 +1252,12 @@ export type ProjectUncheckedCreateWithoutWorkspaceInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1165,6 +1267,7 @@ export type ProjectUncheckedCreateWithoutWorkspaceInput = {
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
@@ -1215,9 +1318,12 @@ export type ProjectScalarWhereInput = {
   live_at?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   budget?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFilter<"Project"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"Project"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.StringNullableFilter<"Project"> | string | null
   admin_url?: Prisma.StringNullableFilter<"Project"> | string | null
   repository_url?: Prisma.StringNullableFilter<"Project"> | string | null
+  github_repo_id?: Prisma.StringNullableFilter<"Project"> | string | null
+  github_repo_full_name?: Prisma.StringNullableFilter<"Project"> | string | null
   license_webhook_url?: Prisma.StringNullableFilter<"Project"> | string | null
   license_webhook_secret?: Prisma.StringNullableFilter<"Project"> | string | null
   tech_stack?: Prisma.JsonNullableFilter<"Project">
@@ -1239,9 +1345,12 @@ export type ProjectCreateWithoutOwnerInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1254,6 +1363,7 @@ export type ProjectCreateWithoutOwnerInput = {
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
@@ -1274,9 +1384,12 @@ export type ProjectUncheckedCreateWithoutOwnerInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1286,6 +1399,7 @@ export type ProjectUncheckedCreateWithoutOwnerInput = {
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
@@ -1329,9 +1443,12 @@ export type ProjectCreateWithoutCustomerInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1344,6 +1461,7 @@ export type ProjectCreateWithoutCustomerInput = {
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
@@ -1364,9 +1482,12 @@ export type ProjectUncheckedCreateWithoutCustomerInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1376,6 +1497,7 @@ export type ProjectUncheckedCreateWithoutCustomerInput = {
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
@@ -1419,9 +1541,12 @@ export type ProjectCreateWithoutProductInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1434,6 +1559,7 @@ export type ProjectCreateWithoutProductInput = {
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
@@ -1454,9 +1580,12 @@ export type ProjectUncheckedCreateWithoutProductInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1466,6 +1595,7 @@ export type ProjectUncheckedCreateWithoutProductInput = {
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
@@ -1509,9 +1639,12 @@ export type ProjectCreateWithoutLicensesInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1524,6 +1657,7 @@ export type ProjectCreateWithoutLicensesInput = {
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
@@ -1545,9 +1679,12 @@ export type ProjectUncheckedCreateWithoutLicensesInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1556,6 +1693,7 @@ export type ProjectUncheckedCreateWithoutLicensesInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
@@ -1589,9 +1727,12 @@ export type ProjectUpdateWithoutLicensesInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1604,6 +1745,7 @@ export type ProjectUpdateWithoutLicensesInput = {
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
@@ -1625,9 +1767,12 @@ export type ProjectUncheckedUpdateWithoutLicensesInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1636,6 +1781,7 @@ export type ProjectUncheckedUpdateWithoutLicensesInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
@@ -1653,9 +1799,12 @@ export type ProjectCreateWithoutServer_linksInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1668,6 +1817,7 @@ export type ProjectCreateWithoutServer_linksInput = {
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
@@ -1689,9 +1839,12 @@ export type ProjectUncheckedCreateWithoutServer_linksInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1700,6 +1853,7 @@ export type ProjectUncheckedCreateWithoutServer_linksInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
@@ -1733,9 +1887,12 @@ export type ProjectUpdateWithoutServer_linksInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1748,6 +1905,7 @@ export type ProjectUpdateWithoutServer_linksInput = {
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
@@ -1769,9 +1927,12 @@ export type ProjectUncheckedUpdateWithoutServer_linksInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1780,6 +1941,167 @@ export type ProjectUncheckedUpdateWithoutServer_linksInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutDomainsInput = {
+  id?: string
+  code: string
+  branch_name?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  start_date?: Date | string | null
+  target_end_date?: Date | string | null
+  live_at?: Date | string | null
+  budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: string | null
+  admin_url?: string | null
+  repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
+  license_webhook_url?: string | null
+  license_webhook_secret?: string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
+  owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
+  licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
+  server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutDomainsInput = {
+  id?: string
+  workspace_id: string
+  customer_id: string
+  product_id?: string | null
+  owner_user_id?: string | null
+  code: string
+  branch_name?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  start_date?: Date | string | null
+  target_end_date?: Date | string | null
+  live_at?: Date | string | null
+  budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: string | null
+  admin_url?: string | null
+  repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
+  license_webhook_url?: string | null
+  license_webhook_secret?: string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
+  server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutDomainsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDomainsInput, Prisma.ProjectUncheckedCreateWithoutDomainsInput>
+}
+
+export type ProjectUpsertWithoutDomainsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutDomainsInput, Prisma.ProjectUncheckedUpdateWithoutDomainsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDomainsInput, Prisma.ProjectUncheckedCreateWithoutDomainsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutDomainsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutDomainsInput, Prisma.ProjectUncheckedUpdateWithoutDomainsInput>
+}
+
+export type ProjectUpdateWithoutDomainsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  target_end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
+  owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
+  licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
+  server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutDomainsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  target_end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
+  server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
@@ -1797,9 +2119,12 @@ export type ProjectCreateWithoutBilling_schedulesInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1813,6 +2138,7 @@ export type ProjectCreateWithoutBilling_schedulesInput = {
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
 }
@@ -1833,9 +2159,12 @@ export type ProjectUncheckedCreateWithoutBilling_schedulesInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1845,6 +2174,7 @@ export type ProjectUncheckedCreateWithoutBilling_schedulesInput = {
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -1877,9 +2207,12 @@ export type ProjectUpdateWithoutBilling_schedulesInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1893,6 +2226,7 @@ export type ProjectUpdateWithoutBilling_schedulesInput = {
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
 }
@@ -1913,9 +2247,12 @@ export type ProjectUncheckedUpdateWithoutBilling_schedulesInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1925,6 +2262,7 @@ export type ProjectUncheckedUpdateWithoutBilling_schedulesInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
 }
@@ -1941,9 +2279,12 @@ export type ProjectCreateWithoutInvoicesInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1957,6 +2298,7 @@ export type ProjectCreateWithoutInvoicesInput = {
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
 }
@@ -1977,9 +2319,12 @@ export type ProjectUncheckedCreateWithoutInvoicesInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -1989,6 +2334,7 @@ export type ProjectUncheckedCreateWithoutInvoicesInput = {
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -2021,9 +2367,12 @@ export type ProjectUpdateWithoutInvoicesInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2037,6 +2386,7 @@ export type ProjectUpdateWithoutInvoicesInput = {
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
 }
@@ -2057,9 +2407,12 @@ export type ProjectUncheckedUpdateWithoutInvoicesInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2069,6 +2422,7 @@ export type ProjectUncheckedUpdateWithoutInvoicesInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
 }
@@ -2085,9 +2439,12 @@ export type ProjectCreateWithoutWebhook_deliveriesInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2101,6 +2458,7 @@ export type ProjectCreateWithoutWebhook_deliveriesInput = {
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
 }
@@ -2121,9 +2479,12 @@ export type ProjectUncheckedCreateWithoutWebhook_deliveriesInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2133,6 +2494,7 @@ export type ProjectUncheckedCreateWithoutWebhook_deliveriesInput = {
   deleted_at?: Date | string | null
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -2165,9 +2527,12 @@ export type ProjectUpdateWithoutWebhook_deliveriesInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2181,6 +2546,7 @@ export type ProjectUpdateWithoutWebhook_deliveriesInput = {
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
 }
@@ -2201,9 +2567,12 @@ export type ProjectUncheckedUpdateWithoutWebhook_deliveriesInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2213,6 +2582,7 @@ export type ProjectUncheckedUpdateWithoutWebhook_deliveriesInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
 }
@@ -2232,9 +2602,12 @@ export type ProjectCreateManyWorkspaceInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2256,9 +2629,12 @@ export type ProjectUpdateWithoutWorkspaceInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2271,6 +2647,7 @@ export type ProjectUpdateWithoutWorkspaceInput = {
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
@@ -2291,9 +2668,12 @@ export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2303,6 +2683,7 @@ export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
@@ -2323,9 +2704,12 @@ export type ProjectUncheckedUpdateManyWithoutWorkspaceInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2350,9 +2734,12 @@ export type ProjectCreateManyOwnerInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2374,9 +2761,12 @@ export type ProjectUpdateWithoutOwnerInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2389,6 +2779,7 @@ export type ProjectUpdateWithoutOwnerInput = {
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
@@ -2409,9 +2800,12 @@ export type ProjectUncheckedUpdateWithoutOwnerInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2421,6 +2815,7 @@ export type ProjectUncheckedUpdateWithoutOwnerInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
@@ -2441,9 +2836,12 @@ export type ProjectUncheckedUpdateManyWithoutOwnerInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2468,9 +2866,12 @@ export type ProjectCreateManyCustomerInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2492,9 +2893,12 @@ export type ProjectUpdateWithoutCustomerInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2507,6 +2911,7 @@ export type ProjectUpdateWithoutCustomerInput = {
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
@@ -2527,9 +2932,12 @@ export type ProjectUncheckedUpdateWithoutCustomerInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2539,6 +2947,7 @@ export type ProjectUncheckedUpdateWithoutCustomerInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
@@ -2559,9 +2968,12 @@ export type ProjectUncheckedUpdateManyWithoutCustomerInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2586,9 +2998,12 @@ export type ProjectCreateManyProductInput = {
   live_at?: Date | string | null
   budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: string | null
   admin_url?: string | null
   repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
   license_webhook_url?: string | null
   license_webhook_secret?: string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2610,9 +3025,12 @@ export type ProjectUpdateWithoutProductInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2625,6 +3043,7 @@ export type ProjectUpdateWithoutProductInput = {
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
@@ -2645,9 +3064,12 @@ export type ProjectUncheckedUpdateWithoutProductInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2657,6 +3079,7 @@ export type ProjectUncheckedUpdateWithoutProductInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
@@ -2677,9 +3100,12 @@ export type ProjectUncheckedUpdateManyWithoutProductInput = {
   live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -2697,6 +3123,7 @@ export type ProjectUncheckedUpdateManyWithoutProductInput = {
 export type ProjectCountOutputType = {
   licenses: number
   server_links: number
+  domains: number
   billing_schedules: number
   invoices: number
   webhook_deliveries: number
@@ -2705,6 +3132,7 @@ export type ProjectCountOutputType = {
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   licenses?: boolean | ProjectCountOutputTypeCountLicensesArgs
   server_links?: boolean | ProjectCountOutputTypeCountServer_linksArgs
+  domains?: boolean | ProjectCountOutputTypeCountDomainsArgs
   billing_schedules?: boolean | ProjectCountOutputTypeCountBilling_schedulesArgs
   invoices?: boolean | ProjectCountOutputTypeCountInvoicesArgs
   webhook_deliveries?: boolean | ProjectCountOutputTypeCountWebhook_deliveriesArgs
@@ -2732,6 +3160,13 @@ export type ProjectCountOutputTypeCountLicensesArgs<ExtArgs extends runtime.Type
  */
 export type ProjectCountOutputTypeCountServer_linksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProjectServerWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountDomainsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DomainWhereInput
 }
 
 /**
@@ -2772,9 +3207,12 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   live_at?: boolean
   budget?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   live_url?: boolean
   admin_url?: boolean
   repository_url?: boolean
+  github_repo_id?: boolean
+  github_repo_full_name?: boolean
   license_webhook_url?: boolean
   license_webhook_secret?: boolean
   tech_stack?: boolean
@@ -2788,6 +3226,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   owner?: boolean | Prisma.Project$ownerArgs<ExtArgs>
   licenses?: boolean | Prisma.Project$licensesArgs<ExtArgs>
   server_links?: boolean | Prisma.Project$server_linksArgs<ExtArgs>
+  domains?: boolean | Prisma.Project$domainsArgs<ExtArgs>
   billing_schedules?: boolean | Prisma.Project$billing_schedulesArgs<ExtArgs>
   invoices?: boolean | Prisma.Project$invoicesArgs<ExtArgs>
   webhook_deliveries?: boolean | Prisma.Project$webhook_deliveriesArgs<ExtArgs>
@@ -2810,9 +3249,12 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   live_at?: boolean
   budget?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   live_url?: boolean
   admin_url?: boolean
   repository_url?: boolean
+  github_repo_id?: boolean
+  github_repo_full_name?: boolean
   license_webhook_url?: boolean
   license_webhook_secret?: boolean
   tech_stack?: boolean
@@ -2842,9 +3284,12 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   live_at?: boolean
   budget?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   live_url?: boolean
   admin_url?: boolean
   repository_url?: boolean
+  github_repo_id?: boolean
+  github_repo_full_name?: boolean
   license_webhook_url?: boolean
   license_webhook_secret?: boolean
   tech_stack?: boolean
@@ -2874,9 +3319,12 @@ export type ProjectSelectScalar = {
   live_at?: boolean
   budget?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   live_url?: boolean
   admin_url?: boolean
   repository_url?: boolean
+  github_repo_id?: boolean
+  github_repo_full_name?: boolean
   license_webhook_url?: boolean
   license_webhook_secret?: boolean
   tech_stack?: boolean
@@ -2886,7 +3334,7 @@ export type ProjectSelectScalar = {
   deleted_at?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "customer_id" | "product_id" | "owner_user_id" | "code" | "branch_name" | "name" | "description" | "status" | "start_date" | "target_end_date" | "live_at" | "budget" | "currency" | "live_url" | "admin_url" | "repository_url" | "license_webhook_url" | "license_webhook_secret" | "tech_stack" | "notes" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "customer_id" | "product_id" | "owner_user_id" | "code" | "branch_name" | "name" | "description" | "status" | "start_date" | "target_end_date" | "live_at" | "budget" | "currency" | "manual_fx_rate" | "live_url" | "admin_url" | "repository_url" | "github_repo_id" | "github_repo_full_name" | "license_webhook_url" | "license_webhook_secret" | "tech_stack" | "notes" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -2894,6 +3342,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   owner?: boolean | Prisma.Project$ownerArgs<ExtArgs>
   licenses?: boolean | Prisma.Project$licensesArgs<ExtArgs>
   server_links?: boolean | Prisma.Project$server_linksArgs<ExtArgs>
+  domains?: boolean | Prisma.Project$domainsArgs<ExtArgs>
   billing_schedules?: boolean | Prisma.Project$billing_schedulesArgs<ExtArgs>
   invoices?: boolean | Prisma.Project$invoicesArgs<ExtArgs>
   webhook_deliveries?: boolean | Prisma.Project$webhook_deliveriesArgs<ExtArgs>
@@ -2921,6 +3370,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     owner: Prisma.$UserPayload<ExtArgs> | null
     licenses: Prisma.$LicensePayload<ExtArgs>[]
     server_links: Prisma.$ProjectServerPayload<ExtArgs>[]
+    domains: Prisma.$DomainPayload<ExtArgs>[]
     billing_schedules: Prisma.$BillingSchedulePayload<ExtArgs>[]
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
     webhook_deliveries: Prisma.$WebhookDeliveryPayload<ExtArgs>[]
@@ -2941,9 +3391,15 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     live_at: Date | null
     budget: runtime.Decimal | null
     currency: string
+    /**
+     * Elle girilen sabit kur; null ise güncel TCMB günlük kuru kullanılır.
+     */
+    manual_fx_rate: runtime.Decimal | null
     live_url: string | null
     admin_url: string | null
     repository_url: string | null
+    github_repo_id: string | null
+    github_repo_full_name: string | null
     license_webhook_url: string | null
     license_webhook_secret: string | null
     tech_stack: runtime.JsonValue | null
@@ -3351,6 +3807,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   owner<T extends Prisma.Project$ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ownerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   licenses<T extends Prisma.Project$licensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$licensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   server_links<T extends Prisma.Project$server_linksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$server_linksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectServerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  domains<T extends Prisma.Project$domainsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$domainsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   billing_schedules<T extends Prisma.Project$billing_schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$billing_schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BillingSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoices<T extends Prisma.Project$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   webhook_deliveries<T extends Prisma.Project$webhook_deliveriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$webhook_deliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3398,9 +3855,12 @@ export interface ProjectFieldRefs {
   readonly live_at: Prisma.FieldRef<"Project", 'DateTime'>
   readonly budget: Prisma.FieldRef<"Project", 'Decimal'>
   readonly currency: Prisma.FieldRef<"Project", 'String'>
+  readonly manual_fx_rate: Prisma.FieldRef<"Project", 'Decimal'>
   readonly live_url: Prisma.FieldRef<"Project", 'String'>
   readonly admin_url: Prisma.FieldRef<"Project", 'String'>
   readonly repository_url: Prisma.FieldRef<"Project", 'String'>
+  readonly github_repo_id: Prisma.FieldRef<"Project", 'String'>
+  readonly github_repo_full_name: Prisma.FieldRef<"Project", 'String'>
   readonly license_webhook_url: Prisma.FieldRef<"Project", 'String'>
   readonly license_webhook_secret: Prisma.FieldRef<"Project", 'String'>
   readonly tech_stack: Prisma.FieldRef<"Project", 'Json'>
@@ -3892,6 +4352,30 @@ export type Project$server_linksArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ProjectServerScalarFieldEnum | Prisma.ProjectServerScalarFieldEnum[]
+}
+
+/**
+ * Project.domains
+ */
+export type Project$domainsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Domain
+   */
+  select?: Prisma.DomainSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Domain
+   */
+  omit?: Prisma.DomainOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DomainInclude<ExtArgs> | null
+  where?: Prisma.DomainWhereInput
+  orderBy?: Prisma.DomainOrderByWithRelationInput | Prisma.DomainOrderByWithRelationInput[]
+  cursor?: Prisma.DomainWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DomainScalarFieldEnum | Prisma.DomainScalarFieldEnum[]
 }
 
 /**

@@ -28,6 +28,7 @@ export type AggregateBillingSchedule = {
 
 export type BillingScheduleAvgAggregateOutputType = {
   amount: runtime.Decimal | null
+  manual_fx_rate: runtime.Decimal | null
   tax_rate: runtime.Decimal | null
   interval_count: number | null
   due_days: number | null
@@ -35,6 +36,7 @@ export type BillingScheduleAvgAggregateOutputType = {
 
 export type BillingScheduleSumAggregateOutputType = {
   amount: runtime.Decimal | null
+  manual_fx_rate: runtime.Decimal | null
   tax_rate: runtime.Decimal | null
   interval_count: number | null
   due_days: number | null
@@ -48,6 +50,7 @@ export type BillingScheduleMinAggregateOutputType = {
   title: string | null
   amount: runtime.Decimal | null
   currency: string | null
+  manual_fx_rate: runtime.Decimal | null
   tax_rate: runtime.Decimal | null
   interval_unit: $Enums.IntervalUnit | null
   interval_count: number | null
@@ -69,6 +72,7 @@ export type BillingScheduleMaxAggregateOutputType = {
   title: string | null
   amount: runtime.Decimal | null
   currency: string | null
+  manual_fx_rate: runtime.Decimal | null
   tax_rate: runtime.Decimal | null
   interval_unit: $Enums.IntervalUnit | null
   interval_count: number | null
@@ -90,6 +94,7 @@ export type BillingScheduleCountAggregateOutputType = {
   title: number
   amount: number
   currency: number
+  manual_fx_rate: number
   tax_rate: number
   interval_unit: number
   interval_count: number
@@ -107,6 +112,7 @@ export type BillingScheduleCountAggregateOutputType = {
 
 export type BillingScheduleAvgAggregateInputType = {
   amount?: true
+  manual_fx_rate?: true
   tax_rate?: true
   interval_count?: true
   due_days?: true
@@ -114,6 +120,7 @@ export type BillingScheduleAvgAggregateInputType = {
 
 export type BillingScheduleSumAggregateInputType = {
   amount?: true
+  manual_fx_rate?: true
   tax_rate?: true
   interval_count?: true
   due_days?: true
@@ -127,6 +134,7 @@ export type BillingScheduleMinAggregateInputType = {
   title?: true
   amount?: true
   currency?: true
+  manual_fx_rate?: true
   tax_rate?: true
   interval_unit?: true
   interval_count?: true
@@ -148,6 +156,7 @@ export type BillingScheduleMaxAggregateInputType = {
   title?: true
   amount?: true
   currency?: true
+  manual_fx_rate?: true
   tax_rate?: true
   interval_unit?: true
   interval_count?: true
@@ -169,6 +178,7 @@ export type BillingScheduleCountAggregateInputType = {
   title?: true
   amount?: true
   currency?: true
+  manual_fx_rate?: true
   tax_rate?: true
   interval_unit?: true
   interval_count?: true
@@ -277,6 +287,7 @@ export type BillingScheduleGroupByOutputType = {
   title: string
   amount: runtime.Decimal
   currency: string
+  manual_fx_rate: runtime.Decimal | null
   tax_rate: runtime.Decimal
   interval_unit: $Enums.IntervalUnit
   interval_count: number
@@ -321,6 +332,7 @@ export type BillingScheduleWhereInput = {
   title?: Prisma.StringFilter<"BillingSchedule"> | string
   amount?: Prisma.DecimalFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFilter<"BillingSchedule"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFilter<"BillingSchedule"> | $Enums.IntervalUnit
   interval_count?: Prisma.IntFilter<"BillingSchedule"> | number
@@ -346,6 +358,7 @@ export type BillingScheduleOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrderInput | Prisma.SortOrder
   tax_rate?: Prisma.SortOrder
   interval_unit?: Prisma.SortOrder
   interval_count?: Prisma.SortOrder
@@ -374,6 +387,7 @@ export type BillingScheduleWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"BillingSchedule"> | string
   amount?: Prisma.DecimalFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFilter<"BillingSchedule"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFilter<"BillingSchedule"> | $Enums.IntervalUnit
   interval_count?: Prisma.IntFilter<"BillingSchedule"> | number
@@ -399,6 +413,7 @@ export type BillingScheduleOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrderInput | Prisma.SortOrder
   tax_rate?: Prisma.SortOrder
   interval_unit?: Prisma.SortOrder
   interval_count?: Prisma.SortOrder
@@ -428,6 +443,7 @@ export type BillingScheduleScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"BillingSchedule"> | string
   amount?: Prisma.DecimalWithAggregatesFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringWithAggregatesFilter<"BillingSchedule"> | string
+  manual_fx_rate?: Prisma.DecimalNullableWithAggregatesFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalWithAggregatesFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitWithAggregatesFilter<"BillingSchedule"> | $Enums.IntervalUnit
   interval_count?: Prisma.IntWithAggregatesFilter<"BillingSchedule"> | number
@@ -446,6 +462,7 @@ export type BillingScheduleCreateInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -471,6 +488,7 @@ export type BillingScheduleUncheckedCreateInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -490,6 +508,7 @@ export type BillingScheduleUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -515,6 +534,7 @@ export type BillingScheduleUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -537,6 +557,7 @@ export type BillingScheduleCreateManyInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -555,6 +576,7 @@ export type BillingScheduleUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -576,6 +598,7 @@ export type BillingScheduleUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -607,6 +630,7 @@ export type BillingScheduleCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   tax_rate?: Prisma.SortOrder
   interval_unit?: Prisma.SortOrder
   interval_count?: Prisma.SortOrder
@@ -622,6 +646,7 @@ export type BillingScheduleCountOrderByAggregateInput = {
 
 export type BillingScheduleAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   tax_rate?: Prisma.SortOrder
   interval_count?: Prisma.SortOrder
   due_days?: Prisma.SortOrder
@@ -635,6 +660,7 @@ export type BillingScheduleMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   tax_rate?: Prisma.SortOrder
   interval_unit?: Prisma.SortOrder
   interval_count?: Prisma.SortOrder
@@ -656,6 +682,7 @@ export type BillingScheduleMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   tax_rate?: Prisma.SortOrder
   interval_unit?: Prisma.SortOrder
   interval_count?: Prisma.SortOrder
@@ -671,6 +698,7 @@ export type BillingScheduleMinOrderByAggregateInput = {
 
 export type BillingScheduleSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   tax_rate?: Prisma.SortOrder
   interval_count?: Prisma.SortOrder
   due_days?: Prisma.SortOrder
@@ -844,6 +872,7 @@ export type BillingScheduleCreateWithoutWorkspaceInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -867,6 +896,7 @@ export type BillingScheduleUncheckedCreateWithoutWorkspaceInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -918,6 +948,7 @@ export type BillingScheduleScalarWhereInput = {
   title?: Prisma.StringFilter<"BillingSchedule"> | string
   amount?: Prisma.DecimalFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFilter<"BillingSchedule"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFilter<"BillingSchedule"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFilter<"BillingSchedule"> | $Enums.IntervalUnit
   interval_count?: Prisma.IntFilter<"BillingSchedule"> | number
@@ -936,6 +967,7 @@ export type BillingScheduleCreateWithoutCustomerInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -959,6 +991,7 @@ export type BillingScheduleUncheckedCreateWithoutCustomerInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -1004,6 +1037,7 @@ export type BillingScheduleCreateWithoutProjectInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -1027,6 +1061,7 @@ export type BillingScheduleUncheckedCreateWithoutProjectInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -1072,6 +1107,7 @@ export type BillingScheduleCreateWithoutInvoicesInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -1096,6 +1132,7 @@ export type BillingScheduleUncheckedCreateWithoutInvoicesInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -1130,6 +1167,7 @@ export type BillingScheduleUpdateWithoutInvoicesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1154,6 +1192,7 @@ export type BillingScheduleUncheckedUpdateWithoutInvoicesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1174,6 +1213,7 @@ export type BillingScheduleCreateManyWorkspaceInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -1192,6 +1232,7 @@ export type BillingScheduleUpdateWithoutWorkspaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1215,6 +1256,7 @@ export type BillingScheduleUncheckedUpdateWithoutWorkspaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1236,6 +1278,7 @@ export type BillingScheduleUncheckedUpdateManyWithoutWorkspaceInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1256,6 +1299,7 @@ export type BillingScheduleCreateManyCustomerInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -1274,6 +1318,7 @@ export type BillingScheduleUpdateWithoutCustomerInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1297,6 +1342,7 @@ export type BillingScheduleUncheckedUpdateWithoutCustomerInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1318,6 +1364,7 @@ export type BillingScheduleUncheckedUpdateManyWithoutCustomerInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1338,6 +1385,7 @@ export type BillingScheduleCreateManyProjectInput = {
   title: string
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: $Enums.IntervalUnit
   interval_count?: number
@@ -1356,6 +1404,7 @@ export type BillingScheduleUpdateWithoutProjectInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1379,6 +1428,7 @@ export type BillingScheduleUncheckedUpdateWithoutProjectInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1400,6 +1450,7 @@ export type BillingScheduleUncheckedUpdateManyWithoutProjectInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   tax_rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval_unit?: Prisma.EnumIntervalUnitFieldUpdateOperationsInput | $Enums.IntervalUnit
   interval_count?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1452,6 +1503,7 @@ export type BillingScheduleSelect<ExtArgs extends runtime.Types.Extensions.Inter
   title?: boolean
   amount?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   tax_rate?: boolean
   interval_unit?: boolean
   interval_count?: boolean
@@ -1478,6 +1530,7 @@ export type BillingScheduleSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   title?: boolean
   amount?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   tax_rate?: boolean
   interval_unit?: boolean
   interval_count?: boolean
@@ -1502,6 +1555,7 @@ export type BillingScheduleSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   title?: boolean
   amount?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   tax_rate?: boolean
   interval_unit?: boolean
   interval_count?: boolean
@@ -1526,6 +1580,7 @@ export type BillingScheduleSelectScalar = {
   title?: boolean
   amount?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   tax_rate?: boolean
   interval_unit?: boolean
   interval_count?: boolean
@@ -1539,7 +1594,7 @@ export type BillingScheduleSelectScalar = {
   updated_at?: boolean
 }
 
-export type BillingScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "customer_id" | "project_id" | "title" | "amount" | "currency" | "tax_rate" | "interval_unit" | "interval_count" | "starts_on" | "ends_on" | "next_issue_on" | "due_days" | "status" | "last_generated_at" | "created_at" | "updated_at", ExtArgs["result"]["billingSchedule"]>
+export type BillingScheduleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "customer_id" | "project_id" | "title" | "amount" | "currency" | "manual_fx_rate" | "tax_rate" | "interval_unit" | "interval_count" | "starts_on" | "ends_on" | "next_issue_on" | "due_days" | "status" | "last_generated_at" | "created_at" | "updated_at", ExtArgs["result"]["billingSchedule"]>
 export type BillingScheduleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
@@ -1574,6 +1629,10 @@ export type $BillingSchedulePayload<ExtArgs extends runtime.Types.Extensions.Int
     title: string
     amount: runtime.Decimal
     currency: string
+    /**
+     * Elle girilen sabit kur; null ise güncel TCMB günlük kuru kullanılır.
+     */
+    manual_fx_rate: runtime.Decimal | null
     tax_rate: runtime.Decimal
     interval_unit: $Enums.IntervalUnit
     interval_count: number
@@ -2019,6 +2078,7 @@ export interface BillingScheduleFieldRefs {
   readonly title: Prisma.FieldRef<"BillingSchedule", 'String'>
   readonly amount: Prisma.FieldRef<"BillingSchedule", 'Decimal'>
   readonly currency: Prisma.FieldRef<"BillingSchedule", 'String'>
+  readonly manual_fx_rate: Prisma.FieldRef<"BillingSchedule", 'Decimal'>
   readonly tax_rate: Prisma.FieldRef<"BillingSchedule", 'Decimal'>
   readonly interval_unit: Prisma.FieldRef<"BillingSchedule", 'IntervalUnit'>
   readonly interval_count: Prisma.FieldRef<"BillingSchedule", 'Int'>

@@ -9,6 +9,7 @@ import { ListToolbar } from "@/components/list-toolbar";
 import { PaginationBar } from "@/components/pagination-bar";
 import { ProjectsView, type ProjectRow } from "@/components/projeler/projects-view";
 import { PROJECT_STATUS_OPTIONS } from "@/lib/validation/project";
+import { getExchangeRates } from "@/lib/exchange-rate";
 
 export const metadata = { title: "Projeler · Operasyon Merkezi" };
 
@@ -31,7 +32,7 @@ export default async function ProjectsPage({
     ];
   }
 
-  const [projects, total, customers, products, memberships] = await Promise.all([
+  const [projects, total, customers, products, memberships, rates] = await Promise.all([
     db.project.findMany({
       where,
       orderBy: { created_at: "desc" },
@@ -65,6 +66,8 @@ export default async function ProjectsPage({
           include: { user: { select: { id: true, name: true } } },
         })
       : Promise.resolve([]),
+    // Dövizli bütçelerin TL karşılığı için TCMB günlük kuru (erişilemezse null)
+    getExchangeRates(),
   ]);
 
   const rows: ProjectRow[] = projects.map((p) => ({
@@ -76,6 +79,7 @@ export default async function ProjectsPage({
     branch_name: p.branch_name,
     live_url: p.live_url,
     license_count: p._count.licenses,
+    github_repo_full_name: p.github_repo_full_name,
     raw: {
       id: p.id,
       customer_id: p.customer_id,
@@ -89,9 +93,12 @@ export default async function ProjectsPage({
       target_end_date: p.target_end_date ? p.target_end_date.toISOString().slice(0, 10) : "",
       budget: p.budget ? p.budget.toString() : "",
       currency: p.currency,
+      manual_fx_rate: p.manual_fx_rate ? p.manual_fx_rate.toString() : "",
       live_url: p.live_url ?? "",
       admin_url: p.admin_url ?? "",
       repository_url: p.repository_url ?? "",
+      github_repo_id: p.github_repo_id ?? "",
+      github_repo_full_name: p.github_repo_full_name ?? "",
       tech_stack: Array.isArray(p.tech_stack) ? (p.tech_stack as string[]).join(", ") : "",
       notes: p.notes ?? "",
       license_webhook_url: p.license_webhook_url ?? "",
@@ -132,6 +139,7 @@ export default async function ProjectsPage({
         catalog={catalog}
         members={memberOptions}
         branchBases={branchBases}
+        rates={rates}
         canManage={canManage}
         canArchive={canArchive}
       />

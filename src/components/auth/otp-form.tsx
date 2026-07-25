@@ -3,32 +3,48 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { verifyOtpAction, resendOtpAction } from "@/actions/auth";
+import { DoorButton, playDoorSequence, wait, type DoorPhase } from "./door-button";
+import styles from "./lunara.module.css";
 
 export function OtpForm() {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [phase, setPhase] = useState<DoorPhase>("idle");
   const [isResending, startResend] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (phase !== "idle") return;
     setError(null);
+
     const form = new FormData(e.currentTarget);
     const code = String(form.get("code") ?? "");
-    startTransition(async () => {
-      const res = await verifyOtpAction({ code });
-      if (!res.success) {
-        setError(res.error);
-        return;
-      }
-      router.push("/dashboard");
-      router.refresh();
+
+    // İstek ile kapı animasyonu eş zamanlı ilerler; reddi hemen yakalarız.
+    const pending = verifyOtpAction({ code }).catch((err: unknown) => {
+      console.error("Doğrulama isteği başarısız:", err);
+      return null;
     });
+
+    await playDoorSequence(setPhase);
+    const res = await pending;
+
+    if (!res) {
+      setPhase("idle");
+      setError("Sunucuya ulaşılamadı. Lütfen tekrar deneyin.");
+      return;
+    }
+    if (!res.success) {
+      setPhase("idle");
+      setError(res.error);
+      return;
+    }
+
+    setPhase("success");
+    await wait(380);
+    router.push("/dashboard");
+    router.refresh();
   }
 
   function onResend() {
@@ -40,52 +56,55 @@ export function OtpForm() {
     });
   }
 
+  const busy = phase !== "idle";
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="code">Doğrulama Kodu</Label>
-        <Input
+    <form onSubmit={onSubmit} className={styles.form} noValidate>
+      <div className={styles.field}>
+        <input
           id="code"
           name="code"
+          className={`${styles.input} ${styles.otpInput}`}
           inputMode="numeric"
           autoComplete="one-time-code"
           maxLength={6}
+          placeholder=" "
           required
-          placeholder="000000"
-          className="text-center text-2xl font-extrabold tracking-[0.5em]"
+          disabled={busy}
         />
+        <label htmlFor="code" className={styles.label}>
+          Doğrulama kodu
+        </label>
       </div>
 
       {error && (
-        <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <p className={styles.error} role="alert">
           {error}
         </p>
       )}
 
-      <Button
-        type="submit"
-        disabled={isPending}
-        className="w-full bg-[#5267ff] hover:bg-[#4254e1]"
-      >
-        {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Doğrula ve Giriş Yap
-      </Button>
+      <DoorButton phase={phase} label="Doğrula ve Giriş Yap" />
 
-      <div className="flex items-center justify-between text-sm">
+      <p className={styles.status} role="status" aria-live="polite">
+        {phase === "success" ? "Hoş geldiniz!" : busy ? "Doğrulanıyor…" : ""}
+      </p>
+
+      <div className={styles.linkRow}>
         <button
           type="button"
+          className={styles.linkBtn}
           onClick={onResend}
-          disabled={isResending}
-          className="font-medium text-[#5267ff] hover:underline disabled:opacity-50"
+          disabled={isResending || busy}
         >
-          Kodu Yeniden Gönder
+          Kodu yeniden gönder
         </button>
         <button
           type="button"
+          className={`${styles.linkBtn} ${styles.mutedLink}`}
           onClick={() => router.push("/giris")}
-          className="text-muted-foreground hover:underline"
+          disabled={busy}
         >
-          Girişe Dön
+          Girişe dön
         </button>
       </div>
     </form>

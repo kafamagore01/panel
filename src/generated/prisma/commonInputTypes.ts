@@ -536,6 +536,13 @@ export type EnumServerStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumServerStatusFilter<$PrismaModel> | $Enums.ServerStatus
 }
 
+export type EnumCostPeriodFilter<$PrismaModel = never> = {
+  equals?: $Enums.CostPeriod | Prisma.EnumCostPeriodFieldRefInput<$PrismaModel>
+  in?: $Enums.CostPeriod[] | Prisma.ListEnumCostPeriodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CostPeriod[] | Prisma.ListEnumCostPeriodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCostPeriodFilter<$PrismaModel> | $Enums.CostPeriod
+}
+
 export type EnumServerTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ServerType | Prisma.EnumServerTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ServerType[] | Prisma.ListEnumServerTypeFieldRefInput<$PrismaModel>
@@ -570,6 +577,33 @@ export type EnumServerStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumServerStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumServerStatusFilter<$PrismaModel>
+}
+
+export type EnumCostPeriodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CostPeriod | Prisma.EnumCostPeriodFieldRefInput<$PrismaModel>
+  in?: $Enums.CostPeriod[] | Prisma.ListEnumCostPeriodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CostPeriod[] | Prisma.ListEnumCostPeriodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCostPeriodWithAggregatesFilter<$PrismaModel> | $Enums.CostPeriod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCostPeriodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCostPeriodFilter<$PrismaModel>
+}
+
+export type EnumDomainStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.DomainStatus | Prisma.EnumDomainStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DomainStatus[] | Prisma.ListEnumDomainStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DomainStatus[] | Prisma.ListEnumDomainStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDomainStatusFilter<$PrismaModel> | $Enums.DomainStatus
+}
+
+export type EnumDomainStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DomainStatus | Prisma.EnumDomainStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DomainStatus[] | Prisma.ListEnumDomainStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DomainStatus[] | Prisma.ListEnumDomainStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDomainStatusWithAggregatesFilter<$PrismaModel> | $Enums.DomainStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDomainStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDomainStatusFilter<$PrismaModel>
 }
 
 export type DecimalFilter<$PrismaModel = never> = {
@@ -733,6 +767,23 @@ export type EnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPaymentStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPaymentStatusFilter<$PrismaModel>
+}
+
+export type EnumGithubAuthTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.GithubAuthType | Prisma.EnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.GithubAuthType[] | Prisma.ListEnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GithubAuthType[] | Prisma.ListEnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGithubAuthTypeFilter<$PrismaModel> | $Enums.GithubAuthType
+}
+
+export type EnumGithubAuthTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.GithubAuthType | Prisma.EnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.GithubAuthType[] | Prisma.ListEnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GithubAuthType[] | Prisma.ListEnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGithubAuthTypeWithAggregatesFilter<$PrismaModel> | $Enums.GithubAuthType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumGithubAuthTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumGithubAuthTypeFilter<$PrismaModel>
 }
 
 export type EnumWebhookDeliveryStatusFilter<$PrismaModel = never> = {
@@ -1245,6 +1296,13 @@ export type NestedEnumServerStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumServerStatusFilter<$PrismaModel> | $Enums.ServerStatus
 }
 
+export type NestedEnumCostPeriodFilter<$PrismaModel = never> = {
+  equals?: $Enums.CostPeriod | Prisma.EnumCostPeriodFieldRefInput<$PrismaModel>
+  in?: $Enums.CostPeriod[] | Prisma.ListEnumCostPeriodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CostPeriod[] | Prisma.ListEnumCostPeriodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCostPeriodFilter<$PrismaModel> | $Enums.CostPeriod
+}
+
 export type NestedEnumServerTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ServerType | Prisma.EnumServerTypeFieldRefInput<$PrismaModel>
   in?: $Enums.ServerType[] | Prisma.ListEnumServerTypeFieldRefInput<$PrismaModel>
@@ -1290,6 +1348,33 @@ export type NestedEnumServerStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumServerStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumServerStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumCostPeriodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CostPeriod | Prisma.EnumCostPeriodFieldRefInput<$PrismaModel>
+  in?: $Enums.CostPeriod[] | Prisma.ListEnumCostPeriodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CostPeriod[] | Prisma.ListEnumCostPeriodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCostPeriodWithAggregatesFilter<$PrismaModel> | $Enums.CostPeriod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCostPeriodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCostPeriodFilter<$PrismaModel>
+}
+
+export type NestedEnumDomainStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.DomainStatus | Prisma.EnumDomainStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DomainStatus[] | Prisma.ListEnumDomainStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DomainStatus[] | Prisma.ListEnumDomainStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDomainStatusFilter<$PrismaModel> | $Enums.DomainStatus
+}
+
+export type NestedEnumDomainStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.DomainStatus | Prisma.EnumDomainStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.DomainStatus[] | Prisma.ListEnumDomainStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.DomainStatus[] | Prisma.ListEnumDomainStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumDomainStatusWithAggregatesFilter<$PrismaModel> | $Enums.DomainStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumDomainStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumDomainStatusFilter<$PrismaModel>
 }
 
 export type NestedDecimalFilter<$PrismaModel = never> = {
@@ -1426,6 +1511,23 @@ export type NestedEnumPaymentStatusWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPaymentStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPaymentStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumGithubAuthTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.GithubAuthType | Prisma.EnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.GithubAuthType[] | Prisma.ListEnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GithubAuthType[] | Prisma.ListEnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGithubAuthTypeFilter<$PrismaModel> | $Enums.GithubAuthType
+}
+
+export type NestedEnumGithubAuthTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.GithubAuthType | Prisma.EnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.GithubAuthType[] | Prisma.ListEnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GithubAuthType[] | Prisma.ListEnumGithubAuthTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGithubAuthTypeWithAggregatesFilter<$PrismaModel> | $Enums.GithubAuthType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumGithubAuthTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumGithubAuthTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumWebhookDeliveryStatusFilter<$PrismaModel = never> = {

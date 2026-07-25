@@ -16,6 +16,8 @@ const SENSITIVE_KEYS = new Set([
   "license_webhook_secret",
   "two_factor_secret",
   "code_hash",
+  "access_token",
+  "token",
 ]);
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {

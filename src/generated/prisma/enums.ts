@@ -118,6 +118,16 @@ export const LicenseEventType = {
 export type LicenseEventType = (typeof LicenseEventType)[keyof typeof LicenseEventType]
 
 
+export const DomainStatus = {
+  active: 'active',
+  expired: 'expired',
+  transferred: 'transferred',
+  cancelled: 'cancelled'
+} as const
+
+export type DomainStatus = (typeof DomainStatus)[keyof typeof DomainStatus]
+
+
 export const ServerType = {
   vds: 'vds',
   vps: 'vps',
@@ -137,6 +147,14 @@ export const ServerStatus = {
 } as const
 
 export type ServerStatus = (typeof ServerStatus)[keyof typeof ServerStatus]
+
+
+export const CostPeriod = {
+  monthly: 'monthly',
+  yearly: 'yearly'
+} as const
+
+export type CostPeriod = (typeof CostPeriod)[keyof typeof CostPeriod]
 
 
 export const IntervalUnit = {
@@ -193,3 +211,11 @@ export const WebhookDeliveryStatus = {
 } as const
 
 export type WebhookDeliveryStatus = (typeof WebhookDeliveryStatus)[keyof typeof WebhookDeliveryStatus]
+
+
+export const GithubAuthType = {
+  oauth: 'oauth',
+  pat: 'pat'
+} as const
+
+export type GithubAuthType = (typeof GithubAuthType)[keyof typeof GithubAuthType]

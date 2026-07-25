@@ -411,9 +411,11 @@ export const ModelName = {
   LicenseEvent: 'LicenseEvent',
   Server: 'Server',
   ProjectServer: 'ProjectServer',
+  Domain: 'Domain',
   BillingSchedule: 'BillingSchedule',
   Invoice: 'Invoice',
   Payment: 'Payment',
+  GithubConnection: 'GithubConnection',
   WebhookDelivery: 'WebhookDelivery',
   AuditLog: 'AuditLog'
 } as const
@@ -431,7 +433,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "workspace" | "user" | "session" | "workspaceUser" | "otpCode" | "customer" | "product" | "project" | "license" | "licenseDomain" | "licenseActivation" | "licenseEvent" | "server" | "projectServer" | "billingSchedule" | "invoice" | "payment" | "webhookDelivery" | "auditLog"
+    modelProps: "workspace" | "user" | "session" | "workspaceUser" | "otpCode" | "customer" | "product" | "project" | "license" | "licenseDomain" | "licenseActivation" | "licenseEvent" | "server" | "projectServer" | "domain" | "billingSchedule" | "invoice" | "payment" | "githubConnection" | "webhookDelivery" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1471,6 +1473,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Domain: {
+      payload: Prisma.$DomainPayload<ExtArgs>
+      fields: Prisma.DomainFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DomainFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DomainFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>
+        }
+        findFirst: {
+          args: Prisma.DomainFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DomainFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>
+        }
+        findMany: {
+          args: Prisma.DomainFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>[]
+        }
+        create: {
+          args: Prisma.DomainCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>
+        }
+        createMany: {
+          args: Prisma.DomainCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DomainCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>[]
+        }
+        delete: {
+          args: Prisma.DomainDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>
+        }
+        update: {
+          args: Prisma.DomainUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>
+        }
+        deleteMany: {
+          args: Prisma.DomainDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DomainUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DomainUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>[]
+        }
+        upsert: {
+          args: Prisma.DomainUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DomainPayload>
+        }
+        aggregate: {
+          args: Prisma.DomainAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDomain>
+        }
+        groupBy: {
+          args: Prisma.DomainGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DomainGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DomainCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DomainCountAggregateOutputType> | number
+        }
+      }
+    }
     BillingSchedule: {
       payload: Prisma.$BillingSchedulePayload<ExtArgs>
       fields: Prisma.BillingScheduleFieldRefs
@@ -1690,6 +1766,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PaymentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PaymentCountAggregateOutputType> | number
+        }
+      }
+    }
+    GithubConnection: {
+      payload: Prisma.$GithubConnectionPayload<ExtArgs>
+      fields: Prisma.GithubConnectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GithubConnectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GithubConnectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>
+        }
+        findFirst: {
+          args: Prisma.GithubConnectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GithubConnectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>
+        }
+        findMany: {
+          args: Prisma.GithubConnectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>[]
+        }
+        create: {
+          args: Prisma.GithubConnectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>
+        }
+        createMany: {
+          args: Prisma.GithubConnectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GithubConnectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>[]
+        }
+        delete: {
+          args: Prisma.GithubConnectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>
+        }
+        update: {
+          args: Prisma.GithubConnectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.GithubConnectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GithubConnectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GithubConnectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.GithubConnectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GithubConnectionPayload>
+        }
+        aggregate: {
+          args: Prisma.GithubConnectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGithubConnection>
+        }
+        groupBy: {
+          args: Prisma.GithubConnectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GithubConnectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GithubConnectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GithubConnectionCountAggregateOutputType> | number
         }
       }
     }
@@ -2004,9 +2154,12 @@ export const ProjectScalarFieldEnum = {
   live_at: 'live_at',
   budget: 'budget',
   currency: 'currency',
+  manual_fx_rate: 'manual_fx_rate',
   live_url: 'live_url',
   admin_url: 'admin_url',
   repository_url: 'repository_url',
+  github_repo_id: 'github_repo_id',
+  github_repo_full_name: 'github_repo_full_name',
   license_webhook_url: 'license_webhook_url',
   license_webhook_secret: 'license_webhook_secret',
   tech_stack: 'tech_stack',
@@ -2111,7 +2264,9 @@ export const ServerScalarFieldEnum = {
   status: 'status',
   renewal_at: 'renewal_at',
   monthly_cost: 'monthly_cost',
+  cost_period: 'cost_period',
   currency: 'currency',
+  manual_fx_rate: 'manual_fx_rate',
   created_at: 'created_at',
   updated_at: 'updated_at',
   deleted_at: 'deleted_at'
@@ -2134,6 +2289,32 @@ export const ProjectServerScalarFieldEnum = {
 export type ProjectServerScalarFieldEnum = (typeof ProjectServerScalarFieldEnum)[keyof typeof ProjectServerScalarFieldEnum]
 
 
+export const DomainScalarFieldEnum = {
+  id: 'id',
+  workspace_id: 'workspace_id',
+  customer_id: 'customer_id',
+  project_id: 'project_id',
+  name: 'name',
+  normalized_name: 'normalized_name',
+  registrar: 'registrar',
+  registrar_url: 'registrar_url',
+  status: 'status',
+  registered_at: 'registered_at',
+  expires_at: 'expires_at',
+  ssl_expires_at: 'ssl_expires_at',
+  auto_renew: 'auto_renew',
+  nameservers: 'nameservers',
+  annual_cost: 'annual_cost',
+  currency: 'currency',
+  notes: 'notes',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
+} as const
+
+export type DomainScalarFieldEnum = (typeof DomainScalarFieldEnum)[keyof typeof DomainScalarFieldEnum]
+
+
 export const BillingScheduleScalarFieldEnum = {
   id: 'id',
   workspace_id: 'workspace_id',
@@ -2142,6 +2323,7 @@ export const BillingScheduleScalarFieldEnum = {
   title: 'title',
   amount: 'amount',
   currency: 'currency',
+  manual_fx_rate: 'manual_fx_rate',
   tax_rate: 'tax_rate',
   interval_unit: 'interval_unit',
   interval_count: 'interval_count',
@@ -2171,6 +2353,7 @@ export const InvoiceScalarFieldEnum = {
   due_on: 'due_on',
   status: 'status',
   currency: 'currency',
+  manual_fx_rate: 'manual_fx_rate',
   subtotal: 'subtotal',
   tax_total: 'tax_total',
   total: 'total',
@@ -2203,6 +2386,25 @@ export const PaymentScalarFieldEnum = {
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const GithubConnectionScalarFieldEnum = {
+  id: 'id',
+  workspace_id: 'workspace_id',
+  auth_type: 'auth_type',
+  access_token: 'access_token',
+  scopes: 'scopes',
+  account_login: 'account_login',
+  account_name: 'account_name',
+  account_type: 'account_type',
+  account_avatar_url: 'account_avatar_url',
+  connected_by: 'connected_by',
+  last_verified_at: 'last_verified_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type GithubConnectionScalarFieldEnum = (typeof GithubConnectionScalarFieldEnum)[keyof typeof GithubConnectionScalarFieldEnum]
 
 
 export const WebhookDeliveryScalarFieldEnum = {
@@ -2557,6 +2759,34 @@ export type ListEnumServerStatusFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'CostPeriod'
+ */
+export type EnumCostPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CostPeriod'>
+    
+
+
+/**
+ * Reference to a field of type 'CostPeriod[]'
+ */
+export type ListEnumCostPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CostPeriod[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DomainStatus'
+ */
+export type EnumDomainStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DomainStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DomainStatus[]'
+ */
+export type ListEnumDomainStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DomainStatus[]'>
+    
+
+
+/**
  * Reference to a field of type 'IntervalUnit'
  */
 export type EnumIntervalUnitFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IntervalUnit'>
@@ -2623,6 +2853,20 @@ export type EnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'PaymentStatus[]'
  */
 export type ListEnumPaymentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'GithubAuthType'
+ */
+export type EnumGithubAuthTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GithubAuthType'>
+    
+
+
+/**
+ * Reference to a field of type 'GithubAuthType[]'
+ */
+export type ListEnumGithubAuthTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GithubAuthType[]'>
     
 
 
@@ -2818,9 +3062,11 @@ export type GlobalOmitConfig = {
   licenseEvent?: Prisma.LicenseEventOmit
   server?: Prisma.ServerOmit
   projectServer?: Prisma.ProjectServerOmit
+  domain?: Prisma.DomainOmit
   billingSchedule?: Prisma.BillingScheduleOmit
   invoice?: Prisma.InvoiceOmit
   payment?: Prisma.PaymentOmit
+  githubConnection?: Prisma.GithubConnectionOmit
   webhookDelivery?: Prisma.WebhookDeliveryOmit
   auditLog?: Prisma.AuditLogOmit
 }

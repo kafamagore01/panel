@@ -115,9 +115,12 @@ export async function createProject(
           : undefined,
         budget: data.budget ?? undefined,
         currency: data.currency,
+        manual_fx_rate: data.manual_fx_rate ?? undefined,
         live_url: data.live_url,
         admin_url: data.admin_url,
         repository_url: data.repository_url,
+        github_repo_id: data.github_repo_id,
+        github_repo_full_name: data.github_repo_full_name,
         tech_stack: data.tech_stack
           ? data.tech_stack.split(",").map((s) => s.trim()).filter(Boolean)
           : undefined,
@@ -183,9 +186,13 @@ export async function updateProject(
           : null,
         budget: data.budget ?? null,
         currency: data.currency,
+        manual_fx_rate: data.manual_fx_rate ?? null,
         live_url: data.live_url,
         admin_url: data.admin_url,
         repository_url: data.repository_url,
+        // Boş gelirse eşleşme kaldırılmış demektir (null'a çekilir)
+        github_repo_id: data.github_repo_id ?? null,
+        github_repo_full_name: data.github_repo_full_name ?? null,
         tech_stack: data.tech_stack
           ? data.tech_stack.split(",").map((s) => s.trim()).filter(Boolean)
           : undefined,

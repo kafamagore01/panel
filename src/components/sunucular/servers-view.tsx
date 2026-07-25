@@ -24,6 +24,9 @@ import { EmptyState } from "@/components/empty-state";
 import { ServerForm, type ServerFormValues } from "./server-form";
 import { ServerLinkManager, type ServerLink } from "./server-link-manager";
 import type { Option } from "@/components/projeler/project-form";
+import type { ExchangeRates } from "@/lib/exchange-rate";
+import { BASE_CURRENCY, convertWithRate, isForeignCurrency, resolveRate } from "@/lib/currency";
+import { formatMoney } from "@/lib/format";
 import { archiveServer } from "@/actions/servers";
 
 export type ServerRow = {
@@ -38,14 +41,44 @@ export type ServerRow = {
   raw: ServerFormValues;
 };
 
+/** Maliyeti kendi para biriminde, dövizliyse güncel TL karşılığıyla birlikte gösterir. */
+function CostCell({ raw, rates }: { raw: ServerFormValues; rates: ExchangeRates | null }) {
+  const amount = Number(raw.monthly_cost);
+  if (!raw.monthly_cost || !Number.isFinite(amount) || amount <= 0) {
+    return <span className="text-muted-foreground">—</span>;
+  }
+
+  const suffix = raw.cost_period === "yearly" ? "/ yıl" : "/ ay";
+  const manualRate = raw.manual_fx_rate === "" ? null : Number(raw.manual_fx_rate);
+  const resolved = resolveRate(raw.currency, manualRate, rates);
+  const inBase = isForeignCurrency(raw.currency)
+    ? convertWithRate(amount, resolved?.value ?? null)
+    : null;
+
+  return (
+    <div className="tabular-nums">
+      <div className="text-sm">
+        {formatMoney(amount, raw.currency)} <span className="text-muted-foreground">{suffix}</span>
+      </div>
+      {inBase !== null && (
+        <div className="text-xs text-muted-foreground">
+          ≈ {formatMoney(inBase, BASE_CURRENCY)} {suffix}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ServersView({
   servers,
   projects,
+  rates,
   canManage,
   canArchive,
 }: {
   servers: ServerRow[];
   projects: Option[];
+  rates: ExchangeRates | null;
   canManage: boolean;
   canArchive: boolean;
 }) {
@@ -75,6 +108,7 @@ export function ServersView({
                 <TableHead>Tür</TableHead>
                 <TableHead>IP</TableHead>
                 <TableHead>Proje</TableHead>
+                <TableHead>Maliyet</TableHead>
                 <TableHead>Durum</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
@@ -89,6 +123,7 @@ export function ServersView({
                   <TableCell className="text-sm uppercase">{s.type}</TableCell>
                   <TableCell className="font-mono text-xs">{s.primary_ip ?? "—"}</TableCell>
                   <TableCell className="text-sm tabular-nums">{s.project_count}</TableCell>
+                  <TableCell><CostCell raw={s.raw} rates={rates} /></TableCell>
                   <TableCell><StatusBadge status={s.status} /></TableCell>
                   <TableCell>
                     {canManage && (
@@ -142,7 +177,7 @@ export function ServersView({
         title={editing?.id ? "Sunucu Düzenle" : "Yeni Sunucu"}
         description="Sunucu envanter bilgilerini girin."
       >
-        <ServerForm initial={editing} onDone={() => setDrawerOpen(false)} />
+        <ServerForm initial={editing} rates={rates} onDone={() => setDrawerOpen(false)} />
       </FormDrawer>
 
       {linkTarget && (

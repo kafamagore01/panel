@@ -1,20 +1,17 @@
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
+import { prisma } from "@/lib/db/prisma";
 import { NAV_ITEMS } from "@/lib/navigation";
+import { roleLabel } from "@/lib/roles";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { SystemStatus } from "@/components/layout/system-status";
 import { UserMenu } from "@/components/layout/user-menu";
-import { WorkspaceBadge } from "@/components/layout/workspace-badge";
-
-const ROLE_LABELS: Record<string, string> = {
-  owner: "Sahip",
-  admin: "Yönetici",
-  technical: "Teknik",
-  finance: "Finans",
-  viewer: "İzleyici",
-};
+import {
+  WorkspaceBadge,
+  type WorkspaceOption,
+} from "@/components/layout/workspace-badge";
 
 export default async function PanelLayout({
   children,
@@ -47,6 +44,16 @@ export default async function PanelLayout({
     (item) => !item.requires || hasPermission(ctx.role, item.requires)
   );
 
+  // Üst bardaki seçici için kullanıcının geçiş yapabileceği aktif üyelikler
+  const memberships = await prisma.workspaceUser.findMany({
+    where: { user_id: ctx.user.id, status: "active" },
+    include: { workspace: { select: { id: true, name: true, deleted_at: true } } },
+    orderBy: { created_at: "asc" },
+  });
+  const workspaces: WorkspaceOption[] = memberships
+    .filter((m) => !m.workspace.deleted_at)
+    .map((m) => ({ id: m.workspace.id, name: m.workspace.name, role: m.role }));
+
   return (
     <div className="flex min-h-screen bg-[#f4f5f7]">
       <SidebarNav items={visibleItems} workspaceName={ctx.workspaceName ?? ""} />
@@ -55,19 +62,25 @@ export default async function PanelLayout({
         <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-slate-200/80 bg-[#f4f5f7]/80 px-4 py-3 backdrop-blur">
           <div className="flex items-center gap-2">
             <MobileNav items={visibleItems} workspaceName={ctx.workspaceName ?? ""} />
-            <WorkspaceBadge name={ctx.workspaceName ?? ""} />
+            <WorkspaceBadge
+              workspaces={workspaces}
+              currentId={ctx.workspaceId}
+              currentName={ctx.workspaceName ?? ""}
+            />
           </div>
           <div className="flex items-center gap-3">
             <SystemStatus />
             <UserMenu
               name={ctx.user.name}
               email={ctx.user.email}
-              role={ROLE_LABELS[ctx.role] ?? ctx.role}
+              role={roleLabel(ctx.role)}
             />
           </div>
         </header>
 
-        <main className="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="page-transition flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
       </div>
     </div>
   );

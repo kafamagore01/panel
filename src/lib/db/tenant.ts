@@ -23,11 +23,13 @@ const TENANT_MODELS = new Set<string>([
   "Project",
   "License",
   "Server",
+  "Domain",
   "BillingSchedule",
   "Invoice",
   "Payment",
   "WebhookDelivery",
   "AuditLog",
+  "GithubConnection",
 ]);
 
 const SOFT_DELETE_MODELS = new Set<string>([
@@ -35,6 +37,7 @@ const SOFT_DELETE_MODELS = new Set<string>([
   "Product",
   "Project",
   "Server",
+  "Domain",
 ]);
 
 // where'i AND ile birleştirilen operasyonlar (unique olmayan filtreler)

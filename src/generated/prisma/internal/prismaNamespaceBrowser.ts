@@ -65,9 +65,11 @@ export const ModelName = {
   LicenseEvent: 'LicenseEvent',
   Server: 'Server',
   ProjectServer: 'ProjectServer',
+  Domain: 'Domain',
   BillingSchedule: 'BillingSchedule',
   Invoice: 'Invoice',
   Payment: 'Payment',
+  GithubConnection: 'GithubConnection',
   WebhookDelivery: 'WebhookDelivery',
   AuditLog: 'AuditLog'
 } as const
@@ -212,9 +214,12 @@ export const ProjectScalarFieldEnum = {
   live_at: 'live_at',
   budget: 'budget',
   currency: 'currency',
+  manual_fx_rate: 'manual_fx_rate',
   live_url: 'live_url',
   admin_url: 'admin_url',
   repository_url: 'repository_url',
+  github_repo_id: 'github_repo_id',
+  github_repo_full_name: 'github_repo_full_name',
   license_webhook_url: 'license_webhook_url',
   license_webhook_secret: 'license_webhook_secret',
   tech_stack: 'tech_stack',
@@ -319,7 +324,9 @@ export const ServerScalarFieldEnum = {
   status: 'status',
   renewal_at: 'renewal_at',
   monthly_cost: 'monthly_cost',
+  cost_period: 'cost_period',
   currency: 'currency',
+  manual_fx_rate: 'manual_fx_rate',
   created_at: 'created_at',
   updated_at: 'updated_at',
   deleted_at: 'deleted_at'
@@ -342,6 +349,32 @@ export const ProjectServerScalarFieldEnum = {
 export type ProjectServerScalarFieldEnum = (typeof ProjectServerScalarFieldEnum)[keyof typeof ProjectServerScalarFieldEnum]
 
 
+export const DomainScalarFieldEnum = {
+  id: 'id',
+  workspace_id: 'workspace_id',
+  customer_id: 'customer_id',
+  project_id: 'project_id',
+  name: 'name',
+  normalized_name: 'normalized_name',
+  registrar: 'registrar',
+  registrar_url: 'registrar_url',
+  status: 'status',
+  registered_at: 'registered_at',
+  expires_at: 'expires_at',
+  ssl_expires_at: 'ssl_expires_at',
+  auto_renew: 'auto_renew',
+  nameservers: 'nameservers',
+  annual_cost: 'annual_cost',
+  currency: 'currency',
+  notes: 'notes',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
+} as const
+
+export type DomainScalarFieldEnum = (typeof DomainScalarFieldEnum)[keyof typeof DomainScalarFieldEnum]
+
+
 export const BillingScheduleScalarFieldEnum = {
   id: 'id',
   workspace_id: 'workspace_id',
@@ -350,6 +383,7 @@ export const BillingScheduleScalarFieldEnum = {
   title: 'title',
   amount: 'amount',
   currency: 'currency',
+  manual_fx_rate: 'manual_fx_rate',
   tax_rate: 'tax_rate',
   interval_unit: 'interval_unit',
   interval_count: 'interval_count',
@@ -379,6 +413,7 @@ export const InvoiceScalarFieldEnum = {
   due_on: 'due_on',
   status: 'status',
   currency: 'currency',
+  manual_fx_rate: 'manual_fx_rate',
   subtotal: 'subtotal',
   tax_total: 'tax_total',
   total: 'total',
@@ -411,6 +446,25 @@ export const PaymentScalarFieldEnum = {
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const GithubConnectionScalarFieldEnum = {
+  id: 'id',
+  workspace_id: 'workspace_id',
+  auth_type: 'auth_type',
+  access_token: 'access_token',
+  scopes: 'scopes',
+  account_login: 'account_login',
+  account_name: 'account_name',
+  account_type: 'account_type',
+  account_avatar_url: 'account_avatar_url',
+  connected_by: 'connected_by',
+  last_verified_at: 'last_verified_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type GithubConnectionScalarFieldEnum = (typeof GithubConnectionScalarFieldEnum)[keyof typeof GithubConnectionScalarFieldEnum]
 
 
 export const WebhookDeliveryScalarFieldEnum = {

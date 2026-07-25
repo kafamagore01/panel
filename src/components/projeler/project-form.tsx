@@ -16,8 +16,20 @@ import {
 } from "@/components/ui/select";
 import { Field } from "@/components/form-field";
 import { useRouter } from "next/navigation";
+import { RepoPicker } from "@/components/projeler/repo-picker";
+import { RepoStatusPanel } from "@/components/projeler/repo-status";
+import type { RepoOption } from "@/lib/github/repos";
 import { createProject, updateProject } from "@/actions/projects";
 import { PROJECT_STATUS_OPTIONS } from "@/lib/validation/project";
+import {
+  BASE_CURRENCY,
+  convertWithRate,
+  isForeignCurrency,
+  resolveRate,
+  type ExchangeRates,
+} from "@/lib/currency";
+import { CurrencySelect, ExchangeRateField } from "@/components/currency-fields";
+import { formatMoney, formatRate } from "@/lib/format";
 
 export type Option = { id: string; label: string };
 export type ProductOption = Option & {
@@ -38,9 +50,12 @@ export type ProjectFormValues = {
   target_end_date: string;
   budget: string;
   currency: string;
+  manual_fx_rate: string;
   live_url: string;
   admin_url: string;
   repository_url: string;
+  github_repo_id: string;
+  github_repo_full_name: string;
   tech_stack: string;
   notes: string;
   license_webhook_url: string;
@@ -59,9 +74,12 @@ const EMPTY: ProjectFormValues = {
   target_end_date: "",
   budget: "",
   currency: "TRY",
+  manual_fx_rate: "",
   live_url: "",
   admin_url: "",
   repository_url: "",
+  github_repo_id: "",
+  github_repo_full_name: "",
   tech_stack: "",
   notes: "",
   license_webhook_url: "",
@@ -74,6 +92,7 @@ export function ProjectForm({
   products,
   members,
   branchBases,
+  rates,
   onDone,
 }: {
   initial?: Partial<ProjectFormValues>;
@@ -81,6 +100,8 @@ export function ProjectForm({
   products: ProductOption[];
   members: Option[];
   branchBases: Option[];
+  /** TCMB günlük kur bülteni; alınamadıysa null. */
+  rates: ExchangeRates | null;
   onDone: () => void;
 }) {
   const router = useRouter();
@@ -95,6 +116,19 @@ export function ProjectForm({
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
+  /** Para birimi değişince önceki birime ait elle girilmiş kur düşer. */
+  function setCurrency(code: string) {
+    setValues((prev) => ({ ...prev, currency: code, manual_fx_rate: "" }));
+  }
+
+  /** Dövizli bütçelerde TL karşılığı — elle kur girilmemişse günlük TCMB kuru. */
+  const fx = resolveRate(values.currency, Number(values.manual_fx_rate) || null, rates);
+  const budgetAmount = Number(values.budget);
+  const budgetInBase =
+    isForeignCurrency(values.currency) && budgetAmount > 0
+      ? convertWithRate(budgetAmount, fx?.value ?? null)
+      : null;
+
   /** Katalogdan ürün seçilince form alanlarını otomatik doldur. */
   function onProductChange(productId: string) {
     set("product_id", productId);
@@ -107,6 +141,33 @@ export function ProjectForm({
         repository_url: prev.repository_url || product.repository_url || "",
       }));
     }
+  }
+
+  /**
+   * Repo seçilince bağlı alanlar doldurulur. Repo URL her zaman güncellenir
+   * (bağlantının kaynağı odur); ad, branch, açıklama ve dil yalnızca boşsa
+   * yazılır — kullanıcının girdiği değerler ezilmez.
+   */
+  function onRepoSelect(repo: RepoOption) {
+    setValues((prev) => ({
+      ...prev,
+      github_repo_id: repo.id,
+      github_repo_full_name: repo.full_name,
+      repository_url: repo.html_url,
+      name: prev.name || repo.name,
+      branch_name: prev.branch_name || repo.default_branch,
+      description: prev.description || (repo.description ?? ""),
+      tech_stack: prev.tech_stack || (repo.language ?? ""),
+    }));
+  }
+
+  /** Yalnızca GitHub eşleşmesini kaldırır; serbest metin Repo URL korunur. */
+  function onRepoClear() {
+    setValues((prev) => ({
+      ...prev,
+      github_repo_id: "",
+      github_repo_full_name: "",
+    }));
   }
 
   function onSubmit(e: React.FormEvent) {
@@ -221,10 +282,25 @@ export function ProjectForm({
         <Field label="Bütçe" error={errors.budget}>
           <div className="flex gap-2">
             <Input type="number" step="0.01" value={values.budget} onChange={(e) => set("budget", e.target.value)} className="flex-1" />
-            <Input value={values.currency} onChange={(e) => set("currency", e.target.value)} className="w-20" />
+            <CurrencySelect value={values.currency} onChange={setCurrency} className="w-24" />
           </div>
+          {budgetInBase !== null && fx && (
+            <p className="text-xs text-muted-foreground">
+              ≈ {formatMoney(budgetInBase, BASE_CURRENCY)} · 1 {values.currency} ={" "}
+              {formatRate(fx.value)} ₺
+              {fx.source === "manual" ? " (elle girilen kur)" : rates?.date ? ` · TCMB ${rates.date}` : ""}
+            </p>
+          )}
         </Field>
       </div>
+
+      <ExchangeRateField
+        currency={values.currency}
+        value={values.manual_fx_rate}
+        onChange={(v) => set("manual_fx_rate", v)}
+        rates={rates}
+        error={errors.manual_fx_rate}
+      />
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Başlangıç" error={errors.start_date}>
@@ -244,7 +320,34 @@ export function ProjectForm({
         </Field>
       </div>
 
-      <Field label="Repo URL" error={errors.repository_url}>
+      <div className="space-y-3 rounded-xl border border-slate-200 p-3">
+        <div>
+          <p className="text-sm font-semibold text-[#141821]">GitHub Reposu</p>
+          <p className="text-xs text-muted-foreground">
+            Bağlanan repo canlı takip edilir: varsayılan dal, son commit ve açık
+            issue sayısı GitHub&apos;dan anlık okunur.
+          </p>
+        </div>
+
+        <RepoPicker
+          value={values.github_repo_full_name}
+          onSelect={onRepoSelect}
+          onClear={onRepoClear}
+        />
+
+        {values.github_repo_full_name && (
+          <RepoStatusPanel
+            key={values.github_repo_full_name}
+            fullName={values.github_repo_full_name}
+          />
+        )}
+      </div>
+
+      <Field
+        label="Repo URL"
+        error={errors.repository_url}
+        hint="GitHub'dan repo seçtiğinizde otomatik dolar; farklı bir adres de yazabilirsiniz."
+      >
         <Input value={values.repository_url} onChange={(e) => set("repository_url", e.target.value)} />
       </Field>
 

@@ -110,6 +110,8 @@ export async function runBillingCron(): Promise<{
             due_on: dueOn,
             status: "issued",
             currency: schedule.currency,
+            // Plandaki sabit kur varsa faturaya taşınır; yoksa güncel TCMB kuru kullanılır
+            manual_fx_rate: schedule.manual_fx_rate,
             subtotal,
             tax_total,
             total,

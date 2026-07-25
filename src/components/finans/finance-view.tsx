@@ -28,6 +28,7 @@ import { PaymentDialog } from "./payment-dialog";
 import type { Option } from "@/components/projeler/project-form";
 import { voidInvoice, toggleSchedule } from "@/actions/finance";
 import { formatMoney, formatDate } from "@/lib/format";
+import type { ExchangeRates } from "@/lib/currency";
 
 export type InvoiceRow = {
   id: string;
@@ -58,12 +59,15 @@ export function FinanceView({
   schedules,
   customers,
   projects,
+  rates,
   canManage,
 }: {
   invoices: InvoiceRow[];
   schedules: ScheduleRow[];
   customers: Option[];
   projects: Option[];
+  /** TCMB günlük kur bülteni; dövizli tutarların TL karşılığı için. */
+  rates: ExchangeRates | null;
   canManage: boolean;
 }) {
   const [invoiceDrawer, setInvoiceDrawer] = useState(false);
@@ -241,11 +245,11 @@ export function FinanceView({
       </TabsContent>
 
       <FormDrawer open={invoiceDrawer} onOpenChange={setInvoiceDrawer} title="Fatura Oluştur" description="KDV ve müşteri anlık görüntüsü otomatik hesaplanır.">
-        <InvoiceForm customers={customers} projects={projects} onDone={() => setInvoiceDrawer(false)} />
+        <InvoiceForm customers={customers} projects={projects} rates={rates} onDone={() => setInvoiceDrawer(false)} />
       </FormDrawer>
 
       <FormDrawer open={scheduleDrawer} onOpenChange={setScheduleDrawer} title="Yinelenen Plan" description="Otomatik fatura üretimi için periyodik plan tanımlayın.">
-        <ScheduleForm customers={customers} projects={projects} onDone={() => setScheduleDrawer(false)} />
+        <ScheduleForm customers={customers} projects={projects} rates={rates} onDone={() => setScheduleDrawer(false)} />
       </FormDrawer>
 
       {paymentTarget && (

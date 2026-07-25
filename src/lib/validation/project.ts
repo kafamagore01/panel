@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CURRENCY_CODES } from "@/lib/currency";
 
 const optDate = z
   .union([z.string(), z.literal("")])
@@ -53,10 +54,33 @@ export const projectSchema = z
       .refine((v) => v === undefined || (Number.isFinite(v) && v >= 0), {
         message: "Bütçe geçerli bir sayı olmalıdır.",
       }),
-    currency: z.string().trim().default("TRY"),
+    currency: z.enum(CURRENCY_CODES, "Geçersiz para birimi.").default("TRY"),
+    /** Boş bırakılırsa TCMB'nin o günkü kuru kullanılır (her gün tazelenir). */
+    manual_fx_rate: z
+      .union([z.string(), z.number(), z.literal("")])
+      .optional()
+      .transform((v) => (v === "" || v === undefined ? undefined : Number(v)))
+      .refine((v) => v === undefined || (Number.isFinite(v) && v > 0), {
+        message: "Kur sıfırdan büyük olmalıdır.",
+      }),
     live_url: optStr(300),
     admin_url: optStr(300),
     repository_url: optStr(300),
+    // GitHub eşleşmesi (Ayarlar'daki bağlantı üzerinden seçilir)
+    github_repo_id: z
+      .string()
+      .trim()
+      .max(30)
+      .regex(/^\d*$/, "Geçersiz repo kimliği.")
+      .optional()
+      .transform((v) => (v ? v : undefined)),
+    github_repo_full_name: z
+      .union([
+        z.string().trim().regex(/^[\w.-]+\/[\w.-]+$/, "Repo adı owner/repo biçiminde olmalıdır."),
+        z.literal(""),
+      ])
+      .optional()
+      .transform((v) => (v ? v : undefined)),
     tech_stack: optStr(500),
     notes: optStr(2000),
     // Webhook

@@ -15,6 +15,15 @@ import {
 import { Field } from "@/components/form-field";
 import { createServer, updateServer } from "@/actions/servers";
 import { useRouter } from "next/navigation";
+import { COST_PERIOD_OPTIONS } from "@/lib/validation/server";
+import {
+  BASE_CURRENCY,
+  isForeignCurrency,
+  resolveRate,
+  type ExchangeRates,
+} from "@/lib/currency";
+import { CurrencySelect, ExchangeRateField } from "@/components/currency-fields";
+import { formatMoney } from "@/lib/format";
 
 export type ServerFormValues = {
   id?: string;
@@ -35,21 +44,26 @@ export type ServerFormValues = {
   status: string;
   renewal_at: string;
   monthly_cost: string;
+  cost_period: string;
   currency: string;
+  manual_fx_rate: string;
 };
 
 const EMPTY: ServerFormValues = {
   name: "", provider: "", external_ref: "", type: "vps", hostname: "",
   primary_ip: "", region: "", operating_system: "", cpu_cores: "", ram_mb: "",
   disk_gb: "", management_url: "", ssh_port: "22", ssh_user: "", status: "active",
-  renewal_at: "", monthly_cost: "", currency: "TRY",
+  renewal_at: "", monthly_cost: "", cost_period: "monthly", currency: "TRY",
+  manual_fx_rate: "",
 };
 
 export function ServerForm({
   initial,
+  rates,
   onDone,
 }: {
   initial?: Partial<ServerFormValues>;
+  rates: ExchangeRates | null;
   onDone: () => void;
 }) {
   const router = useRouter();
@@ -60,6 +74,26 @@ export function ServerForm({
   function set<K extends keyof ServerFormValues>(key: K, value: ServerFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
+
+  /** Para birimi değişince önceki birime ait elle girilmiş kur düşer. */
+  function setCurrency(code: string) {
+    setValues((prev) => ({ ...prev, currency: code, manual_fx_rate: "" }));
+  }
+
+  const isForeign = isForeignCurrency(values.currency);
+  const isYearly = values.cost_period === "yearly";
+  // Elle kur girilmişse o, girilmemişse günlük TCMB kuru kullanılır.
+  const fx = resolveRate(values.currency, Number(values.manual_fx_rate) || null, rates);
+
+  const amount = Number(values.monthly_cost);
+  /** Girilen tutarın seçilen periyottaki ve karşıt periyottaki TL karşılığı. */
+  const converted =
+    fx && Number.isFinite(amount) && amount > 0
+      ? {
+          primary: amount * fx.value,
+          counterpart: isYearly ? (amount * fx.value) / 12 : amount * fx.value * 12,
+        }
+      : null;
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -158,17 +192,63 @@ export function ServerForm({
         <Input value={values.management_url} onChange={(e) => set("management_url", e.target.value)} />
       </Field>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         <Field label="Yenileme Tarihi" error={errors.renewal_at}>
           <Input type="date" value={values.renewal_at} onChange={(e) => set("renewal_at", e.target.value)} />
         </Field>
-        <Field label="Aylık Maliyet" error={errors.monthly_cost}>
-          <Input type="number" step="0.01" value={values.monthly_cost} onChange={(e) => set("monthly_cost", e.target.value)} />
-        </Field>
-        <Field label="Para Birimi" error={errors.currency}>
-          <Input value={values.currency} onChange={(e) => set("currency", e.target.value)} />
+        <Field label="Maliyet Periyodu" error={errors.cost_period}>
+          <Select value={values.cost_period} onValueChange={(v) => set("cost_period", v)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {COST_PERIOD_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
       </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Field label={isYearly ? "Yıllık Maliyet" : "Aylık Maliyet"} error={errors.monthly_cost}>
+          <Input type="number" step="0.01" min="0" value={values.monthly_cost} onChange={(e) => set("monthly_cost", e.target.value)} />
+        </Field>
+        <Field label="Para Birimi" error={errors.currency}>
+          <CurrencySelect value={values.currency} onChange={setCurrency} />
+        </Field>
+      </div>
+
+      <ExchangeRateField
+        currency={values.currency}
+        value={values.manual_fx_rate}
+        onChange={(v) => set("manual_fx_rate", v)}
+        rates={rates}
+        error={errors.manual_fx_rate}
+      />
+
+      {isForeign && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm">
+          {converted ? (
+            <>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">TL Karşılığı</span>
+                <span className="font-bold tabular-nums text-[#141821]">
+                  ≈ {formatMoney(converted.primary, BASE_CURRENCY)} / {isYearly ? "yıl" : "ay"}
+                </span>
+              </div>
+              <div className="mt-1 flex justify-between text-xs text-muted-foreground">
+                <span>{isYearly ? "Aylık ortalama" : "Yıllık toplam"}</span>
+                <span className="tabular-nums">
+                  ≈ {formatMoney(converted.counterpart, BASE_CURRENCY)}
+                </span>
+              </div>
+            </>
+          ) : (
+            <p className="text-xs text-amber-600">
+              TL karşılığı için tutar ve kur girin.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onDone} disabled={isPending}>Vazgeç</Button>

@@ -112,6 +112,14 @@ export type Server = Prisma.ServerModel
  */
 export type ProjectServer = Prisma.ProjectServerModel
 /**
+ * Model Domain
+ * *
+ *  * Alan adı envanteri. Lisans domainleri (license_domains) ile bağ, ayrı bir FK
+ *  * yerine normalized_name üzerinden doğal anahtarla kurulur — aynı alan adı
+ *  * birden çok lisansta geçebilir ve eşleşme her zaman güncel kalır.
+ */
+export type Domain = Prisma.DomainModel
+/**
  * Model BillingSchedule
  * 
  */
@@ -126,6 +134,14 @@ export type Invoice = Prisma.InvoiceModel
  * 
  */
 export type Payment = Prisma.PaymentModel
+/**
+ * Model GithubConnection
+ * *
+ *  * Çalışma alanı başına tek GitHub bağlantısı. Token AES-256-GCM ile şifreli
+ *  * saklanır (lib/crypto/encryption) ve yalnızca sunucu tarafında çözülür.
+ *  * Repo istatistikleri kalıcı olarak tutulmaz; her okumada canlı çekilir.
+ */
+export type GithubConnection = Prisma.GithubConnectionModel
 /**
  * Model WebhookDelivery
  * 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CURRENCY_CODES } from "@/lib/currency";
 
 export const INVOICE_STATUS_OPTIONS = [
   { value: "issued", label: "Düzenlendi" },
@@ -7,6 +8,15 @@ export const INVOICE_STATUS_OPTIONS = [
   { value: "overdue", label: "Gecikmiş" },
   { value: "void", label: "İptal" },
 ];
+
+/** Elle girilen sabit kur; boşsa TCMB günlük kuru kullanılır. */
+const manualFxRate = z
+  .union([z.string(), z.number(), z.literal("")])
+  .optional()
+  .transform((v) => (v === "" || v === undefined ? undefined : Number(v)))
+  .refine((v) => v === undefined || (Number.isFinite(v) && v > 0), {
+    message: "Kur sıfırdan büyük olmalıdır.",
+  });
 
 const optUuid = z
   .union([z.uuid(), z.literal("")])
@@ -28,7 +38,9 @@ export const invoiceSchema = z.object({
     .refine((v) => Number.isFinite(v) && v >= 0 && v <= 100, {
       message: "KDV oranı 0-100 arasında olmalıdır.",
     }),
-  currency: z.string().trim().default("TRY"),
+  currency: z.enum(CURRENCY_CODES, "Geçersiz para birimi.").default("TRY"),
+  /** Boş bırakılırsa TCMB'nin o günkü kuru kullanılır (her gün tazelenir). */
+  manual_fx_rate: manualFxRate,
   issued_on: z.string().min(1, "Düzenleme tarihi zorunludur."),
   due_days: z
     .union([z.string(), z.number(), z.literal("")])
@@ -70,7 +82,9 @@ export const scheduleSchema = z.object({
     .union([z.string(), z.number(), z.literal("")])
     .optional()
     .transform((v) => (v === "" || v === undefined ? 20 : Number(v))),
-  currency: z.string().trim().default("TRY"),
+  currency: z.enum(CURRENCY_CODES, "Geçersiz para birimi.").default("TRY"),
+  /** Boş bırakılırsa TCMB'nin o günkü kuru kullanılır (her gün tazelenir). */
+  manual_fx_rate: manualFxRate,
   interval_unit: z.enum(["month", "year"]).default("month"),
   interval_count: z
     .union([z.string(), z.number(), z.literal("")])

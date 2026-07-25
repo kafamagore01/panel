@@ -43,14 +43,7 @@ import {
   switchWorkspace,
 } from "@/actions/team";
 import { useRouter } from "next/navigation";
-
-const ROLE_LABELS: Record<string, string> = {
-  owner: "Sahip",
-  admin: "Yönetici",
-  technical: "Teknik",
-  finance: "Finans",
-  viewer: "İzleyici",
-};
+import { roleLabel } from "@/lib/roles";
 
 export type WorkspaceItem = { id: string; name: string; role: string; active: boolean };
 export type MemberItem = {
@@ -119,7 +112,7 @@ export function TeamView({
   return (
     <div className="space-y-6">
       {/* Çalışma alanları */}
-      <div className="rounded-[22px] border border-slate-200/80 bg-white p-5 shadow-sm">
+      <div className="rounded-[18px] border border-slate-200/80 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-extrabold text-[#141821]">Çalışma Alanları</h2>
           <Button variant="outline" size="sm" onClick={() => setWsOpen(true)}>
@@ -132,7 +125,7 @@ export function TeamView({
             <button
               key={ws.id}
               onClick={() => ws.id !== currentWorkspaceId && onSwitch(ws.id)}
-              className={`flex items-center justify-between rounded-xl border p-3 text-left transition-colors ${
+              className={`flex items-center justify-between rounded-[12px] border p-3 text-left transition-colors ${
                 ws.id === currentWorkspaceId
                   ? "border-[#5267ff] bg-[#5267ff]/5"
                   : "border-slate-200 hover:border-[#5267ff]/40"
@@ -140,7 +133,7 @@ export function TeamView({
             >
               <div>
                 <p className="text-sm font-semibold text-[#141821]">{ws.name}</p>
-                <p className="text-xs text-muted-foreground">{ROLE_LABELS[ws.role] ?? ws.role}</p>
+                <p className="text-xs text-muted-foreground">{roleLabel(ws.role)}</p>
               </div>
               {ws.id === currentWorkspaceId && <Check className="h-4 w-4 text-[#5267ff]" />}
             </button>
@@ -149,7 +142,7 @@ export function TeamView({
       </div>
 
       {/* Üyeler */}
-      <div className="rounded-[22px] border border-slate-200/80 bg-white shadow-sm">
+      <div className="rounded-[18px] border border-slate-200/80 bg-white shadow-sm">
         <div className="flex items-center justify-between p-5">
           <h2 className="font-extrabold text-[#141821]">Ekip Üyeleri</h2>
           {canManage && (
@@ -185,12 +178,12 @@ export function TeamView({
                         <SelectTrigger className="h-8 w-36"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {assignableRoles.map((r) => (
-                            <SelectItem key={r} value={r}>{ROLE_LABELS[r] ?? r}</SelectItem>
+                            <SelectItem key={r} value={r}>{roleLabel(r)}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     ) : (
-                      <span className="text-sm">{ROLE_LABELS[m.role] ?? m.role}</span>
+                      <span className="text-sm">{roleLabel(m.role)}</span>
                     )}
                   </TableCell>
                   <TableCell><StatusBadge status={m.status} /></TableCell>
@@ -277,7 +270,7 @@ function InviteDrawer({
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               {assignableRoles.map((r) => (
-                <SelectItem key={r} value={r}>{ROLE_LABELS[r] ?? r}</SelectItem>
+                <SelectItem key={r} value={r}>{roleLabel(r)}</SelectItem>
               ))}
             </SelectContent>
           </Select>

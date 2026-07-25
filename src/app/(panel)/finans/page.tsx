@@ -10,6 +10,7 @@ import {
   type ScheduleRow,
 } from "@/components/finans/finance-view";
 import { formatMoney, toNumber } from "@/lib/format";
+import { getExchangeRates } from "@/lib/exchange-rate";
 
 export const metadata = { title: "Finans · Operasyon Merkezi" };
 
@@ -23,7 +24,7 @@ export default async function FinancePage() {
 
   const db = await getTenantDb();
 
-  const [invoices, schedules, customers, projects, outstanding, overdueCount] =
+  const [invoices, schedules, customers, projects, outstanding, overdueCount, rates] =
     await Promise.all([
       db.invoice.findMany({
         orderBy: { created_at: "desc" },
@@ -50,6 +51,8 @@ export default async function FinancePage() {
         where: { status: { in: ["issued", "partial", "overdue"] } },
       }),
       db.invoice.count({ where: { status: "overdue" } }),
+      // Dövizli tutarların TL karşılığı için TCMB günlük kuru (erişilemezse null)
+      getExchangeRates(),
     ]);
 
   const invoiceRows: InvoiceRow[] = invoices.map((i) => ({
@@ -94,6 +97,7 @@ export default async function FinancePage() {
         schedules={scheduleRows}
         customers={customerOptions}
         projects={projectOptions}
+        rates={rates}
         canManage={canManage}
       />
     </div>

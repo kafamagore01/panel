@@ -32,6 +32,7 @@ export type ServerAvgAggregateOutputType = {
   disk_gb: number | null
   ssh_port: number | null
   monthly_cost: runtime.Decimal | null
+  manual_fx_rate: runtime.Decimal | null
 }
 
 export type ServerSumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type ServerSumAggregateOutputType = {
   disk_gb: number | null
   ssh_port: number | null
   monthly_cost: runtime.Decimal | null
+  manual_fx_rate: runtime.Decimal | null
 }
 
 export type ServerMinAggregateOutputType = {
@@ -62,7 +64,9 @@ export type ServerMinAggregateOutputType = {
   status: $Enums.ServerStatus | null
   renewal_at: Date | null
   monthly_cost: runtime.Decimal | null
+  cost_period: $Enums.CostPeriod | null
   currency: string | null
+  manual_fx_rate: runtime.Decimal | null
   created_at: Date | null
   updated_at: Date | null
   deleted_at: Date | null
@@ -88,7 +92,9 @@ export type ServerMaxAggregateOutputType = {
   status: $Enums.ServerStatus | null
   renewal_at: Date | null
   monthly_cost: runtime.Decimal | null
+  cost_period: $Enums.CostPeriod | null
   currency: string | null
+  manual_fx_rate: runtime.Decimal | null
   created_at: Date | null
   updated_at: Date | null
   deleted_at: Date | null
@@ -114,7 +120,9 @@ export type ServerCountAggregateOutputType = {
   status: number
   renewal_at: number
   monthly_cost: number
+  cost_period: number
   currency: number
+  manual_fx_rate: number
   created_at: number
   updated_at: number
   deleted_at: number
@@ -128,6 +136,7 @@ export type ServerAvgAggregateInputType = {
   disk_gb?: true
   ssh_port?: true
   monthly_cost?: true
+  manual_fx_rate?: true
 }
 
 export type ServerSumAggregateInputType = {
@@ -136,6 +145,7 @@ export type ServerSumAggregateInputType = {
   disk_gb?: true
   ssh_port?: true
   monthly_cost?: true
+  manual_fx_rate?: true
 }
 
 export type ServerMinAggregateInputType = {
@@ -158,7 +168,9 @@ export type ServerMinAggregateInputType = {
   status?: true
   renewal_at?: true
   monthly_cost?: true
+  cost_period?: true
   currency?: true
+  manual_fx_rate?: true
   created_at?: true
   updated_at?: true
   deleted_at?: true
@@ -184,7 +196,9 @@ export type ServerMaxAggregateInputType = {
   status?: true
   renewal_at?: true
   monthly_cost?: true
+  cost_period?: true
   currency?: true
+  manual_fx_rate?: true
   created_at?: true
   updated_at?: true
   deleted_at?: true
@@ -210,7 +224,9 @@ export type ServerCountAggregateInputType = {
   status?: true
   renewal_at?: true
   monthly_cost?: true
+  cost_period?: true
   currency?: true
+  manual_fx_rate?: true
   created_at?: true
   updated_at?: true
   deleted_at?: true
@@ -323,7 +339,9 @@ export type ServerGroupByOutputType = {
   status: $Enums.ServerStatus
   renewal_at: Date | null
   monthly_cost: runtime.Decimal | null
+  cost_period: $Enums.CostPeriod
   currency: string
+  manual_fx_rate: runtime.Decimal | null
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
@@ -372,7 +390,9 @@ export type ServerWhereInput = {
   status?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   renewal_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   monthly_cost?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFilter<"Server"> | $Enums.CostPeriod
   currency?: Prisma.StringFilter<"Server"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFilter<"Server"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Server"> | Date | string
   deleted_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
@@ -400,7 +420,9 @@ export type ServerOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrderInput | Prisma.SortOrder
   monthly_cost?: Prisma.SortOrderInput | Prisma.SortOrder
+  cost_period?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   deleted_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -431,7 +453,9 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   renewal_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   monthly_cost?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFilter<"Server"> | $Enums.CostPeriod
   currency?: Prisma.StringFilter<"Server"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFilter<"Server"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Server"> | Date | string
   deleted_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
@@ -459,7 +483,9 @@ export type ServerOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrderInput | Prisma.SortOrder
   monthly_cost?: Prisma.SortOrderInput | Prisma.SortOrder
+  cost_period?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   deleted_at?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -493,7 +519,9 @@ export type ServerScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumServerStatusWithAggregatesFilter<"Server"> | $Enums.ServerStatus
   renewal_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Server"> | Date | string | null
   monthly_cost?: Prisma.DecimalNullableWithAggregatesFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodWithAggregatesFilter<"Server"> | $Enums.CostPeriod
   currency?: Prisma.StringWithAggregatesFilter<"Server"> | string
+  manual_fx_rate?: Prisma.DecimalNullableWithAggregatesFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeWithAggregatesFilter<"Server"> | Date | string
   updated_at?: Prisma.DateTimeWithAggregatesFilter<"Server"> | Date | string
   deleted_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Server"> | Date | string | null
@@ -518,7 +546,9 @@ export type ServerCreateInput = {
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: $Enums.CostPeriod
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
@@ -546,7 +576,9 @@ export type ServerUncheckedCreateInput = {
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: $Enums.CostPeriod
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
@@ -572,7 +604,9 @@ export type ServerUpdateInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -600,7 +634,9 @@ export type ServerUncheckedUpdateInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -627,7 +663,9 @@ export type ServerCreateManyInput = {
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: $Enums.CostPeriod
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
@@ -652,7 +690,9 @@ export type ServerUpdateManyMutationInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -678,7 +718,9 @@ export type ServerUncheckedUpdateManyInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -714,7 +756,9 @@ export type ServerCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrder
   monthly_cost?: Prisma.SortOrder
+  cost_period?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   deleted_at?: Prisma.SortOrder
@@ -726,6 +770,7 @@ export type ServerAvgOrderByAggregateInput = {
   disk_gb?: Prisma.SortOrder
   ssh_port?: Prisma.SortOrder
   monthly_cost?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
 }
 
 export type ServerMaxOrderByAggregateInput = {
@@ -748,7 +793,9 @@ export type ServerMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrder
   monthly_cost?: Prisma.SortOrder
+  cost_period?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   deleted_at?: Prisma.SortOrder
@@ -774,7 +821,9 @@ export type ServerMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrder
   monthly_cost?: Prisma.SortOrder
+  cost_period?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   deleted_at?: Prisma.SortOrder
@@ -786,6 +835,7 @@ export type ServerSumOrderByAggregateInput = {
   disk_gb?: Prisma.SortOrder
   ssh_port?: Prisma.SortOrder
   monthly_cost?: Prisma.SortOrder
+  manual_fx_rate?: Prisma.SortOrder
 }
 
 export type ServerScalarRelationFilter = {
@@ -851,6 +901,10 @@ export type EnumServerStatusFieldUpdateOperationsInput = {
   set?: $Enums.ServerStatus
 }
 
+export type EnumCostPeriodFieldUpdateOperationsInput = {
+  set?: $Enums.CostPeriod
+}
+
 export type ServerCreateNestedOneWithoutProject_linksInput = {
   create?: Prisma.XOR<Prisma.ServerCreateWithoutProject_linksInput, Prisma.ServerUncheckedCreateWithoutProject_linksInput>
   connectOrCreate?: Prisma.ServerCreateOrConnectWithoutProject_linksInput
@@ -884,7 +938,9 @@ export type ServerCreateWithoutWorkspaceInput = {
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: $Enums.CostPeriod
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
@@ -910,7 +966,9 @@ export type ServerUncheckedCreateWithoutWorkspaceInput = {
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: $Enums.CostPeriod
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
@@ -966,7 +1024,9 @@ export type ServerScalarWhereInput = {
   status?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   renewal_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   monthly_cost?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFilter<"Server"> | $Enums.CostPeriod
   currency?: Prisma.StringFilter<"Server"> | string
+  manual_fx_rate?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFilter<"Server"> | Date | string
   updated_at?: Prisma.DateTimeFilter<"Server"> | Date | string
   deleted_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
@@ -991,7 +1051,9 @@ export type ServerCreateWithoutProject_linksInput = {
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: $Enums.CostPeriod
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
@@ -1018,7 +1080,9 @@ export type ServerUncheckedCreateWithoutProject_linksInput = {
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: $Enums.CostPeriod
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
@@ -1059,7 +1123,9 @@ export type ServerUpdateWithoutProject_linksInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1086,7 +1152,9 @@ export type ServerUncheckedUpdateWithoutProject_linksInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1111,7 +1179,9 @@ export type ServerCreateManyWorkspaceInput = {
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: $Enums.CostPeriod
   currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
@@ -1136,7 +1206,9 @@ export type ServerUpdateWithoutWorkspaceInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1162,7 +1234,9 @@ export type ServerUncheckedUpdateWithoutWorkspaceInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1188,7 +1262,9 @@ export type ServerUncheckedUpdateManyWithoutWorkspaceInput = {
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  cost_period?: Prisma.EnumCostPeriodFieldUpdateOperationsInput | $Enums.CostPeriod
   currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1245,7 +1321,9 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   status?: boolean
   renewal_at?: boolean
   monthly_cost?: boolean
+  cost_period?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   created_at?: boolean
   updated_at?: boolean
   deleted_at?: boolean
@@ -1274,7 +1352,9 @@ export type ServerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   status?: boolean
   renewal_at?: boolean
   monthly_cost?: boolean
+  cost_period?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   created_at?: boolean
   updated_at?: boolean
   deleted_at?: boolean
@@ -1301,7 +1381,9 @@ export type ServerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   status?: boolean
   renewal_at?: boolean
   monthly_cost?: boolean
+  cost_period?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   created_at?: boolean
   updated_at?: boolean
   deleted_at?: boolean
@@ -1328,13 +1410,15 @@ export type ServerSelectScalar = {
   status?: boolean
   renewal_at?: boolean
   monthly_cost?: boolean
+  cost_period?: boolean
   currency?: boolean
+  manual_fx_rate?: boolean
   created_at?: boolean
   updated_at?: boolean
   deleted_at?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "provider" | "external_ref" | "name" | "type" | "hostname" | "primary_ip" | "region" | "operating_system" | "cpu_cores" | "ram_mb" | "disk_gb" | "management_url" | "ssh_port" | "ssh_user" | "status" | "renewal_at" | "monthly_cost" | "currency" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "provider" | "external_ref" | "name" | "type" | "hostname" | "primary_ip" | "region" | "operating_system" | "cpu_cores" | "ram_mb" | "disk_gb" | "management_url" | "ssh_port" | "ssh_user" | "status" | "renewal_at" | "monthly_cost" | "cost_period" | "currency" | "manual_fx_rate" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   project_links?: boolean | Prisma.Server$project_linksArgs<ExtArgs>
@@ -1373,7 +1457,12 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     status: $Enums.ServerStatus
     renewal_at: Date | null
     monthly_cost: runtime.Decimal | null
+    cost_period: $Enums.CostPeriod
     currency: string
+    /**
+     * Elle girilen sabit kur; null ise güncel TCMB günlük kuru kullanılır.
+     */
+    manual_fx_rate: runtime.Decimal | null
     created_at: Date
     updated_at: Date
     deleted_at: Date | null
@@ -1821,7 +1910,9 @@ export interface ServerFieldRefs {
   readonly status: Prisma.FieldRef<"Server", 'ServerStatus'>
   readonly renewal_at: Prisma.FieldRef<"Server", 'DateTime'>
   readonly monthly_cost: Prisma.FieldRef<"Server", 'Decimal'>
+  readonly cost_period: Prisma.FieldRef<"Server", 'CostPeriod'>
   readonly currency: Prisma.FieldRef<"Server", 'String'>
+  readonly manual_fx_rate: Prisma.FieldRef<"Server", 'Decimal'>
   readonly created_at: Prisma.FieldRef<"Server", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"Server", 'DateTime'>
   readonly deleted_at: Prisma.FieldRef<"Server", 'DateTime'>

@@ -32,7 +32,10 @@ function buildData(data: ServerData) {
     status: data.status,
     renewal_at: data.renewal_at ? new Date(data.renewal_at) : null,
     monthly_cost: data.monthly_cost ?? null,
+    cost_period: data.cost_period,
     currency: data.currency,
+    // TL kayıtlarda kur tutmanın anlamı yok.
+    manual_fx_rate: data.currency === "TRY" ? null : data.manual_fx_rate ?? null,
   };
 }
 

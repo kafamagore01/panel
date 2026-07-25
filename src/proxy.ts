@@ -29,7 +29,8 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
     "default-src 'self'",
     `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    // GitHub bağlantısında hesap avatarı gösterilir
+    "img-src 'self' data: blob: https://avatars.githubusercontent.com",
     "font-src 'self' data:",
     "connect-src 'self'",
     "frame-ancestors 'none'",

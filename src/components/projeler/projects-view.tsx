@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, MoreHorizontal, Pencil, Archive, ExternalLink, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { FormDrawer } from "@/components/form-drawer";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
+import type { ExchangeRates } from "@/lib/currency";
 import {
   ProjectForm,
   type ProjectFormValues,
@@ -29,7 +30,10 @@ import {
   type ProductOption,
 } from "./project-form";
 import { ProductCatalog, type CatalogProduct } from "./product-catalog";
+import { RepoCell } from "./repo-cell";
 import { archiveProject } from "@/actions/projects";
+import { fetchRepoSnapshots } from "@/actions/github";
+import type { SnapshotResult } from "@/lib/github/repos";
 
 export type ProjectRow = {
   id: string;
@@ -40,6 +44,7 @@ export type ProjectRow = {
   branch_name: string | null;
   live_url: string | null;
   license_count: number;
+  github_repo_full_name: string | null;
   raw: ProjectFormValues;
 };
 
@@ -50,6 +55,7 @@ export function ProjectsView({
   catalog,
   members,
   branchBases,
+  rates,
   canManage,
   canArchive,
 }: {
@@ -59,12 +65,15 @@ export function ProjectsView({
   catalog: CatalogProduct[];
   members: Option[];
   branchBases: Option[];
+  /** TCMB günlük kur bülteni; dövizli bütçelerin TL karşılığı için. */
+  rates: ExchangeRates | null;
   canManage: boolean;
   canArchive: boolean;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [editing, setEditing] = useState<ProjectFormValues | undefined>();
+  const snapshots = useRepoSnapshots(projects);
 
   function openNew() {
     setEditing(undefined);
@@ -100,6 +109,7 @@ export function ProjectsView({
                 <TableHead>Kod</TableHead>
                 <TableHead>Proje</TableHead>
                 <TableHead>Müşteri</TableHead>
+                <TableHead>GitHub</TableHead>
                 <TableHead>Lisans</TableHead>
                 <TableHead>Durum</TableHead>
                 <TableHead className="w-12"></TableHead>
@@ -123,6 +133,16 @@ export function ProjectsView({
                     )}
                   </TableCell>
                   <TableCell className="text-sm">{p.customer_name}</TableCell>
+                  <TableCell>
+                    <RepoCell
+                      fullName={p.github_repo_full_name}
+                      result={
+                        p.github_repo_full_name
+                          ? snapshots[p.github_repo_full_name]
+                          : undefined
+                      }
+                    />
+                  </TableCell>
                   <TableCell className="text-sm tabular-nums">{p.license_count}</TableCell>
                   <TableCell><StatusBadge status={p.status} /></TableCell>
                   <TableCell>
@@ -181,6 +201,7 @@ export function ProjectsView({
           products={products}
           members={members}
           branchBases={branchBases}
+          rates={rates}
           onDone={() => setDrawerOpen(false)}
         />
       </FormDrawer>
@@ -188,4 +209,44 @@ export function ProjectsView({
       <ProductCatalog open={catalogOpen} onOpenChange={setCatalogOpen} products={catalog} />
     </>
   );
+}
+
+/**
+ * Sayfadaki bağlı repoların canlı durumunu tek server action çağrısında çeker.
+ * Sayfanın ilk render'ı GitHub'ı beklemez; hücreler veri gelince dolar.
+ */
+function useRepoSnapshots(projects: ProjectRow[]): Record<string, SnapshotResult> {
+  const [snapshots, setSnapshots] = useState<Record<string, SnapshotResult>>({});
+
+  // Dizi kimliği her render'da değiştiği için bağımlılık sabit bir anahtar.
+  const key = [
+    ...new Set(projects.map((p) => p.github_repo_full_name).filter(Boolean)),
+  ]
+    .sort()
+    .join(",");
+
+  useEffect(() => {
+    if (!key) return;
+    let active = true;
+    const names = key.split(",");
+
+    fetchRepoSnapshots(names).then((res) => {
+      if (!active) return;
+      const data = res.success ? res.data : {};
+      // Yanıtta karşılığı olmayan repolar için de bir sonuç yazılır; aksi halde
+      // hücre kalıcı olarak yükleniyor görünümünde kalırdı.
+      const fallback = res.success ? "Repo bilgisi alınamadı." : res.error;
+      setSnapshots(
+        Object.fromEntries(
+          names.map((name) => [name, data[name] ?? { ok: false, error: fallback }])
+        )
+      );
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [key]);
+
+  return snapshots;
 }

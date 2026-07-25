@@ -2,10 +2,9 @@ import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { PageHeader } from "@/components/page-header";
-import { DeployButton } from "@/components/sistem/deploy-button";
 import { Package, GitBranch } from "lucide-react";
 
-export const metadata = { title: "Sistem Güncelleme · Operasyon Merkezi" };
+export const metadata = { title: "Sistem Özellikleri · Operasyon Merkezi" };
 
 export default async function SystemUpdatePage() {
   const ctx = await getAuthContext();
@@ -14,12 +13,11 @@ export default async function SystemUpdatePage() {
   }
 
   const version = process.env.APP_VERSION ?? "1.0.0";
-  const deployConfigured = Boolean(process.env.DEPLOY_HOOK_URL);
   const nodeVersion = process.version;
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Sistem Güncelleme" description="Sürüm bilgisi ve manuel deployment yönetimi (yalnızca Owner)." />
+      <PageHeader title="Sistem Özellikleri" description="Sürüm bilgisi ve çalışma ortamı (yalnızca Owner)." />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-[22px] border border-slate-200/80 bg-white p-6 shadow-sm">
@@ -44,17 +42,6 @@ export default async function SystemUpdatePage() {
               <p className="text-xl font-extrabold text-[#141821]">Node {nodeVersion}</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="rounded-[22px] border border-slate-200/80 bg-white p-6 shadow-sm">
-        <h2 className="font-extrabold text-[#141821]">Manuel Deployment</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Yapılandırılmış deployment kancasını tetikleyerek uygulamayı yeniden dağıtın.
-          {!deployConfigured && " (DEPLOY_HOOK_URL yapılandırılmamış.)"}
-        </p>
-        <div className="mt-4">
-          <DeployButton configured={deployConfigured} />
         </div>
       </div>
     </div>
