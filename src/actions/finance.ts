@@ -46,15 +46,27 @@ export async function createInvoice(
     const data = parsed.data;
 
     const db = await getTenantDb();
-    const customer = await db.customer.findUnique({ where: { id: data.customer_id } });
+    const [customer, project] = await Promise.all([
+      db.customer.findUnique({ where: { id: data.customer_id } }),
+      data.project_id
+        ? db.project.findUnique({
+            where: { id: data.project_id },
+            select: { customer_id: true },
+          })
+        : Promise.resolve(null),
+    ]);
     if (!customer) return fail("Müşteri bulunamadı.");
+    if (data.project_id && !project) return fail("Proje bulunamadı.");
+    if (project && project.customer_id !== data.customer_id) {
+      return fail("Seçilen proje müşteriye ait değil.");
+    }
 
     const { subtotal, tax_total, total } = computeInvoiceTotals(
       data.subtotal,
       data.tax_rate
     );
     const issuedOn = new Date(data.issued_on);
-    const dueOn = new Date(issuedOn.getTime() + data.due_days * 24 * 60 * 60 * 1000);
+    const dueOn = new Date(data.payment_on);
     const invoice_no = await generateInvoiceNo(ctx.workspaceId);
 
     const created = await db.invoice.create({
@@ -92,6 +104,131 @@ export async function createInvoice(
 
     revalidatePath("/finans");
     return ok({ id: created.id, invoice_no }, `Fatura oluşturuldu: ${invoice_no}`);
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+/** Ödeme alınmamış düzenlenmiş/gecikmiş faturanın alanlarını günceller. */
+export async function updateInvoice(
+  id: string,
+  input: unknown
+): Promise<ActionResponse<{ id: string; invoice_no: string }>> {
+  try {
+    const ctx = await requirePermission("finance.manage");
+    const parsed = invoiceSchema.safeParse(input);
+    if (!parsed.success) return zodFail(parsed.error);
+    const data = parsed.data;
+
+    const db = await getTenantDb();
+    const [invoice, customer, project] = await Promise.all([
+      db.invoice.findUnique({ where: { id } }),
+      db.customer.findUnique({ where: { id: data.customer_id } }),
+      data.project_id
+        ? db.project.findUnique({
+            where: { id: data.project_id },
+            select: { customer_id: true },
+          })
+        : Promise.resolve(null),
+    ]);
+
+    if (!invoice) return fail("Fatura bulunamadı.");
+    if (!customer) return fail("Müşteri bulunamadı.");
+    if (data.project_id && !project) return fail("Proje bulunamadı.");
+    if (project && project.customer_id !== data.customer_id) {
+      return fail("Seçilen proje müşteriye ait değil.");
+    }
+    if (!["issued", "overdue"].includes(invoice.status)) {
+      return fail("Yalnızca düzenlenmiş veya gecikmiş faturalar değiştirilebilir.");
+    }
+    if (Number(invoice.paid_total) > 0) {
+      return fail("Ödeme alınmış faturalar değiştirilemez.");
+    }
+
+    const { subtotal, tax_total, total } = computeInvoiceTotals(
+      data.subtotal,
+      data.tax_rate
+    );
+    const issuedOn = new Date(data.issued_on);
+    const dueOn = new Date(data.payment_on);
+    const today = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Istanbul",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
+    const status = data.payment_on < today ? "overdue" : "issued";
+
+    // updateMany koşulları, eşzamanlı bir ödeme kaydı oluşursa düzenlemeyi güvenle durdurur.
+    const updated = await db.invoice.updateMany({
+      where: {
+        id,
+        status: { in: ["issued", "overdue"] },
+        paid_total: 0,
+      },
+      data: {
+        customer_id: data.customer_id,
+        project_id: data.project_id ?? null,
+        issued_on: issuedOn,
+        due_on: dueOn,
+        period_start: data.period_start ? new Date(data.period_start) : null,
+        period_end: data.period_end ? new Date(data.period_end) : null,
+        status,
+        currency: data.currency,
+        manual_fx_rate: data.manual_fx_rate ?? null,
+        subtotal,
+        tax_total,
+        total,
+        balance_due: total,
+        description: data.description ?? null,
+        notes: data.notes ?? null,
+        customer_snapshot: buildCustomerSnapshot(customer),
+      },
+    });
+
+    if (updated.count !== 1) {
+      return fail("Fatura bu sırada değişti veya ödeme aldı. Sayfayı yenileyip tekrar deneyin.");
+    }
+
+    await writeAudit({
+      workspace_id: ctx.workspaceId,
+      actor_user_id: ctx.user.id,
+      action: "UPDATE",
+      auditable_type: "invoice",
+      auditable_id: id,
+      before_data: {
+        customer_id: invoice.customer_id,
+        project_id: invoice.project_id,
+        issued_on: invoice.issued_on,
+        due_on: invoice.due_on,
+        status: invoice.status,
+        currency: invoice.currency,
+        subtotal: Number(invoice.subtotal),
+        tax_total: Number(invoice.tax_total),
+        total: Number(invoice.total),
+        description: invoice.description,
+        notes: invoice.notes,
+      },
+      after_data: {
+        customer_id: data.customer_id,
+        project_id: data.project_id ?? null,
+        issued_on: issuedOn,
+        due_on: dueOn,
+        status,
+        currency: data.currency,
+        subtotal,
+        tax_total,
+        total,
+        description: data.description ?? null,
+        notes: data.notes ?? null,
+      },
+    });
+
+    revalidatePath("/finans");
+    return ok(
+      { id, invoice_no: invoice.invoice_no },
+      `Fatura güncellendi: ${invoice.invoice_no}`
+    );
   } catch (error) {
     return handleError(error);
   }

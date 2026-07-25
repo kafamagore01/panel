@@ -1,7 +1,7 @@
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { PageHeader } from "@/components/page-header";
-import { SettingsView } from "@/components/ayarlar/settings-view";
+import { GithubCard } from "@/components/ayarlar/github-card";
 import { getConnectionSummary } from "@/lib/github/connection";
 import { isOAuthConfigured } from "@/lib/github/oauth";
 
@@ -22,19 +22,15 @@ export default async function SettingsPage({
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Profil & Güvenlik" description="Hesap bilgilerinizi, güvenlik ayarlarınızı ve entegrasyonları yönetin." />
-      <SettingsView
-        name={ctx.user.name}
-        email={ctx.user.email}
-        avatarUrl={ctx.user.avatar_url}
-        twoFactorEnabled={ctx.user.two_factor_enabled}
-        forcePasswordReset={ctx.user.force_password_reset}
-        github={{
-          connection,
-          oauthEnabled: isOAuthConfigured(),
-          canManage: hasPermission(ctx.role, "system.manage"),
-          notice,
-        }}
+      <PageHeader
+        title="Ayarlar"
+        description="Çalışma alanı entegrasyonlarını yönetin."
+      />
+      <GithubCard
+        connection={connection}
+        oauthEnabled={isOAuthConfigured()}
+        canManage={hasPermission(ctx.role, "system.manage")}
+        notice={notice}
       />
     </div>
   );

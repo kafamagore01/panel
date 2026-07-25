@@ -34,40 +34,25 @@ import {
   confirm2FAChange,
 } from "@/actions/settings";
 import { useRouter } from "next/navigation";
-import { GithubCard } from "@/components/ayarlar/github-card";
-import type { GithubConnectionSummary } from "@/lib/github/connection";
 
-export function SettingsView({
+export function ProfileView({
   name,
   email,
   avatarUrl,
   twoFactorEnabled,
   forcePasswordReset,
-  github,
 }: {
   name: string;
   email: string;
   avatarUrl: string | null;
   twoFactorEnabled: boolean;
   forcePasswordReset: boolean;
-  github: {
-    connection: GithubConnectionSummary | null;
-    oauthEnabled: boolean;
-    canManage: boolean;
-    notice?: string;
-  };
 }) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       <ProfileCard name={name} email={email} avatarUrl={avatarUrl} />
       <PasswordCard forceReset={forcePasswordReset} />
       <TwoFactorCard enabled={twoFactorEnabled} />
-      <GithubCard
-        connection={github.connection}
-        oauthEnabled={github.oauthEnabled}
-        canManage={github.canManage}
-        notice={github.notice}
-      />
     </div>
   );
 }

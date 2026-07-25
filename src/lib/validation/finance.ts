@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CURRENCY_CODES } from "@/lib/currency";
+import { calculateDueDays } from "@/lib/finance";
 
 export const INVOICE_STATUS_OPTIONS = [
   { value: "issued", label: "Düzenlendi" },
@@ -23,36 +24,54 @@ const optUuid = z
   .optional()
   .transform((v) => (v ? v : undefined));
 
-export const invoiceSchema = z.object({
-  customer_id: z.uuid("Müşteri seçilmelidir."),
-  project_id: optUuid,
-  description: z.string().trim().max(500).optional().transform((v) => (v ? v : undefined)),
-  subtotal: z
-    .union([z.string(), z.number()])
-    .transform((v) => Number(v))
-    .refine((v) => Number.isFinite(v) && v > 0, { message: "Tutar 0'dan büyük olmalıdır." }),
-  tax_rate: z
-    .union([z.string(), z.number(), z.literal("")])
-    .optional()
-    .transform((v) => (v === "" || v === undefined ? 20 : Number(v)))
-    .refine((v) => Number.isFinite(v) && v >= 0 && v <= 100, {
-      message: "KDV oranı 0-100 arasında olmalıdır.",
-    }),
-  currency: z.enum(CURRENCY_CODES, "Geçersiz para birimi.").default("TRY"),
-  /** Boş bırakılırsa TCMB'nin o günkü kuru kullanılır (her gün tazelenir). */
-  manual_fx_rate: manualFxRate,
-  issued_on: z.string().min(1, "Düzenleme tarihi zorunludur."),
-  due_days: z
-    .union([z.string(), z.number(), z.literal("")])
-    .optional()
-    .transform((v) => (v === "" || v === undefined ? 7 : Number(v)))
-    .refine((v) => Number.isInteger(v) && v >= 0 && v <= 365, {
-      message: "Vade günü 0-365 arasında olmalıdır.",
-    }),
-  period_start: z.union([z.string(), z.literal("")]).optional().transform((v) => (v ? v : undefined)),
-  period_end: z.union([z.string(), z.literal("")]).optional().transform((v) => (v ? v : undefined)),
-  notes: z.string().trim().max(1000).optional().transform((v) => (v ? v : undefined)),
-});
+export const invoiceSchema = z
+  .object({
+    customer_id: z.uuid("Müşteri seçilmelidir."),
+    project_id: optUuid,
+    description: z.string().trim().max(500).optional().transform((v) => (v ? v : undefined)),
+    subtotal: z
+      .union([z.string(), z.number()])
+      .transform((v) => Number(v))
+      .refine((v) => Number.isFinite(v) && v > 0, { message: "Tutar 0'dan büyük olmalıdır." }),
+    tax_rate: z
+      .union([z.string(), z.number(), z.literal("")])
+      .optional()
+      .transform((v) => (v === "" || v === undefined ? 20 : Number(v)))
+      .refine((v) => Number.isFinite(v) && v >= 0 && v <= 100, {
+        message: "KDV oranı 0-100 arasında olmalıdır.",
+      }),
+    currency: z.enum(CURRENCY_CODES, "Geçersiz para birimi.").default("TRY"),
+    /** Boş bırakılırsa TCMB'nin o günkü kuru kullanılır (her gün tazelenir). */
+    manual_fx_rate: manualFxRate,
+    issued_on: z.string().min(1, "Düzenleme tarihi zorunludur."),
+    payment_on: z.string().min(1, "Ödeme tarihi zorunludur."),
+    period_start: z.union([z.string(), z.literal("")]).optional().transform((v) => (v ? v : undefined)),
+    period_end: z.union([z.string(), z.literal("")]).optional().transform((v) => (v ? v : undefined)),
+    notes: z.string().trim().max(1000).optional().transform((v) => (v ? v : undefined)),
+  })
+  .superRefine((data, ctx) => {
+    const dueDays = calculateDueDays(data.issued_on, data.payment_on);
+
+    if (dueDays === null) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["payment_on"],
+        message: "Geçerli bir ödeme tarihi seçilmelidir.",
+      });
+    } else if (dueDays < 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["payment_on"],
+        message: "Ödeme tarihi düzenleme tarihinden önce olamaz.",
+      });
+    } else if (dueDays > 365) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["payment_on"],
+        message: "Ödeme tarihi en fazla 365 gün sonrası olabilir.",
+      });
+    }
+  });
 
 export type InvoiceInput = z.infer<typeof invoiceSchema>;
 

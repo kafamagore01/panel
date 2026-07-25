@@ -38,7 +38,7 @@ export default async function PanelLayout({
     );
   }
 
-  if (ctx.user.force_password_reset) redirect("/ayarlar?parola=zorunlu");
+  if (ctx.user.force_password_reset) redirect("/profil?parola=zorunlu");
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => !item.requires || hasPermission(ctx.role, item.requires)

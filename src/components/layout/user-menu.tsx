@@ -72,7 +72,7 @@ export function UserMenu({
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/ayarlar">
+          <Link href="/profil">
             <UserIcon className="mr-2 h-4 w-4" />
             Profil & Güvenlik
           </Link>

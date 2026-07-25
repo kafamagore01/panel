@@ -46,6 +46,7 @@ export default async function FinancePage() {
         orderBy: { code: "asc" },
         select: {
           id: true,
+          customer_id: true,
           code: true,
           name: true,
           branch_name: true,
@@ -63,18 +64,35 @@ export default async function FinancePage() {
       getExchangeRates(),
     ]);
 
-  const invoiceRows: InvoiceRow[] = invoices.map((i) => ({
-    id: i.id,
-    invoice_no: i.invoice_no,
-    customer_name: i.customer.legal_name,
-    issued_on: i.issued_on.toISOString(),
-    due_on: i.due_on.toISOString(),
-    status: i.status,
-    total: toNumber(i.total),
-    paid_total: toNumber(i.paid_total),
-    balance_due: toNumber(i.balance_due),
-    currency: i.currency,
-  }));
+  const invoiceRows: InvoiceRow[] = invoices.map((i) => {
+    const subtotal = toNumber(i.subtotal);
+    const taxRate =
+      subtotal > 0
+        ? Math.round((toNumber(i.tax_total) / subtotal) * 10_000) / 100
+        : 0;
+
+    return {
+      id: i.id,
+      invoice_no: i.invoice_no,
+      customer_id: i.customer_id,
+      customer_name: i.customer.legal_name,
+      project_id: i.project_id,
+      description: i.description,
+      subtotal,
+      tax_rate: taxRate,
+      manual_fx_rate:
+        i.manual_fx_rate === null ? null : toNumber(i.manual_fx_rate),
+      issued_on: i.issued_on.toISOString().slice(0, 10),
+      payment_on: i.due_on.toISOString().slice(0, 10),
+      due_on: i.due_on.toISOString(),
+      notes: i.notes,
+      status: i.status,
+      total: toNumber(i.total),
+      paid_total: toNumber(i.paid_total),
+      balance_due: toNumber(i.balance_due),
+      currency: i.currency,
+    };
+  });
 
   const scheduleRows: ScheduleRow[] = schedules.map((s) => ({
     id: s.id,
@@ -90,6 +108,7 @@ export default async function FinancePage() {
   const customerOptions = customers.map((c) => ({ id: c.id, label: c.legal_name }));
   const projectOptions = projects.map((p) => ({
     id: p.id,
+    customer_id: p.customer_id,
     label: `${p.code} · ${p.name} · ${p.customer.legal_name} · Şube: ${p.branch_name?.trim() || "Belirtilmedi"}`,
     budget: p.budget === null ? null : toNumber(p.budget),
     currency: p.currency,

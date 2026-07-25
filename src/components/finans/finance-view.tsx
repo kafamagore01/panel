@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, MoreHorizontal, Ban, CreditCard, Pause, Play } from "lucide-react";
+import {
+  Plus,
+  MoreHorizontal,
+  Ban,
+  CreditCard,
+  Pause,
+  Play,
+  Pencil,
+  FileDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -16,13 +25,18 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "@/components/status-badge";
 import { FormDrawer } from "@/components/form-drawer";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
-import { InvoiceForm, type InvoiceProjectOption } from "./invoice-form";
+import {
+  InvoiceForm,
+  type InvoiceFormInitialData,
+  type InvoiceProjectOption,
+} from "./invoice-form";
 import { ScheduleForm } from "./schedule-form";
 import { PaymentDialog } from "./payment-dialog";
 import type { Option } from "@/components/projeler/project-form";
@@ -30,8 +44,7 @@ import { voidInvoice, toggleSchedule } from "@/actions/finance";
 import { formatMoney, formatDate } from "@/lib/format";
 import type { ExchangeRates } from "@/lib/currency";
 
-export type InvoiceRow = {
-  id: string;
+export type InvoiceRow = InvoiceFormInitialData & {
   invoice_no: string;
   customer_name: string;
   issued_on: string;
@@ -40,7 +53,6 @@ export type InvoiceRow = {
   total: number;
   paid_total: number;
   balance_due: number;
-  currency: string;
 };
 
 export type ScheduleRow = {
@@ -71,6 +83,7 @@ export function FinanceView({
   canManage: boolean;
 }) {
   const [invoiceDrawer, setInvoiceDrawer] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState<InvoiceRow | null>(null);
   const [scheduleDrawer, setScheduleDrawer] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState<InvoiceRow | null>(null);
 
@@ -117,41 +130,63 @@ export function FinanceView({
                     <TableCell className="text-right text-sm tabular-nums">{formatMoney(i.balance_due, i.currency)}</TableCell>
                     <TableCell><StatusBadge status={i.status} /></TableCell>
                     <TableCell>
-                      {canManage && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {i.status !== "paid" && i.status !== "void" && (
-                              <DropdownMenuItem onClick={() => setPaymentTarget(i)}>
-                                <CreditCard className="mr-2 h-4 w-4" />
-                                Ödeme Kaydet
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            aria-label={`${i.invoice_no} işlemleri`}
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {canManage &&
+                            ["issued", "overdue"].includes(i.status) &&
+                            i.paid_total === 0 && (
+                              <DropdownMenuItem onClick={() => setEditingInvoice(i)}>
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Faturayı Düzenle
                               </DropdownMenuItem>
                             )}
-                            {["issued", "overdue"].includes(i.status) && i.paid_total === 0 && (
-                              <ConfirmDialog
-                                trigger={
-                                  <DropdownMenuItem
-                                    onSelect={(e) => e.preventDefault()}
-                                    className="text-rose-600 focus:text-rose-600"
-                                  >
-                                    <Ban className="mr-2 h-4 w-4" />
-                                    Faturayı İptal Et
-                                  </DropdownMenuItem>
-                                }
-                                title="Faturayı İptal Et"
-                                description={`${i.invoice_no} numaralı fatura iptal edilecek (void). Ödeme alınmış faturalar iptal edilemez.`}
-                                confirmLabel="İptal Et"
-                                destructive
-                                action={() => voidInvoice(i.id)}
-                              />
+                          {canManage && i.status !== "paid" && i.status !== "void" && (
+                            <DropdownMenuItem onClick={() => setPaymentTarget(i)}>
+                              <CreditCard className="mr-2 h-4 w-4" />
+                              Ödeme Kaydet
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem asChild>
+                            <a href={`/api/invoices/${i.id}/pdf`}>
+                              <FileDown className="mr-2 h-4 w-4" />
+                              PDF İndir
+                            </a>
+                          </DropdownMenuItem>
+                          {canManage &&
+                            ["issued", "overdue"].includes(i.status) &&
+                            i.paid_total === 0 && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <ConfirmDialog
+                                  trigger={
+                                    <DropdownMenuItem
+                                      onSelect={(e) => e.preventDefault()}
+                                      className="text-rose-600 focus:text-rose-600"
+                                    >
+                                      <Ban className="mr-2 h-4 w-4" />
+                                      Faturayı İptal Et
+                                    </DropdownMenuItem>
+                                  }
+                                  title="Faturayı İptal Et"
+                                  description={`${i.invoice_no} numaralı fatura iptal edilecek (void). Ödeme alınmış faturalar iptal edilemez.`}
+                                  confirmLabel="İptal Et"
+                                  destructive
+                                  action={() => voidInvoice(i.id)}
+                                />
+                              </>
                             )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -247,6 +282,24 @@ export function FinanceView({
       <FormDrawer open={invoiceDrawer} onOpenChange={setInvoiceDrawer} title="Fatura Oluştur" description="KDV ve müşteri anlık görüntüsü otomatik hesaplanır.">
         <InvoiceForm customers={customers} projects={projects} rates={rates} onDone={() => setInvoiceDrawer(false)} />
       </FormDrawer>
+
+      {editingInvoice && (
+        <FormDrawer
+          open={Boolean(editingInvoice)}
+          onOpenChange={(open) => !open && setEditingInvoice(null)}
+          title="Faturayı Düzenle"
+          description={`${editingInvoice.invoice_no} numaralı faturanın bilgilerini güncelleyin.`}
+        >
+          <InvoiceForm
+            key={editingInvoice.id}
+            customers={customers}
+            projects={projects}
+            rates={rates}
+            invoice={editingInvoice}
+            onDone={() => setEditingInvoice(null)}
+          />
+        </FormDrawer>
+      )}
 
       <FormDrawer open={scheduleDrawer} onOpenChange={setScheduleDrawer} title="Yinelenen Plan" description="Otomatik fatura üretimi için periyodik plan tanımlayın.">
         <ScheduleForm customers={customers} projects={projects} rates={rates} onDone={() => setScheduleDrawer(false)} />
