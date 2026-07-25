@@ -66,6 +66,17 @@ function describeSocketError(error: NodeJS.ErrnoException): string {
   }
 }
 
+/**
+ * Bir HTTP yanıtı sitenin erişilebilir olduğunu gösteriyor mu?
+ *
+ * 401/403, uygulamanın veya güvenlik katmanının isteği bilinçli olarak
+ * yanıtladığını gösterir. Bu ekran içerik doğruluğunu değil çalışma durumunu
+ * izlediği için bu iki erişim-korumalı yanıtı "çalışıyor" kabul eder.
+ */
+function isReachableStatus(status: number): boolean {
+  return status < 400 || status === 401 || status === 403;
+}
+
 /** Tek bir adresin erişilebilirliğini ölçer. Yanıt gövdesi okunmaz. */
 export async function checkUrl(
   raw: string,
@@ -96,12 +107,27 @@ export async function checkUrl(
   }
 
   try {
-    let res = await request("HEAD");
-    // Bazı sunucular HEAD'i desteklemez; bu durumda GET ile tekrar dene.
-    if (res.status === 405 || res.status === 501) {
+    let usedGet = false;
+    let res: Response;
+
+    try {
+      res = await request("HEAD");
+    } catch {
+      // HEAD bağlantısı başarısız olsa bile tarayıcıların kullandığı GET
+      // yöntemi çalışabilir; kapalı demeden önce onu da dene.
+      res = await request("GET");
+      usedGet = true;
+    }
+
+    // CDN/WAF katmanları çalışan bir site için HEAD isteğini 401/403/405 ile
+    // reddedebilir. Hatalı "kapalı" sonucunu önlemek için gerçek sayfa
+    // yöntemiyle doğrula; gövdeyi indirmeden hemen iptal et.
+    if (!usedGet && res.status >= 400) {
       res = await request("GET");
     }
-    const ok = res.status < 400;
+    await res.body?.cancel().catch(() => undefined);
+
+    const ok = isReachableStatus(res.status);
     return {
       ...meta,
       target: target.host,
