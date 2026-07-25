@@ -1,0 +1,2 @@
+# Bu dosya Prisma tarafından yönetilir; migration provider'ını kilitler.
+provider = "postgresql"

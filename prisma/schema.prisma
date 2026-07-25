@@ -1,0 +1,624 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum MembershipRole {
+  owner
+  admin
+  technical
+  finance
+  viewer
+}
+
+enum MembershipStatus {
+  active
+  inactive
+}
+
+enum OtpPurpose {
+  login
+  enable_2fa
+  disable_2fa
+}
+
+enum CustomerType {
+  company
+  individual
+}
+
+enum CustomerStatus {
+  lead
+  active
+  suspended
+  archived
+}
+
+enum ProjectStatus {
+  draft
+  development
+  testing
+  live
+  maintenance
+  on_hold
+  completed
+  archived
+}
+
+enum LicenseStatus {
+  pending
+  active
+  grace
+  expired
+  suspended
+  revoked
+}
+
+enum DomainEnvironment {
+  production
+  staging
+  local
+}
+
+enum LicenseDomainStatus {
+  active
+  inactive
+}
+
+enum ActivationStatus {
+  active
+  deactivated
+}
+
+enum LicenseEventType {
+  issued
+  status_changed
+  renewed
+  key_rotated
+  activations_reset
+  validation_failed
+}
+
+enum ServerType {
+  vds
+  vps
+  hosting
+  dedicated
+  cloud
+}
+
+enum ServerStatus {
+  active
+  maintenance
+  suspended
+  terminated
+}
+
+enum IntervalUnit {
+  month
+  year
+}
+
+enum ScheduleStatus {
+  active
+  paused
+  completed
+}
+
+enum InvoiceStatus {
+  issued
+  partial
+  paid
+  overdue
+  void
+}
+
+enum PaymentMethod {
+  bank_transfer
+  cash
+  credit_card
+  other
+}
+
+enum PaymentStatus {
+  completed
+  refunded
+  failed
+}
+
+enum WebhookDeliveryStatus {
+  pending
+  delivered
+  failed
+}
+
+// ─── Çekirdek: Workspace / User / Üyelik / Oturum ────────────────────────────
+
+model Workspace {
+  id               String    @id @default(uuid(4)) @db.Uuid
+  name             String
+  timezone         String    @default("Europe/Istanbul")
+  default_currency String    @default("TRY")
+  settings         Json?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  deleted_at       DateTime?
+
+  members            WorkspaceUser[]
+  current_users      User[]            @relation("UserCurrentWorkspace")
+  customers          Customer[]
+  products           Product[]
+  projects           Project[]
+  licenses           License[]
+  servers            Server[]
+  billing_schedules  BillingSchedule[]
+  invoices           Invoice[]
+  payments           Payment[]
+  webhook_deliveries WebhookDelivery[]
+  audit_logs         AuditLog[]
+
+  @@map("workspaces")
+}
+
+model User {
+  id                    String    @id @default(uuid(4)) @db.Uuid
+  name                  String
+  email                 String    @unique
+  password_hash         String
+  email_verified_at     DateTime?
+  two_factor_enabled_at DateTime?
+  two_factor_secret     String?
+  force_password_reset  Boolean   @default(false)
+  current_workspace_id  String?   @db.Uuid
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  current_workspace Workspace?      @relation("UserCurrentWorkspace", fields: [current_workspace_id], references: [id], onDelete: SetNull)
+  memberships       WorkspaceUser[]
+  sessions          Session[]
+  otp_codes         OtpCode[]
+  owned_projects    Project[]       @relation("ProjectOwner")
+  license_events    LicenseEvent[]
+  audit_logs        AuditLog[]
+
+  @@map("users")
+}
+
+model Session {
+  id            String   @id @default(uuid(4)) @db.Uuid
+  session_token String   @unique
+  user_id       String   @db.Uuid
+  expires       DateTime
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("sessions")
+}
+
+model WorkspaceUser {
+  id           String           @id @default(uuid(4)) @db.Uuid
+  workspace_id String           @db.Uuid
+  user_id      String           @db.Uuid
+  role         MembershipRole   @default(viewer)
+  status       MembershipStatus @default(active)
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+
+  workspace Workspace @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([workspace_id, user_id])
+  @@index([workspace_id])
+  @@index([user_id])
+  @@map("workspace_user")
+}
+
+model OtpCode {
+  id            String     @id @default(uuid(4)) @db.Uuid
+  user_id       String     @db.Uuid
+  purpose       OtpPurpose
+  code_hash     String
+  expires_at    DateTime
+  attempt_count Int        @default(0)
+  consumed_at   DateTime?
+  created_at    DateTime   @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, purpose])
+  @@map("otp_codes")
+}
+
+// ─── CRM: Müşteri / Ürün / Proje ─────────────────────────────────────────────
+
+model Customer {
+  id              String         @id @default(uuid(4)) @db.Uuid
+  workspace_id    String         @db.Uuid
+  type            CustomerType   @default(company)
+  legal_name      String
+  trade_name      String?
+  tax_number      String?
+  tax_office      String?
+  email           String?
+  phone           String?
+  website_url     String?
+  billing_address String?
+  status          CustomerStatus @default(lead)
+  notes           String?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+  deleted_at      DateTime?
+
+  workspace         Workspace         @relation(fields: [workspace_id], references: [id])
+  products          Product[]
+  projects          Project[]
+  billing_schedules BillingSchedule[]
+  invoices          Invoice[]
+  payments          Payment[]
+
+  @@index([workspace_id])
+  @@index([workspace_id, status])
+  @@map("customers")
+}
+
+model Product {
+  id             String    @id @default(uuid(4)) @db.Uuid
+  workspace_id   String    @db.Uuid
+  code           String
+  name           String
+  description    String?
+  repository_url String?
+  customer_id    String?   @db.Uuid
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime?
+
+  workspace Workspace @relation(fields: [workspace_id], references: [id])
+  customer  Customer? @relation(fields: [customer_id], references: [id])
+  projects  Project[]
+
+  @@unique([workspace_id, code])
+  @@index([workspace_id])
+  @@map("products")
+}
+
+model Project {
+  id                     String        @id @default(uuid(4)) @db.Uuid
+  workspace_id           String        @db.Uuid
+  customer_id            String        @db.Uuid
+  product_id             String?       @db.Uuid
+  owner_user_id          String?       @db.Uuid
+  code                   String
+  branch_name            String?
+  name                   String
+  description            String?
+  status                 ProjectStatus @default(draft)
+  start_date             DateTime?
+  target_end_date        DateTime?
+  live_at                DateTime?
+  budget                 Decimal?      @db.Decimal(14, 2)
+  currency               String        @default("TRY")
+  live_url               String?
+  admin_url              String?
+  repository_url         String?
+  license_webhook_url    String?
+  license_webhook_secret String?
+  tech_stack             Json?
+  notes                  String?
+  created_at             DateTime      @default(now())
+  updated_at             DateTime      @updatedAt
+  deleted_at             DateTime?
+
+  workspace          Workspace         @relation(fields: [workspace_id], references: [id])
+  customer           Customer          @relation(fields: [customer_id], references: [id])
+  product            Product?          @relation(fields: [product_id], references: [id])
+  owner              User?             @relation("ProjectOwner", fields: [owner_user_id], references: [id], onDelete: SetNull)
+  licenses           License[]
+  server_links       ProjectServer[]
+  billing_schedules  BillingSchedule[]
+  invoices           Invoice[]
+  webhook_deliveries WebhookDelivery[]
+
+  @@unique([workspace_id, code])
+  @@index([workspace_id])
+  @@index([workspace_id, status])
+  @@index([customer_id])
+  @@map("projects")
+}
+
+// ─── Lisanslama ──────────────────────────────────────────────────────────────
+
+model License {
+  id                String        @id @default(uuid(4)) @db.Uuid
+  workspace_id      String        @db.Uuid
+  project_id        String        @db.Uuid
+  product_name      String
+  key_prefix        String
+  key_hash          String        @unique
+  key_secret        String
+  status            LicenseStatus @default(pending)
+  issued_at         DateTime      @default(now())
+  starts_at         DateTime?
+  expires_at        DateTime?
+  grace_ends_at     DateTime?
+  activation_limit  Int           @default(1)
+  auto_suspend      Boolean       @default(false)
+  last_validated_at DateTime?
+  features          Json?
+  metadata          Json?
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+
+  workspace          Workspace           @relation(fields: [workspace_id], references: [id])
+  project            Project             @relation(fields: [project_id], references: [id])
+  domains            LicenseDomain[]
+  activations        LicenseActivation[]
+  events             LicenseEvent[]
+  webhook_deliveries WebhookDelivery[]
+
+  @@index([workspace_id])
+  @@index([workspace_id, status])
+  @@index([project_id])
+  @@map("licenses")
+}
+
+model LicenseDomain {
+  id                String              @id @default(uuid(4)) @db.Uuid
+  license_id        String              @db.Uuid
+  domain            String
+  normalized_domain String
+  environment       DomainEnvironment   @default(production)
+  is_primary        Boolean             @default(false)
+  status            LicenseDomainStatus @default(active)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+
+  license     License             @relation(fields: [license_id], references: [id], onDelete: Cascade)
+  activations LicenseActivation[]
+
+  @@unique([license_id, normalized_domain, environment])
+  @@index([license_id])
+  @@map("license_domains")
+}
+
+model LicenseActivation {
+  id                String           @id @default(uuid(4)) @db.Uuid
+  license_id        String           @db.Uuid
+  license_domain_id String?          @db.Uuid
+  instance_id       String
+  status            ActivationStatus @default(active)
+  first_seen_at     DateTime         @default(now())
+  last_seen_at      DateTime         @default(now())
+  last_ip           String?
+  app_version       String?
+  metadata          Json?
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+
+  license License        @relation(fields: [license_id], references: [id], onDelete: Cascade)
+  domain  LicenseDomain? @relation(fields: [license_domain_id], references: [id], onDelete: SetNull)
+
+  @@unique([license_id, instance_id])
+  @@index([license_id, status])
+  @@map("license_activations")
+}
+
+model LicenseEvent {
+  id              String           @id @default(uuid(4)) @db.Uuid
+  license_id      String           @db.Uuid
+  actor_user_id   String?          @db.Uuid
+  type            LicenseEventType
+  previous_status LicenseStatus?
+  new_status      LicenseStatus?
+  reason          String?
+  occurred_at     DateTime         @default(now())
+
+  license License @relation(fields: [license_id], references: [id], onDelete: Cascade)
+  actor   User?   @relation(fields: [actor_user_id], references: [id], onDelete: SetNull)
+
+  @@index([license_id, type, occurred_at])
+  @@map("license_events")
+}
+
+// ─── Sunucu Envanteri ────────────────────────────────────────────────────────
+
+model Server {
+  id               String       @id @default(uuid(4)) @db.Uuid
+  workspace_id     String       @db.Uuid
+  provider         String?
+  external_ref     String?
+  name             String
+  type             ServerType   @default(vps)
+  hostname         String?
+  primary_ip       String?
+  region           String?
+  operating_system String?
+  cpu_cores        Int?
+  ram_mb           Int?
+  disk_gb          Int?
+  management_url   String?
+  ssh_port         Int          @default(22)
+  ssh_user         String?
+  status           ServerStatus @default(active)
+  renewal_at       DateTime?
+  monthly_cost     Decimal?     @db.Decimal(14, 2)
+  currency         String       @default("TRY")
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
+  deleted_at       DateTime?
+
+  workspace     Workspace       @relation(fields: [workspace_id], references: [id])
+  project_links ProjectServer[]
+
+  @@index([workspace_id])
+  @@index([workspace_id, status])
+  @@map("servers")
+}
+
+model ProjectServer {
+  id          String   @id @default(uuid(4)) @db.Uuid
+  project_id  String   @db.Uuid
+  server_id   String   @db.Uuid
+  role        String?
+  environment String?
+  is_primary  Boolean  @default(false)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  server  Server  @relation(fields: [server_id], references: [id], onDelete: Cascade)
+
+  @@unique([project_id, server_id])
+  @@index([server_id])
+  @@map("project_server")
+}
+
+// ─── Finans ──────────────────────────────────────────────────────────────────
+
+model BillingSchedule {
+  id                String         @id @default(uuid(4)) @db.Uuid
+  workspace_id      String         @db.Uuid
+  customer_id       String         @db.Uuid
+  project_id        String?        @db.Uuid
+  title             String
+  amount            Decimal        @db.Decimal(14, 2)
+  currency          String         @default("TRY")
+  tax_rate          Decimal        @default(20.00) @db.Decimal(5, 2)
+  interval_unit     IntervalUnit   @default(month)
+  interval_count    Int            @default(1)
+  starts_on         DateTime       @db.Date
+  ends_on           DateTime?      @db.Date
+  next_issue_on     DateTime       @db.Date
+  due_days          Int            @default(7)
+  status            ScheduleStatus @default(active)
+  last_generated_at DateTime?
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+
+  workspace Workspace @relation(fields: [workspace_id], references: [id])
+  customer  Customer  @relation(fields: [customer_id], references: [id])
+  project   Project?  @relation(fields: [project_id], references: [id])
+  invoices  Invoice[]
+
+  @@index([workspace_id])
+  @@index([workspace_id, status, next_issue_on])
+  @@map("billing_schedules")
+}
+
+model Invoice {
+  id                  String        @id @default(uuid(4)) @db.Uuid
+  workspace_id        String        @db.Uuid
+  customer_id         String        @db.Uuid
+  project_id          String?       @db.Uuid
+  billing_schedule_id String?       @db.Uuid
+  invoice_no          String
+  period_start        DateTime?     @db.Date
+  period_end          DateTime?     @db.Date
+  issued_on           DateTime      @db.Date
+  due_on              DateTime      @db.Date
+  status              InvoiceStatus @default(issued)
+  currency            String        @default("TRY")
+  subtotal            Decimal       @db.Decimal(14, 2)
+  tax_total           Decimal       @db.Decimal(14, 2)
+  total               Decimal       @db.Decimal(14, 2)
+  paid_total          Decimal      @default(0) @db.Decimal(14, 2)
+  balance_due         Decimal       @db.Decimal(14, 2)
+  description         String?
+  customer_snapshot   Json
+  notes               String?
+  created_at          DateTime      @default(now())
+  updated_at          DateTime      @updatedAt
+
+  workspace        Workspace        @relation(fields: [workspace_id], references: [id])
+  customer         Customer         @relation(fields: [customer_id], references: [id])
+  project          Project?         @relation(fields: [project_id], references: [id])
+  billing_schedule BillingSchedule? @relation(fields: [billing_schedule_id], references: [id])
+  payments         Payment[]
+
+  @@unique([workspace_id, invoice_no])
+  @@index([workspace_id])
+  @@index([workspace_id, status, due_on])
+  @@index([customer_id])
+  @@map("invoices")
+}
+
+model Payment {
+  id              String        @id @default(uuid(4)) @db.Uuid
+  workspace_id    String        @db.Uuid
+  customer_id     String        @db.Uuid
+  invoice_id      String        @db.Uuid
+  amount          Decimal       @db.Decimal(14, 2)
+  currency        String        @default("TRY")
+  paid_on         DateTime      @db.Date
+  method          PaymentMethod @default(bank_transfer)
+  status          PaymentStatus @default(completed)
+  reference       String?
+  idempotency_key String        @unique @db.Uuid
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  workspace Workspace @relation(fields: [workspace_id], references: [id])
+  customer  Customer  @relation(fields: [customer_id], references: [id])
+  invoice   Invoice   @relation(fields: [invoice_id], references: [id])
+
+  @@index([workspace_id])
+  @@index([invoice_id])
+  @@map("payments")
+}
+
+// ─── Webhook & Denetim ───────────────────────────────────────────────────────
+
+model WebhookDelivery {
+  id               String                @id @default(uuid(4)) @db.Uuid
+  workspace_id     String                @db.Uuid
+  project_id       String                @db.Uuid
+  license_id       String?               @db.Uuid
+  idempotency_key  String                @unique @db.Uuid
+  event_type       String
+  payload          Json
+  status           WebhookDeliveryStatus @default(pending)
+  http_status      Int?
+  attempt_count    Int                   @default(0)
+  delivered_at     DateTime?
+  response_excerpt String?
+  last_error       String?
+  created_at       DateTime              @default(now())
+  updated_at       DateTime              @updatedAt
+
+  workspace Workspace @relation(fields: [workspace_id], references: [id])
+  project   Project   @relation(fields: [project_id], references: [id])
+  license   License?  @relation(fields: [license_id], references: [id], onDelete: SetNull)
+
+  @@index([workspace_id, status])
+  @@map("webhook_deliveries")
+}
+
+model AuditLog {
+  id             String   @id @default(uuid(4)) @db.Uuid
+  workspace_id   String?  @db.Uuid
+  actor_user_id  String?  @db.Uuid
+  action         String
+  auditable_type String
+  auditable_id   String?
+  before_data    Json?
+  after_data     Json?
+  ip_address     String?
+  user_agent     String?
+  created_at     DateTime @default(now())
+
+  workspace Workspace? @relation(fields: [workspace_id], references: [id], onDelete: SetNull)
+  actor     User?      @relation(fields: [actor_user_id], references: [id], onDelete: SetNull)
+
+  @@index([workspace_id, created_at])
+  @@index([auditable_type, auditable_id])
+  @@map("audit_logs")
+}

@@ -1,26 +1,143 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Operasyon Merkezi tasarım sistemi
+ * Vurgu: #5267ff | Koyu metin: #141821 | Tehlike: #ff6b4a | Zemin: #f4f5f7
+ */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 22px;
+
+  --background: #f4f5f7;
+  --foreground: #141821;
+
+  --card: #ffffff;
+  --card-foreground: #141821;
+  --popover: #ffffff;
+  --popover-foreground: #141821;
+
+  --primary: #5267ff;
+  --primary-hover: #4254e1;
+  --primary-foreground: #ffffff;
+
+  --secondary: #eef0f4;
+  --secondary-foreground: #141821;
+
+  --muted: #eef0f4;
+  --muted-foreground: #64748b;
+
+  --accent: #eef0f4;
+  --accent-foreground: #141821;
+
+  --destructive: #ff6b4a;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(203, 213, 225, 0.8);
+  --input: #e2e8f0;
+  --ring: #5267ff;
+
+  /* Koyu sidebar teması */
+  --sidebar: #141821;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-primary: #5267ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(82, 103, 255, 0.14);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #5267ff;
+
+  --chart-1: #5267ff;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ff6b4a;
+  --chart-5: #8b5cf6;
+}
+
+.dark {
+  --background: #0b0e14;
+  --foreground: #e2e8f0;
+  --card: #141821;
+  --card-foreground: #e2e8f0;
+  --popover: #141821;
+  --popover-foreground: #e2e8f0;
+  --primary: #5267ff;
+  --primary-hover: #4254e1;
+  --primary-foreground: #ffffff;
+  --secondary: #1e2530;
+  --secondary-foreground: #e2e8f0;
+  --muted: #1e2530;
+  --muted-foreground: #94a3b8;
+  --accent: #1e2530;
+  --accent-foreground: #e2e8f0;
+  --destructive: #ff6b4a;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: #5267ff;
+  --sidebar: #141821;
+  --sidebar-foreground: #cbd5e1;
+  --sidebar-primary: #5267ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(82, 103, 255, 0.14);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #5267ff;
 }
 
 @theme inline {
+  --radius-sm: calc(var(--radius) - 12px);
+  --radius-md: calc(var(--radius) - 8px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 8px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+  }
 }
