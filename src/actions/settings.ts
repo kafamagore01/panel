@@ -11,11 +11,29 @@ import { sendEmail } from "@/lib/email";
 import { otpEmail } from "@/lib/email/templates";
 import { createOtp, verifyOtp } from "@/lib/auth/otp";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
+import {
+  isValidAvatarDataUrl,
+  isValidRemoteAvatarUrl,
+  MAX_AVATAR_DATA_URL_LENGTH,
+} from "@/lib/avatar";
 
 const TFA_COOKIE = "tfa_ticket";
 
 const profileSchema = z.object({
   name: z.string().trim().min(2, "Ad en az 2 karakter olmalıdır.").max(150),
+  avatar_url: z
+    .union([
+      z.null(),
+      z
+        .string()
+        .max(MAX_AVATAR_DATA_URL_LENGTH, "Profil fotoğrafı çok büyük.")
+        .refine(
+          (value) =>
+            isValidAvatarDataUrl(value) || isValidRemoteAvatarUrl(value),
+          "Profil fotoğrafı geçerli bir görsel veya HTTPS görsel URL'si olmalıdır."
+        ),
+    ])
+    .optional(),
 });
 
 export async function updateProfile(
@@ -28,7 +46,12 @@ export async function updateProfile(
 
   await prisma.user.update({
     where: { id: ctx.user.id },
-    data: { name: parsed.data.name },
+    data: {
+      name: parsed.data.name,
+      ...(parsed.data.avatar_url !== undefined
+        ? { avatar_url: parsed.data.avatar_url }
+        : {}),
+    },
   });
 
   await writeAudit({

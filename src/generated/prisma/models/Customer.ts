@@ -27,8 +27,10 @@ export type AggregateCustomer = {
 export type CustomerMinAggregateOutputType = {
   id: string | null
   workspace_id: string | null
+  parent_customer_id: string | null
   type: $Enums.CustomerType | null
   legal_name: string | null
+  branch_name: string | null
   trade_name: string | null
   tax_number: string | null
   tax_office: string | null
@@ -46,8 +48,10 @@ export type CustomerMinAggregateOutputType = {
 export type CustomerMaxAggregateOutputType = {
   id: string | null
   workspace_id: string | null
+  parent_customer_id: string | null
   type: $Enums.CustomerType | null
   legal_name: string | null
+  branch_name: string | null
   trade_name: string | null
   tax_number: string | null
   tax_office: string | null
@@ -65,8 +69,10 @@ export type CustomerMaxAggregateOutputType = {
 export type CustomerCountAggregateOutputType = {
   id: number
   workspace_id: number
+  parent_customer_id: number
   type: number
   legal_name: number
+  branch_name: number
   trade_name: number
   tax_number: number
   tax_office: number
@@ -86,8 +92,10 @@ export type CustomerCountAggregateOutputType = {
 export type CustomerMinAggregateInputType = {
   id?: true
   workspace_id?: true
+  parent_customer_id?: true
   type?: true
   legal_name?: true
+  branch_name?: true
   trade_name?: true
   tax_number?: true
   tax_office?: true
@@ -105,8 +113,10 @@ export type CustomerMinAggregateInputType = {
 export type CustomerMaxAggregateInputType = {
   id?: true
   workspace_id?: true
+  parent_customer_id?: true
   type?: true
   legal_name?: true
+  branch_name?: true
   trade_name?: true
   tax_number?: true
   tax_office?: true
@@ -124,8 +134,10 @@ export type CustomerMaxAggregateInputType = {
 export type CustomerCountAggregateInputType = {
   id?: true
   workspace_id?: true
+  parent_customer_id?: true
   type?: true
   legal_name?: true
+  branch_name?: true
   trade_name?: true
   tax_number?: true
   tax_office?: true
@@ -216,8 +228,10 @@ export type CustomerGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type CustomerGroupByOutputType = {
   id: string
   workspace_id: string
+  parent_customer_id: string | null
   type: $Enums.CustomerType
   legal_name: string
+  branch_name: string | null
   trade_name: string | null
   tax_number: string | null
   tax_office: string | null
@@ -256,8 +270,10 @@ export type CustomerWhereInput = {
   NOT?: Prisma.CustomerWhereInput | Prisma.CustomerWhereInput[]
   id?: Prisma.UuidFilter<"Customer"> | string
   workspace_id?: Prisma.UuidFilter<"Customer"> | string
+  parent_customer_id?: Prisma.UuidNullableFilter<"Customer"> | string | null
   type?: Prisma.EnumCustomerTypeFilter<"Customer"> | $Enums.CustomerType
   legal_name?: Prisma.StringFilter<"Customer"> | string
+  branch_name?: Prisma.StringNullableFilter<"Customer"> | string | null
   trade_name?: Prisma.StringNullableFilter<"Customer"> | string | null
   tax_number?: Prisma.StringNullableFilter<"Customer"> | string | null
   tax_office?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -271,6 +287,8 @@ export type CustomerWhereInput = {
   updated_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   deleted_at?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  parent_customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
+  branches?: Prisma.CustomerListRelationFilter
   products?: Prisma.ProductListRelationFilter
   projects?: Prisma.ProjectListRelationFilter
   domains?: Prisma.DomainListRelationFilter
@@ -282,8 +300,10 @@ export type CustomerWhereInput = {
 export type CustomerOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
+  parent_customer_id?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   legal_name?: Prisma.SortOrder
+  branch_name?: Prisma.SortOrderInput | Prisma.SortOrder
   trade_name?: Prisma.SortOrderInput | Prisma.SortOrder
   tax_number?: Prisma.SortOrderInput | Prisma.SortOrder
   tax_office?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -297,6 +317,8 @@ export type CustomerOrderByWithRelationInput = {
   updated_at?: Prisma.SortOrder
   deleted_at?: Prisma.SortOrderInput | Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  parent_customer?: Prisma.CustomerOrderByWithRelationInput
+  branches?: Prisma.CustomerOrderByRelationAggregateInput
   products?: Prisma.ProductOrderByRelationAggregateInput
   projects?: Prisma.ProjectOrderByRelationAggregateInput
   domains?: Prisma.DomainOrderByRelationAggregateInput
@@ -311,8 +333,10 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.CustomerWhereInput[]
   NOT?: Prisma.CustomerWhereInput | Prisma.CustomerWhereInput[]
   workspace_id?: Prisma.UuidFilter<"Customer"> | string
+  parent_customer_id?: Prisma.UuidNullableFilter<"Customer"> | string | null
   type?: Prisma.EnumCustomerTypeFilter<"Customer"> | $Enums.CustomerType
   legal_name?: Prisma.StringFilter<"Customer"> | string
+  branch_name?: Prisma.StringNullableFilter<"Customer"> | string | null
   trade_name?: Prisma.StringNullableFilter<"Customer"> | string | null
   tax_number?: Prisma.StringNullableFilter<"Customer"> | string | null
   tax_office?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -326,6 +350,8 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
   updated_at?: Prisma.DateTimeFilter<"Customer"> | Date | string
   deleted_at?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  parent_customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
+  branches?: Prisma.CustomerListRelationFilter
   products?: Prisma.ProductListRelationFilter
   projects?: Prisma.ProjectListRelationFilter
   domains?: Prisma.DomainListRelationFilter
@@ -337,8 +363,10 @@ export type CustomerWhereUniqueInput = Prisma.AtLeast<{
 export type CustomerOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
+  parent_customer_id?: Prisma.SortOrderInput | Prisma.SortOrder
   type?: Prisma.SortOrder
   legal_name?: Prisma.SortOrder
+  branch_name?: Prisma.SortOrderInput | Prisma.SortOrder
   trade_name?: Prisma.SortOrderInput | Prisma.SortOrder
   tax_number?: Prisma.SortOrderInput | Prisma.SortOrder
   tax_office?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -362,8 +390,10 @@ export type CustomerScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CustomerScalarWhereWithAggregatesInput | Prisma.CustomerScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"Customer"> | string
   workspace_id?: Prisma.UuidWithAggregatesFilter<"Customer"> | string
+  parent_customer_id?: Prisma.UuidNullableWithAggregatesFilter<"Customer"> | string | null
   type?: Prisma.EnumCustomerTypeWithAggregatesFilter<"Customer"> | $Enums.CustomerType
   legal_name?: Prisma.StringWithAggregatesFilter<"Customer"> | string
+  branch_name?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   trade_name?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   tax_number?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
   tax_office?: Prisma.StringNullableWithAggregatesFilter<"Customer"> | string | null
@@ -382,6 +412,7 @@ export type CustomerCreateInput = {
   id?: string
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -395,6 +426,8 @@ export type CustomerCreateInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
@@ -406,8 +439,10 @@ export type CustomerCreateInput = {
 export type CustomerUncheckedCreateInput = {
   id?: string
   workspace_id: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -420,6 +455,7 @@ export type CustomerUncheckedCreateInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
@@ -432,6 +468,7 @@ export type CustomerUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -445,6 +482,8 @@ export type CustomerUpdateInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
@@ -456,8 +495,10 @@ export type CustomerUpdateInput = {
 export type CustomerUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -470,6 +511,7 @@ export type CustomerUncheckedUpdateInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
@@ -481,8 +523,10 @@ export type CustomerUncheckedUpdateInput = {
 export type CustomerCreateManyInput = {
   id?: string
   workspace_id: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -501,6 +545,7 @@ export type CustomerUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -518,8 +563,10 @@ export type CustomerUpdateManyMutationInput = {
 export type CustomerUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -544,11 +591,18 @@ export type CustomerOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type CustomerNullableScalarRelationFilter = {
+  is?: Prisma.CustomerWhereInput | null
+  isNot?: Prisma.CustomerWhereInput | null
+}
+
 export type CustomerCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
+  parent_customer_id?: Prisma.SortOrder
   type?: Prisma.SortOrder
   legal_name?: Prisma.SortOrder
+  branch_name?: Prisma.SortOrder
   trade_name?: Prisma.SortOrder
   tax_number?: Prisma.SortOrder
   tax_office?: Prisma.SortOrder
@@ -566,8 +620,10 @@ export type CustomerCountOrderByAggregateInput = {
 export type CustomerMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
+  parent_customer_id?: Prisma.SortOrder
   type?: Prisma.SortOrder
   legal_name?: Prisma.SortOrder
+  branch_name?: Prisma.SortOrder
   trade_name?: Prisma.SortOrder
   tax_number?: Prisma.SortOrder
   tax_office?: Prisma.SortOrder
@@ -585,8 +641,10 @@ export type CustomerMaxOrderByAggregateInput = {
 export type CustomerMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
+  parent_customer_id?: Prisma.SortOrder
   type?: Prisma.SortOrder
   legal_name?: Prisma.SortOrder
+  branch_name?: Prisma.SortOrder
   trade_name?: Prisma.SortOrder
   tax_number?: Prisma.SortOrder
   tax_office?: Prisma.SortOrder
@@ -599,11 +657,6 @@ export type CustomerMinOrderByAggregateInput = {
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
   deleted_at?: Prisma.SortOrder
-}
-
-export type CustomerNullableScalarRelationFilter = {
-  is?: Prisma.CustomerWhereInput | null
-  isNot?: Prisma.CustomerWhereInput | null
 }
 
 export type CustomerScalarRelationFilter = {
@@ -653,12 +706,70 @@ export type CustomerUncheckedUpdateManyWithoutWorkspaceNestedInput = {
   deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
 }
 
+export type CustomerCreateNestedOneWithoutBranchesInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutBranchesInput, Prisma.CustomerUncheckedCreateWithoutBranchesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutBranchesInput
+  connect?: Prisma.CustomerWhereUniqueInput
+}
+
+export type CustomerCreateNestedManyWithoutParent_customerInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutParent_customerInput, Prisma.CustomerUncheckedCreateWithoutParent_customerInput> | Prisma.CustomerCreateWithoutParent_customerInput[] | Prisma.CustomerUncheckedCreateWithoutParent_customerInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutParent_customerInput | Prisma.CustomerCreateOrConnectWithoutParent_customerInput[]
+  createMany?: Prisma.CustomerCreateManyParent_customerInputEnvelope
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+}
+
+export type CustomerUncheckedCreateNestedManyWithoutParent_customerInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutParent_customerInput, Prisma.CustomerUncheckedCreateWithoutParent_customerInput> | Prisma.CustomerCreateWithoutParent_customerInput[] | Prisma.CustomerUncheckedCreateWithoutParent_customerInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutParent_customerInput | Prisma.CustomerCreateOrConnectWithoutParent_customerInput[]
+  createMany?: Prisma.CustomerCreateManyParent_customerInputEnvelope
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+}
+
 export type EnumCustomerTypeFieldUpdateOperationsInput = {
   set?: $Enums.CustomerType
 }
 
 export type EnumCustomerStatusFieldUpdateOperationsInput = {
   set?: $Enums.CustomerStatus
+}
+
+export type CustomerUpdateOneWithoutBranchesNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutBranchesInput, Prisma.CustomerUncheckedCreateWithoutBranchesInput>
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutBranchesInput
+  upsert?: Prisma.CustomerUpsertWithoutBranchesInput
+  disconnect?: Prisma.CustomerWhereInput | boolean
+  delete?: Prisma.CustomerWhereInput | boolean
+  connect?: Prisma.CustomerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CustomerUpdateToOneWithWhereWithoutBranchesInput, Prisma.CustomerUpdateWithoutBranchesInput>, Prisma.CustomerUncheckedUpdateWithoutBranchesInput>
+}
+
+export type CustomerUpdateManyWithoutParent_customerNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutParent_customerInput, Prisma.CustomerUncheckedCreateWithoutParent_customerInput> | Prisma.CustomerCreateWithoutParent_customerInput[] | Prisma.CustomerUncheckedCreateWithoutParent_customerInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutParent_customerInput | Prisma.CustomerCreateOrConnectWithoutParent_customerInput[]
+  upsert?: Prisma.CustomerUpsertWithWhereUniqueWithoutParent_customerInput | Prisma.CustomerUpsertWithWhereUniqueWithoutParent_customerInput[]
+  createMany?: Prisma.CustomerCreateManyParent_customerInputEnvelope
+  set?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  delete?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  update?: Prisma.CustomerUpdateWithWhereUniqueWithoutParent_customerInput | Prisma.CustomerUpdateWithWhereUniqueWithoutParent_customerInput[]
+  updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutParent_customerInput | Prisma.CustomerUpdateManyWithWhereWithoutParent_customerInput[]
+  deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
+}
+
+export type CustomerUncheckedUpdateManyWithoutParent_customerNestedInput = {
+  create?: Prisma.XOR<Prisma.CustomerCreateWithoutParent_customerInput, Prisma.CustomerUncheckedCreateWithoutParent_customerInput> | Prisma.CustomerCreateWithoutParent_customerInput[] | Prisma.CustomerUncheckedCreateWithoutParent_customerInput[]
+  connectOrCreate?: Prisma.CustomerCreateOrConnectWithoutParent_customerInput | Prisma.CustomerCreateOrConnectWithoutParent_customerInput[]
+  upsert?: Prisma.CustomerUpsertWithWhereUniqueWithoutParent_customerInput | Prisma.CustomerUpsertWithWhereUniqueWithoutParent_customerInput[]
+  createMany?: Prisma.CustomerCreateManyParent_customerInputEnvelope
+  set?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  disconnect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  delete?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  connect?: Prisma.CustomerWhereUniqueInput | Prisma.CustomerWhereUniqueInput[]
+  update?: Prisma.CustomerUpdateWithWhereUniqueWithoutParent_customerInput | Prisma.CustomerUpdateWithWhereUniqueWithoutParent_customerInput[]
+  updateMany?: Prisma.CustomerUpdateManyWithWhereWithoutParent_customerInput | Prisma.CustomerUpdateManyWithWhereWithoutParent_customerInput[]
+  deleteMany?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
 }
 
 export type CustomerCreateNestedOneWithoutProductsInput = {
@@ -753,6 +864,7 @@ export type CustomerCreateWithoutWorkspaceInput = {
   id?: string
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -765,6 +877,8 @@ export type CustomerCreateWithoutWorkspaceInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
@@ -775,8 +889,10 @@ export type CustomerCreateWithoutWorkspaceInput = {
 
 export type CustomerUncheckedCreateWithoutWorkspaceInput = {
   id?: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -789,6 +905,7 @@ export type CustomerUncheckedCreateWithoutWorkspaceInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
@@ -829,8 +946,10 @@ export type CustomerScalarWhereInput = {
   NOT?: Prisma.CustomerScalarWhereInput | Prisma.CustomerScalarWhereInput[]
   id?: Prisma.UuidFilter<"Customer"> | string
   workspace_id?: Prisma.UuidFilter<"Customer"> | string
+  parent_customer_id?: Prisma.UuidNullableFilter<"Customer"> | string | null
   type?: Prisma.EnumCustomerTypeFilter<"Customer"> | $Enums.CustomerType
   legal_name?: Prisma.StringFilter<"Customer"> | string
+  branch_name?: Prisma.StringNullableFilter<"Customer"> | string | null
   trade_name?: Prisma.StringNullableFilter<"Customer"> | string | null
   tax_number?: Prisma.StringNullableFilter<"Customer"> | string | null
   tax_office?: Prisma.StringNullableFilter<"Customer"> | string | null
@@ -845,10 +964,11 @@ export type CustomerScalarWhereInput = {
   deleted_at?: Prisma.DateTimeNullableFilter<"Customer"> | Date | string | null
 }
 
-export type CustomerCreateWithoutProductsInput = {
+export type CustomerCreateWithoutBranchesInput = {
   id?: string
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -862,6 +982,8 @@ export type CustomerCreateWithoutProductsInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutCustomerInput
@@ -869,11 +991,13 @@ export type CustomerCreateWithoutProductsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCustomerInput
 }
 
-export type CustomerUncheckedCreateWithoutProductsInput = {
+export type CustomerUncheckedCreateWithoutBranchesInput = {
   id?: string
   workspace_id: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -886,6 +1010,211 @@ export type CustomerUncheckedCreateWithoutProductsInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutCustomerInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCustomerInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutBranchesInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutBranchesInput, Prisma.CustomerUncheckedCreateWithoutBranchesInput>
+}
+
+export type CustomerCreateWithoutParent_customerInput = {
+  id?: string
+  type?: $Enums.CustomerType
+  legal_name: string
+  branch_name?: string | null
+  trade_name?: string | null
+  tax_number?: string | null
+  tax_office?: string | null
+  email?: string | null
+  phone?: string | null
+  website_url?: string | null
+  billing_address?: string | null
+  status?: $Enums.CustomerStatus
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
+  products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
+  domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
+  billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutCustomerInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutCustomerInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutParent_customerInput = {
+  id?: string
+  workspace_id: string
+  type?: $Enums.CustomerType
+  legal_name: string
+  branch_name?: string | null
+  trade_name?: string | null
+  tax_number?: string | null
+  tax_office?: string | null
+  email?: string | null
+  phone?: string | null
+  website_url?: string | null
+  billing_address?: string | null
+  status?: $Enums.CustomerStatus
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutCustomerInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutCustomerInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerCreateOrConnectWithoutParent_customerInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutParent_customerInput, Prisma.CustomerUncheckedCreateWithoutParent_customerInput>
+}
+
+export type CustomerCreateManyParent_customerInputEnvelope = {
+  data: Prisma.CustomerCreateManyParent_customerInput | Prisma.CustomerCreateManyParent_customerInput[]
+  skipDuplicates?: boolean
+}
+
+export type CustomerUpsertWithoutBranchesInput = {
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutBranchesInput, Prisma.CustomerUncheckedUpdateWithoutBranchesInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutBranchesInput, Prisma.CustomerUncheckedCreateWithoutBranchesInput>
+  where?: Prisma.CustomerWhereInput
+}
+
+export type CustomerUpdateToOneWithWhereWithoutBranchesInput = {
+  where?: Prisma.CustomerWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutBranchesInput, Prisma.CustomerUncheckedUpdateWithoutBranchesInput>
+}
+
+export type CustomerUpdateWithoutBranchesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billing_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
+  billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutCustomerNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutCustomerNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutBranchesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billing_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutCustomerNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCustomerNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUpsertWithWhereUniqueWithoutParent_customerInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  update: Prisma.XOR<Prisma.CustomerUpdateWithoutParent_customerInput, Prisma.CustomerUncheckedUpdateWithoutParent_customerInput>
+  create: Prisma.XOR<Prisma.CustomerCreateWithoutParent_customerInput, Prisma.CustomerUncheckedCreateWithoutParent_customerInput>
+}
+
+export type CustomerUpdateWithWhereUniqueWithoutParent_customerInput = {
+  where: Prisma.CustomerWhereUniqueInput
+  data: Prisma.XOR<Prisma.CustomerUpdateWithoutParent_customerInput, Prisma.CustomerUncheckedUpdateWithoutParent_customerInput>
+}
+
+export type CustomerUpdateManyWithWhereWithoutParent_customerInput = {
+  where: Prisma.CustomerScalarWhereInput
+  data: Prisma.XOR<Prisma.CustomerUpdateManyMutationInput, Prisma.CustomerUncheckedUpdateManyWithoutParent_customerInput>
+}
+
+export type CustomerCreateWithoutProductsInput = {
+  id?: string
+  type?: $Enums.CustomerType
+  legal_name: string
+  branch_name?: string | null
+  trade_name?: string | null
+  tax_number?: string | null
+  tax_office?: string | null
+  email?: string | null
+  phone?: string | null
+  website_url?: string | null
+  billing_address?: string | null
+  status?: $Enums.CustomerStatus
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
+  domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
+  billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutCustomerInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutCustomerInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCustomerInput
+}
+
+export type CustomerUncheckedCreateWithoutProductsInput = {
+  id?: string
+  workspace_id: string
+  parent_customer_id?: string | null
+  type?: $Enums.CustomerType
+  legal_name: string
+  branch_name?: string | null
+  trade_name?: string | null
+  tax_number?: string | null
+  tax_office?: string | null
+  email?: string | null
+  phone?: string | null
+  website_url?: string | null
+  billing_address?: string | null
+  status?: $Enums.CustomerStatus
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutCustomerInput
@@ -913,6 +1242,7 @@ export type CustomerUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -926,6 +1256,8 @@ export type CustomerUpdateWithoutProductsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutCustomerNestedInput
@@ -936,8 +1268,10 @@ export type CustomerUpdateWithoutProductsInput = {
 export type CustomerUncheckedUpdateWithoutProductsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -950,6 +1284,7 @@ export type CustomerUncheckedUpdateWithoutProductsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutCustomerNestedInput
@@ -961,6 +1296,7 @@ export type CustomerCreateWithoutProjectsInput = {
   id?: string
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -974,6 +1310,8 @@ export type CustomerCreateWithoutProjectsInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutCustomerInput
@@ -984,8 +1322,10 @@ export type CustomerCreateWithoutProjectsInput = {
 export type CustomerUncheckedCreateWithoutProjectsInput = {
   id?: string
   workspace_id: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -998,6 +1338,7 @@ export type CustomerUncheckedCreateWithoutProjectsInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutCustomerInput
@@ -1025,6 +1366,7 @@ export type CustomerUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1038,6 +1380,8 @@ export type CustomerUpdateWithoutProjectsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutCustomerNestedInput
@@ -1048,8 +1392,10 @@ export type CustomerUpdateWithoutProjectsInput = {
 export type CustomerUncheckedUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1062,6 +1408,7 @@ export type CustomerUncheckedUpdateWithoutProjectsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1073,6 +1420,7 @@ export type CustomerCreateWithoutDomainsInput = {
   id?: string
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1086,6 +1434,8 @@ export type CustomerCreateWithoutDomainsInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutCustomerInput
@@ -1096,8 +1446,10 @@ export type CustomerCreateWithoutDomainsInput = {
 export type CustomerUncheckedCreateWithoutDomainsInput = {
   id?: string
   workspace_id: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1110,6 +1462,7 @@ export type CustomerUncheckedCreateWithoutDomainsInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutCustomerInput
@@ -1137,6 +1490,7 @@ export type CustomerUpdateWithoutDomainsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1150,6 +1504,8 @@ export type CustomerUpdateWithoutDomainsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
   billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutCustomerNestedInput
@@ -1160,8 +1516,10 @@ export type CustomerUpdateWithoutDomainsInput = {
 export type CustomerUncheckedUpdateWithoutDomainsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1174,6 +1532,7 @@ export type CustomerUncheckedUpdateWithoutDomainsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1185,6 +1544,7 @@ export type CustomerCreateWithoutBilling_schedulesInput = {
   id?: string
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1198,6 +1558,8 @@ export type CustomerCreateWithoutBilling_schedulesInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
@@ -1208,8 +1570,10 @@ export type CustomerCreateWithoutBilling_schedulesInput = {
 export type CustomerUncheckedCreateWithoutBilling_schedulesInput = {
   id?: string
   workspace_id: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1222,6 +1586,7 @@ export type CustomerUncheckedCreateWithoutBilling_schedulesInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
@@ -1249,6 +1614,7 @@ export type CustomerUpdateWithoutBilling_schedulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1262,6 +1628,8 @@ export type CustomerUpdateWithoutBilling_schedulesInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
@@ -1272,8 +1640,10 @@ export type CustomerUpdateWithoutBilling_schedulesInput = {
 export type CustomerUncheckedUpdateWithoutBilling_schedulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1286,6 +1656,7 @@ export type CustomerUncheckedUpdateWithoutBilling_schedulesInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1297,6 +1668,7 @@ export type CustomerCreateWithoutInvoicesInput = {
   id?: string
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1310,6 +1682,8 @@ export type CustomerCreateWithoutInvoicesInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
@@ -1320,8 +1694,10 @@ export type CustomerCreateWithoutInvoicesInput = {
 export type CustomerUncheckedCreateWithoutInvoicesInput = {
   id?: string
   workspace_id: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1334,6 +1710,7 @@ export type CustomerUncheckedCreateWithoutInvoicesInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
@@ -1361,6 +1738,7 @@ export type CustomerUpdateWithoutInvoicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1374,6 +1752,8 @@ export type CustomerUpdateWithoutInvoicesInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
@@ -1384,8 +1764,10 @@ export type CustomerUpdateWithoutInvoicesInput = {
 export type CustomerUncheckedUpdateWithoutInvoicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1398,6 +1780,7 @@ export type CustomerUncheckedUpdateWithoutInvoicesInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1409,6 +1792,7 @@ export type CustomerCreateWithoutPaymentsInput = {
   id?: string
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1422,6 +1806,8 @@ export type CustomerCreateWithoutPaymentsInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutCustomersInput
+  parent_customer?: Prisma.CustomerCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.CustomerCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainCreateNestedManyWithoutCustomerInput
@@ -1432,8 +1818,10 @@ export type CustomerCreateWithoutPaymentsInput = {
 export type CustomerUncheckedCreateWithoutPaymentsInput = {
   id?: string
   workspace_id: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1446,6 +1834,7 @@ export type CustomerUncheckedCreateWithoutPaymentsInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  branches?: Prisma.CustomerUncheckedCreateNestedManyWithoutParent_customerInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutCustomerInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCustomerInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutCustomerInput
@@ -1473,6 +1862,7 @@ export type CustomerUpdateWithoutPaymentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1486,6 +1876,8 @@ export type CustomerUpdateWithoutPaymentsInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
@@ -1496,8 +1888,10 @@ export type CustomerUpdateWithoutPaymentsInput = {
 export type CustomerUncheckedUpdateWithoutPaymentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1510,6 +1904,7 @@ export type CustomerUncheckedUpdateWithoutPaymentsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1519,8 +1914,10 @@ export type CustomerUncheckedUpdateWithoutPaymentsInput = {
 
 export type CustomerCreateManyWorkspaceInput = {
   id?: string
+  parent_customer_id?: string | null
   type?: $Enums.CustomerType
   legal_name: string
+  branch_name?: string | null
   trade_name?: string | null
   tax_number?: string | null
   tax_office?: string | null
@@ -1539,6 +1936,7 @@ export type CustomerUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1551,6 +1949,8 @@ export type CustomerUpdateWithoutWorkspaceInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  parent_customer?: Prisma.CustomerUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
@@ -1561,8 +1961,10 @@ export type CustomerUpdateWithoutWorkspaceInput = {
 
 export type CustomerUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1575,6 +1977,7 @@ export type CustomerUncheckedUpdateWithoutWorkspaceInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
@@ -1585,8 +1988,104 @@ export type CustomerUncheckedUpdateWithoutWorkspaceInput = {
 
 export type CustomerUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  parent_customer_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
   legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billing_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type CustomerCreateManyParent_customerInput = {
+  id?: string
+  workspace_id: string
+  type?: $Enums.CustomerType
+  legal_name: string
+  branch_name?: string | null
+  trade_name?: string | null
+  tax_number?: string | null
+  tax_office?: string | null
+  email?: string | null
+  phone?: string | null
+  website_url?: string | null
+  billing_address?: string | null
+  status?: $Enums.CustomerStatus
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+}
+
+export type CustomerUpdateWithoutParent_customerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billing_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCustomersNestedInput
+  branches?: Prisma.CustomerUpdateManyWithoutParent_customerNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCustomerNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutCustomerNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutCustomerNestedInput
+  billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutCustomerNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutCustomerNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateWithoutParent_customerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  billing_address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumCustomerStatusFieldUpdateOperationsInput | $Enums.CustomerStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  branches?: Prisma.CustomerUncheckedUpdateManyWithoutParent_customerNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCustomerNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutCustomerNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutCustomerNestedInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutCustomerNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutCustomerNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCustomerNestedInput
+}
+
+export type CustomerUncheckedUpdateManyWithoutParent_customerInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumCustomerTypeFieldUpdateOperationsInput | $Enums.CustomerType
+  legal_name?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   trade_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tax_office?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1607,6 +2106,7 @@ export type CustomerUncheckedUpdateManyWithoutWorkspaceInput = {
  */
 
 export type CustomerCountOutputType = {
+  branches: number
   products: number
   projects: number
   domains: number
@@ -1616,6 +2116,7 @@ export type CustomerCountOutputType = {
 }
 
 export type CustomerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  branches?: boolean | CustomerCountOutputTypeCountBranchesArgs
   products?: boolean | CustomerCountOutputTypeCountProductsArgs
   projects?: boolean | CustomerCountOutputTypeCountProjectsArgs
   domains?: boolean | CustomerCountOutputTypeCountDomainsArgs
@@ -1632,6 +2133,13 @@ export type CustomerCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
    * Select specific fields to fetch from the CustomerCountOutputType
    */
   select?: Prisma.CustomerCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * CustomerCountOutputType without action
+ */
+export type CustomerCountOutputTypeCountBranchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerWhereInput
 }
 
 /**
@@ -1680,8 +2188,10 @@ export type CustomerCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Typ
 export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspace_id?: boolean
+  parent_customer_id?: boolean
   type?: boolean
   legal_name?: boolean
+  branch_name?: boolean
   trade_name?: boolean
   tax_number?: boolean
   tax_office?: boolean
@@ -1695,6 +2205,8 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updated_at?: boolean
   deleted_at?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  parent_customer?: boolean | Prisma.Customer$parent_customerArgs<ExtArgs>
+  branches?: boolean | Prisma.Customer$branchesArgs<ExtArgs>
   products?: boolean | Prisma.Customer$productsArgs<ExtArgs>
   projects?: boolean | Prisma.Customer$projectsArgs<ExtArgs>
   domains?: boolean | Prisma.Customer$domainsArgs<ExtArgs>
@@ -1707,8 +2219,10 @@ export type CustomerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspace_id?: boolean
+  parent_customer_id?: boolean
   type?: boolean
   legal_name?: boolean
+  branch_name?: boolean
   trade_name?: boolean
   tax_number?: boolean
   tax_office?: boolean
@@ -1722,13 +2236,16 @@ export type CustomerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updated_at?: boolean
   deleted_at?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  parent_customer?: boolean | Prisma.Customer$parent_customerArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
 export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   workspace_id?: boolean
+  parent_customer_id?: boolean
   type?: boolean
   legal_name?: boolean
+  branch_name?: boolean
   trade_name?: boolean
   tax_number?: boolean
   tax_office?: boolean
@@ -1742,13 +2259,16 @@ export type CustomerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updated_at?: boolean
   deleted_at?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  parent_customer?: boolean | Prisma.Customer$parent_customerArgs<ExtArgs>
 }, ExtArgs["result"]["customer"]>
 
 export type CustomerSelectScalar = {
   id?: boolean
   workspace_id?: boolean
+  parent_customer_id?: boolean
   type?: boolean
   legal_name?: boolean
+  branch_name?: boolean
   trade_name?: boolean
   tax_number?: boolean
   tax_office?: boolean
@@ -1763,9 +2283,11 @@ export type CustomerSelectScalar = {
   deleted_at?: boolean
 }
 
-export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "type" | "legal_name" | "trade_name" | "tax_number" | "tax_office" | "email" | "phone" | "website_url" | "billing_address" | "status" | "notes" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["customer"]>
+export type CustomerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "parent_customer_id" | "type" | "legal_name" | "branch_name" | "trade_name" | "tax_number" | "tax_office" | "email" | "phone" | "website_url" | "billing_address" | "status" | "notes" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["customer"]>
 export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  parent_customer?: boolean | Prisma.Customer$parent_customerArgs<ExtArgs>
+  branches?: boolean | Prisma.Customer$branchesArgs<ExtArgs>
   products?: boolean | Prisma.Customer$productsArgs<ExtArgs>
   projects?: boolean | Prisma.Customer$projectsArgs<ExtArgs>
   domains?: boolean | Prisma.Customer$domainsArgs<ExtArgs>
@@ -1776,15 +2298,19 @@ export type CustomerInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
 }
 export type CustomerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  parent_customer?: boolean | Prisma.Customer$parent_customerArgs<ExtArgs>
 }
 export type CustomerIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  parent_customer?: boolean | Prisma.Customer$parent_customerArgs<ExtArgs>
 }
 
 export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Customer"
   objects: {
     workspace: Prisma.$WorkspacePayload<ExtArgs>
+    parent_customer: Prisma.$CustomerPayload<ExtArgs> | null
+    branches: Prisma.$CustomerPayload<ExtArgs>[]
     products: Prisma.$ProductPayload<ExtArgs>[]
     projects: Prisma.$ProjectPayload<ExtArgs>[]
     domains: Prisma.$DomainPayload<ExtArgs>[]
@@ -1795,8 +2321,10 @@ export type $CustomerPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     workspace_id: string
+    parent_customer_id: string | null
     type: $Enums.CustomerType
     legal_name: string
+    branch_name: string | null
     trade_name: string | null
     tax_number: string | null
     tax_office: string | null
@@ -2204,6 +2732,8 @@ readonly fields: CustomerFieldRefs;
 export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  parent_customer<T extends Prisma.Customer$parent_customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$parent_customerArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  branches<T extends Prisma.Customer$branchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$branchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   products<T extends Prisma.Customer$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projects<T extends Prisma.Customer$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   domains<T extends Prisma.Customer$domainsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Customer$domainsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DomainPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2241,8 +2771,10 @@ export interface Prisma__CustomerClient<T, Null = never, ExtArgs extends runtime
 export interface CustomerFieldRefs {
   readonly id: Prisma.FieldRef<"Customer", 'String'>
   readonly workspace_id: Prisma.FieldRef<"Customer", 'String'>
+  readonly parent_customer_id: Prisma.FieldRef<"Customer", 'String'>
   readonly type: Prisma.FieldRef<"Customer", 'CustomerType'>
   readonly legal_name: Prisma.FieldRef<"Customer", 'String'>
+  readonly branch_name: Prisma.FieldRef<"Customer", 'String'>
   readonly trade_name: Prisma.FieldRef<"Customer", 'String'>
   readonly tax_number: Prisma.FieldRef<"Customer", 'String'>
   readonly tax_office: Prisma.FieldRef<"Customer", 'String'>
@@ -2653,6 +3185,49 @@ export type CustomerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Customers to delete.
    */
   limit?: number
+}
+
+/**
+ * Customer.parent_customer
+ */
+export type Customer$parent_customerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+}
+
+/**
+ * Customer.branches
+ */
+export type Customer$branchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+  orderBy?: Prisma.CustomerOrderByWithRelationInput | Prisma.CustomerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
 }
 
 /**

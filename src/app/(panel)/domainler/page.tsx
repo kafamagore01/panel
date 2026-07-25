@@ -191,7 +191,7 @@ export default async function DomainsPage({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard title="Takipteki Domain" value={trackedCount} icon="Globe" tone="primary" />
         <KpiCard title="30 Gün İçinde Bitiyor" value={expiringCount} icon="Clock" />
-        <KpiCard title="Süresi Geçmiş" value={overdueCount} icon="AlertCircle" tone="danger" />
+        <KpiCard title="Süresi Geçmiş" value={overdueCount} icon="CircleAlert" tone="danger" />
         <KpiCard title="SSL Yenilemesi Yakın" value={sslExpiringCount} icon="ShieldCheck" tone="success" />
       </div>
 

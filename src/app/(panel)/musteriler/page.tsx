@@ -35,15 +35,23 @@ export default async function CustomersPage({
     ];
   }
 
-  const [customers, total] = await Promise.all([
+  const [customers, total, parentCustomers] = await Promise.all([
     db.customer.findMany({
       where,
       orderBy: { created_at: "desc" },
       skip,
       take,
-      include: { _count: { select: { projects: true } } },
+      include: {
+        parent_customer: { select: { legal_name: true } },
+        _count: { select: { projects: true } },
+      },
     }),
     db.customer.count({ where }),
+    db.customer.findMany({
+      where: { parent_customer_id: null },
+      orderBy: { legal_name: "asc" },
+      select: { id: true, legal_name: true },
+    }),
   ]);
 
   const rows: CustomerRow[] = customers.map((c) => ({
@@ -54,10 +62,14 @@ export default async function CustomersPage({
     email: c.email,
     phone: c.phone,
     status: c.status,
+    parent_legal_name: c.parent_customer?.legal_name ?? null,
     project_count: c._count.projects,
     raw: {
       id: c.id,
       type: c.type,
+      customer_kind: c.parent_customer_id ? "branch" : "headquarters",
+      parent_customer_id: c.parent_customer_id ?? "",
+      branch_name: c.branch_name ?? "",
       legal_name: c.legal_name,
       trade_name: c.trade_name ?? "",
       tax_number: c.tax_number ?? "",
@@ -73,6 +85,10 @@ export default async function CustomersPage({
 
   const canManage = hasPermission(ctx?.role ?? null, "record.manage");
   const canArchive = hasPermission(ctx?.role ?? null, "record.archive");
+  const parentOptions = parentCustomers.map((customer) => ({
+    id: customer.id,
+    label: customer.legal_name,
+  }));
 
   return (
     <div className="space-y-6">
@@ -84,7 +100,12 @@ export default async function CustomersPage({
         statusOptions={CUSTOMER_STATUS_OPTIONS}
         searchPlaceholder="Unvan, e-posta veya vergi no ara..."
       />
-      <CustomersView customers={rows} canManage={canManage} canArchive={canArchive} />
+      <CustomersView
+        customers={rows}
+        parentOptions={parentOptions}
+        canManage={canManage}
+        canArchive={canArchive}
+      />
       <PaginationBar page={page} totalPages={pageCount(total)} totalItems={total} />
     </div>
   );

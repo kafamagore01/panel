@@ -189,6 +189,7 @@ model User {
   id                    String    @id @default(uuid(4)) @db.Uuid
   name                  String
   email                 String    @unique
+  avatar_url            String?   @db.Text
   password_hash         String
   email_verified_at     DateTime?
   two_factor_enabled_at DateTime?
@@ -262,24 +263,28 @@ model OtpCode {
 // ─── CRM: Müşteri / Ürün / Proje ─────────────────────────────────────────────
 
 model Customer {
-  id              String         @id @default(uuid(4)) @db.Uuid
-  workspace_id    String         @db.Uuid
-  type            CustomerType   @default(company)
-  legal_name      String
-  trade_name      String?
-  tax_number      String?
-  tax_office      String?
-  email           String?
-  phone           String?
-  website_url     String?
-  billing_address String?
-  status          CustomerStatus @default(lead)
-  notes           String?
-  created_at      DateTime       @default(now())
-  updated_at      DateTime       @updatedAt
-  deleted_at      DateTime?
+  id                 String         @id @default(uuid(4)) @db.Uuid
+  workspace_id       String         @db.Uuid
+  parent_customer_id String?        @db.Uuid
+  type               CustomerType   @default(company)
+  legal_name         String
+  branch_name        String?
+  trade_name         String?
+  tax_number         String?
+  tax_office         String?
+  email              String?
+  phone              String?
+  website_url        String?
+  billing_address    String?
+  status             CustomerStatus @default(lead)
+  notes              String?
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+  deleted_at         DateTime?
 
   workspace         Workspace         @relation(fields: [workspace_id], references: [id])
+  parent_customer   Customer?         @relation("CustomerBranches", fields: [parent_customer_id], references: [id], onDelete: Restrict)
+  branches          Customer[]        @relation("CustomerBranches")
   products          Product[]
   projects          Project[]
   domains           Domain[]
@@ -289,6 +294,7 @@ model Customer {
 
   @@index([workspace_id])
   @@index([workspace_id, status])
+  @@index([workspace_id, parent_customer_id])
   @@map("customers")
 }
 

@@ -49,6 +49,8 @@ export default async function FinancePage() {
           code: true,
           name: true,
           branch_name: true,
+          budget: true,
+          currency: true,
           customer: { select: { legal_name: true } },
         },
       }),
@@ -89,6 +91,8 @@ export default async function FinancePage() {
   const projectOptions = projects.map((p) => ({
     id: p.id,
     label: `${p.code} · ${p.name} · ${p.customer.legal_name} · Şube: ${p.branch_name?.trim() || "Belirtilmedi"}`,
+    budget: p.budget === null ? null : toNumber(p.budget),
+    currency: p.currency,
   }));
 
   return (
@@ -97,7 +101,7 @@ export default async function FinancePage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <KpiCard title="Açık Bakiye" value={formatMoney(toNumber(outstanding._sum.balance_due), "TRY")} icon="Wallet" tone="primary" />
-        <KpiCard title="Gecikmiş Fatura" value={overdueCount} icon="AlertCircle" tone="danger" />
+        <KpiCard title="Gecikmiş Fatura" value={overdueCount} icon="CircleAlert" tone="danger" />
         <KpiCard title="Toplam Fatura" value={invoices.length} icon="FileText" />
       </div>
 

@@ -73,6 +73,7 @@ export default async function PanelLayout({
             <UserMenu
               name={ctx.user.name}
               email={ctx.user.email}
+              avatarUrl={ctx.user.avatar_url}
               role={roleLabel(ctx.role)}
             />
           </div>

@@ -21,7 +21,11 @@ import { StatusBadge } from "@/components/status-badge";
 import { FormDrawer } from "@/components/form-drawer";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
-import { CustomerForm, type CustomerFormValues } from "./customer-form";
+import {
+  CustomerForm,
+  type CustomerFormValues,
+  type CustomerParentOption,
+} from "./customer-form";
 import { archiveCustomer } from "@/actions/customers";
 
 export type CustomerRow = {
@@ -32,16 +36,19 @@ export type CustomerRow = {
   email: string | null;
   phone: string | null;
   status: string;
+  parent_legal_name: string | null;
   project_count: number;
   raw: CustomerFormValues;
 };
 
 export function CustomersView({
   customers,
+  parentOptions,
   canManage,
   canArchive,
 }: {
   customers: CustomerRow[];
+  parentOptions: CustomerParentOption[];
   canManage: boolean;
   canArchive: boolean;
 }) {
@@ -92,9 +99,13 @@ export function CustomersView({
                 <TableRow key={c.id}>
                   <TableCell>
                     <div className="font-semibold text-[#141821]">{c.legal_name}</div>
-                    {c.trade_name && (
+                    {c.parent_legal_name ? (
+                      <div className="text-xs text-muted-foreground">
+                        Şube · {c.parent_legal_name}
+                      </div>
+                    ) : c.trade_name ? (
                       <div className="text-xs text-muted-foreground">{c.trade_name}</div>
-                    )}
+                    ) : null}
                   </TableCell>
                   <TableCell className="text-sm">
                     <div>{c.email ?? "—"}</div>
@@ -157,7 +168,11 @@ export function CustomersView({
         title={editing?.id ? "Müşteri Düzenle" : "Yeni Müşteri"}
         description="Müşteri bilgilerini girin."
       >
-        <CustomerForm initial={editing} onDone={() => setDrawerOpen(false)} />
+        <CustomerForm
+          initial={editing}
+          parentOptions={parentOptions}
+          onDone={() => setDrawerOpen(false)}
+        />
       </FormDrawer>
     </>
   );

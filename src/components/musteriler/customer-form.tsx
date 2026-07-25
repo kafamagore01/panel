@@ -16,10 +16,19 @@ import {
 import { createCustomer, updateCustomer } from "@/actions/customers";
 import { Field } from "@/components/form-field";
 import { useRouter } from "next/navigation";
+import { buildBranchLegalName } from "@/lib/customer-name";
+
+export type CustomerParentOption = {
+  id: string;
+  label: string;
+};
 
 export type CustomerFormValues = {
   id?: string;
   type: string;
+  customer_kind: "headquarters" | "branch";
+  parent_customer_id: string;
+  branch_name: string;
   legal_name: string;
   trade_name: string;
   tax_number: string;
@@ -34,6 +43,9 @@ export type CustomerFormValues = {
 
 const EMPTY: CustomerFormValues = {
   type: "company",
+  customer_kind: "headquarters",
+  parent_customer_id: "",
+  branch_name: "",
   legal_name: "",
   trade_name: "",
   tax_number: "",
@@ -48,27 +60,68 @@ const EMPTY: CustomerFormValues = {
 
 export function CustomerForm({
   initial,
+  parentOptions,
   onDone,
 }: {
   initial?: Partial<CustomerFormValues>;
+  parentOptions: CustomerParentOption[];
   onDone: () => void;
 }) {
   const router = useRouter();
   const [values, setValues] = useState<CustomerFormValues>({ ...EMPTY, ...initial });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [isPending, startTransition] = useTransition();
+  const availableParentOptions = parentOptions.filter(
+    (option) => option.id !== initial?.id
+  );
+  const selectedParent = availableParentOptions.find(
+    (option) => option.id === values.parent_customer_id
+  );
+  const isBranch = values.customer_kind === "branch";
+  const branchLegalName =
+    isBranch && selectedParent
+      ? buildBranchLegalName(selectedParent.label, values.branch_name)
+      : "";
 
   function set<K extends keyof CustomerFormValues>(key: K, value: CustomerFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 
+  function onTypeChange(type: string) {
+    setValues((prev) => ({
+      ...prev,
+      type,
+      ...(type === "individual"
+        ? {
+            customer_kind: "headquarters" as const,
+            parent_customer_id: "",
+            branch_name: "",
+          }
+        : {}),
+    }));
+  }
+
+  function onCustomerKindChange(customerKind: "headquarters" | "branch") {
+    setValues((prev) => ({
+      ...prev,
+      customer_kind: customerKind,
+      parent_customer_id:
+        customerKind === "branch" ? prev.parent_customer_id : "",
+      branch_name: customerKind === "branch" ? prev.branch_name : "",
+    }));
+  }
+
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrors({});
+    const payload = {
+      ...values,
+      legal_name: isBranch ? branchLegalName : values.legal_name,
+    };
     startTransition(async () => {
       const res = initial?.id
-        ? await updateCustomer(initial.id, values)
-        : await createCustomer(values);
+        ? await updateCustomer(initial.id, payload)
+        : await createCustomer(payload);
       if (res.success) {
         toast.success(res.message ?? "Kaydedildi.");
         onDone();
@@ -84,7 +137,7 @@ export function CustomerForm({
     <form onSubmit={onSubmit} className="space-y-4 pt-4">
       <div className="grid grid-cols-2 gap-4">
         <Field label="Tür" error={errors.type}>
-          <Select value={values.type} onValueChange={(v) => set("type", v)}>
+          <Select value={values.type} onValueChange={onTypeChange}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="company">Kurumsal</SelectItem>
@@ -104,9 +157,95 @@ export function CustomerForm({
         </Field>
       </div>
 
-      <Field label={values.type === "company" ? "Unvan" : "Ad Soyad"} error={errors.legal_name} required>
-        <Input value={values.legal_name} onChange={(e) => set("legal_name", e.target.value)} required />
+      <Field
+        label="Müşteri Yapısı"
+        error={errors.customer_kind}
+        hint={
+          values.type === "individual"
+            ? "Şube bağlantısı yalnızca kurumsal müşterilerde kullanılabilir."
+            : undefined
+        }
+      >
+        <Select
+          value={values.customer_kind}
+          onValueChange={(value) =>
+            onCustomerKindChange(value as "headquarters" | "branch")
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="headquarters">Ana Merkez</SelectItem>
+            <SelectItem value="branch" disabled={values.type !== "company"}>
+              Şube
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </Field>
+
+      {isBranch ? (
+        <>
+          <div className="grid grid-cols-2 gap-4">
+            <Field
+              label="Ana Merkez"
+              error={errors.parent_customer_id}
+              required
+            >
+              <Select
+                value={values.parent_customer_id || undefined}
+                onValueChange={(value) => set("parent_customer_id", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Ana merkez seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableParentOptions.map((option) => (
+                    <SelectItem key={option.id} value={option.id}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field
+              label="Şube Adı"
+              error={errors.branch_name}
+              hint="Yalnızca şehir veya şube adını yazın."
+              required
+            >
+              <Input
+                value={values.branch_name}
+                onChange={(e) => set("branch_name", e.target.value)}
+                placeholder="Karaman"
+                required
+              />
+            </Field>
+          </div>
+
+          <Field label="Otomatik Unvan">
+            <Input
+              value={branchLegalName}
+              placeholder="Ana merkez ve şube adı seçildiğinde oluşur."
+              readOnly
+              className="bg-slate-50 font-medium"
+              aria-live="polite"
+            />
+          </Field>
+        </>
+      ) : (
+        <Field
+          label={values.type === "company" ? "Unvan" : "Ad Soyad"}
+          error={errors.legal_name}
+          required
+        >
+          <Input
+            value={values.legal_name}
+            onChange={(e) => set("legal_name", e.target.value)}
+            required
+          />
+        </Field>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Marka / Ticari Ad" error={errors.trade_name}>

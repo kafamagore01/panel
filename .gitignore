@@ -41,3 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 safe.md
+SAFE_AUDIT_REPORT.md

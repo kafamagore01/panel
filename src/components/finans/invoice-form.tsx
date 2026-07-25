@@ -27,6 +27,11 @@ import { CurrencySelect, ExchangeRateField } from "@/components/currency-fields"
 import type { Option } from "@/components/projeler/project-form";
 import { useRouter } from "next/navigation";
 
+export type InvoiceProjectOption = Option & {
+  budget: number | null;
+  currency: string;
+};
+
 export function InvoiceForm({
   customers,
   projects,
@@ -34,7 +39,7 @@ export function InvoiceForm({
   onDone,
 }: {
   customers: Option[];
-  projects: Option[];
+  projects: InvoiceProjectOption[];
   /** TCMB günlük kur bülteni; alınamadıysa null. */
   rates: ExchangeRates | null;
   onDone: () => void;
@@ -63,6 +68,23 @@ export function InvoiceForm({
   /** Para birimi değişince önceki birime ait elle girilmiş kur düşer. */
   function setCurrency(code: string) {
     setValues((prev) => ({ ...prev, currency: code, manual_fx_rate: "" }));
+  }
+
+  function onProjectChange(value: string) {
+    const projectId = value === "none" ? "" : value;
+    const project = projects.find((option) => option.id === projectId);
+
+    setValues((prev) => ({
+      ...prev,
+      project_id: projectId,
+      ...(project?.budget != null && project.budget > 0
+        ? {
+            subtotal: String(project.budget),
+            currency: project.currency,
+            manual_fx_rate: "",
+          }
+        : {}),
+    }));
   }
 
   // Elle kur girilmişse o, girilmemişse günlük TCMB kuru
@@ -108,7 +130,7 @@ export function InvoiceForm({
       </Field>
 
       <Field label="Proje (opsiyonel)" error={errors.project_id}>
-        <Select value={values.project_id || "none"} onValueChange={(v) => set("project_id", v === "none" ? "" : v)}>
+        <Select value={values.project_id || "none"} onValueChange={onProjectChange}>
           <SelectTrigger className="w-full"><SelectValue placeholder="Proje seçin" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="none">— Seçilmedi —</SelectItem>

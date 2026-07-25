@@ -22,7 +22,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { FormDrawer } from "@/components/form-drawer";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
-import { InvoiceForm } from "./invoice-form";
+import { InvoiceForm, type InvoiceProjectOption } from "./invoice-form";
 import { ScheduleForm } from "./schedule-form";
 import { PaymentDialog } from "./payment-dialog";
 import type { Option } from "@/components/projeler/project-form";
@@ -65,7 +65,7 @@ export function FinanceView({
   invoices: InvoiceRow[];
   schedules: ScheduleRow[];
   customers: Option[];
-  projects: Option[];
+  projects: InvoiceProjectOption[];
   /** TCMB günlük kur bülteni; dövizli tutarların TL karşılığı için. */
   rates: ExchangeRates | null;
   canManage: boolean;

@@ -26,6 +26,7 @@ export default async function SettingsPage({
       <SettingsView
         name={ctx.user.name}
         email={ctx.user.email}
+        avatarUrl={ctx.user.avatar_url}
         twoFactorEnabled={ctx.user.two_factor_enabled}
         forcePasswordReset={ctx.user.force_password_reset}
         github={{

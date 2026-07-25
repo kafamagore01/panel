@@ -2048,6 +2048,7 @@ export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
+  avatar_url: 'avatar_url',
   password_hash: 'password_hash',
   email_verified_at: 'email_verified_at',
   two_factor_enabled_at: 'two_factor_enabled_at',
@@ -2103,8 +2104,10 @@ export type OtpCodeScalarFieldEnum = (typeof OtpCodeScalarFieldEnum)[keyof typeo
 export const CustomerScalarFieldEnum = {
   id: 'id',
   workspace_id: 'workspace_id',
+  parent_customer_id: 'parent_customer_id',
   type: 'type',
   legal_name: 'legal_name',
+  branch_name: 'branch_name',
   trade_name: 'trade_name',
   tax_number: 'tax_number',
   tax_office: 'tax_office',

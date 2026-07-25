@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { logoutAction } from "@/actions/auth";
 
 function initials(name: string): string {
@@ -27,10 +27,12 @@ function initials(name: string): string {
 export function UserMenu({
   name,
   email,
+  avatarUrl,
   role,
 }: {
   name: string;
   email: string;
+  avatarUrl: string | null;
   role: string;
 }) {
   const router = useRouter();
@@ -48,6 +50,13 @@ export function UserMenu({
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-2 rounded-full outline-none">
         <Avatar className="h-9 w-9 border border-slate-200">
+          {avatarUrl && (
+            <AvatarImage
+              src={avatarUrl}
+              alt={`${name} profil fotoğrafı`}
+              className="object-cover"
+            />
+          )}
           <AvatarFallback className="bg-[#5267ff] text-sm font-semibold text-white">
             {initials(name)}
           </AvatarFallback>

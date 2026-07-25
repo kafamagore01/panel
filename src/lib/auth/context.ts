@@ -8,6 +8,7 @@ export type AuthContext = {
     id: string;
     name: string;
     email: string;
+    avatar_url: string | null;
     force_password_reset: boolean;
     two_factor_enabled: boolean;
   };
@@ -33,6 +34,7 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
       id: true,
       name: true,
       email: true,
+      avatar_url: true,
       force_password_reset: true,
       two_factor_enabled_at: true,
       current_workspace_id: true,
@@ -70,6 +72,7 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
       id: user.id,
       name: user.name,
       email: user.email,
+      avatar_url: user.avatar_url,
       force_password_reset: user.force_password_reset,
       two_factor_enabled: Boolean(user.two_factor_enabled_at),
     },
