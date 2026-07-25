@@ -40,6 +40,7 @@ export type ProjectMinAggregateOutputType = {
   id: string | null
   workspace_id: string | null
   customer_id: string | null
+  source_project_id: string | null
   product_id: string | null
   owner_user_id: string | null
   code: string | null
@@ -70,6 +71,7 @@ export type ProjectMaxAggregateOutputType = {
   id: string | null
   workspace_id: string | null
   customer_id: string | null
+  source_project_id: string | null
   product_id: string | null
   owner_user_id: string | null
   code: string | null
@@ -100,6 +102,7 @@ export type ProjectCountAggregateOutputType = {
   id: number
   workspace_id: number
   customer_id: number
+  source_project_id: number
   product_id: number
   owner_user_id: number
   code: number
@@ -143,6 +146,7 @@ export type ProjectMinAggregateInputType = {
   id?: true
   workspace_id?: true
   customer_id?: true
+  source_project_id?: true
   product_id?: true
   owner_user_id?: true
   code?: true
@@ -173,6 +177,7 @@ export type ProjectMaxAggregateInputType = {
   id?: true
   workspace_id?: true
   customer_id?: true
+  source_project_id?: true
   product_id?: true
   owner_user_id?: true
   code?: true
@@ -203,6 +208,7 @@ export type ProjectCountAggregateInputType = {
   id?: true
   workspace_id?: true
   customer_id?: true
+  source_project_id?: true
   product_id?: true
   owner_user_id?: true
   code?: true
@@ -321,6 +327,7 @@ export type ProjectGroupByOutputType = {
   id: string
   workspace_id: string
   customer_id: string
+  source_project_id: string | null
   product_id: string | null
   owner_user_id: string | null
   code: string
@@ -375,6 +382,7 @@ export type ProjectWhereInput = {
   id?: Prisma.UuidFilter<"Project"> | string
   workspace_id?: Prisma.UuidFilter<"Project"> | string
   customer_id?: Prisma.UuidFilter<"Project"> | string
+  source_project_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   product_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   owner_user_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   code?: Prisma.StringFilter<"Project"> | string
@@ -402,6 +410,8 @@ export type ProjectWhereInput = {
   deleted_at?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
+  source_project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
+  sales?: Prisma.ProjectListRelationFilter
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
   owner?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   licenses?: Prisma.LicenseListRelationFilter
@@ -416,6 +426,7 @@ export type ProjectOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
+  source_project_id?: Prisma.SortOrderInput | Prisma.SortOrder
   product_id?: Prisma.SortOrderInput | Prisma.SortOrder
   owner_user_id?: Prisma.SortOrderInput | Prisma.SortOrder
   code?: Prisma.SortOrder
@@ -443,6 +454,8 @@ export type ProjectOrderByWithRelationInput = {
   deleted_at?: Prisma.SortOrderInput | Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   customer?: Prisma.CustomerOrderByWithRelationInput
+  source_project?: Prisma.ProjectOrderByWithRelationInput
+  sales?: Prisma.ProjectOrderByRelationAggregateInput
   product?: Prisma.ProductOrderByWithRelationInput
   owner?: Prisma.UserOrderByWithRelationInput
   licenses?: Prisma.LicenseOrderByRelationAggregateInput
@@ -461,6 +474,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ProjectWhereInput | Prisma.ProjectWhereInput[]
   workspace_id?: Prisma.UuidFilter<"Project"> | string
   customer_id?: Prisma.UuidFilter<"Project"> | string
+  source_project_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   product_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   owner_user_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   code?: Prisma.StringFilter<"Project"> | string
@@ -488,6 +502,8 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   deleted_at?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
+  source_project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
+  sales?: Prisma.ProjectListRelationFilter
   product?: Prisma.XOR<Prisma.ProductNullableScalarRelationFilter, Prisma.ProductWhereInput> | null
   owner?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   licenses?: Prisma.LicenseListRelationFilter
@@ -502,6 +518,7 @@ export type ProjectOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
+  source_project_id?: Prisma.SortOrderInput | Prisma.SortOrder
   product_id?: Prisma.SortOrderInput | Prisma.SortOrder
   owner_user_id?: Prisma.SortOrderInput | Prisma.SortOrder
   code?: Prisma.SortOrder
@@ -541,6 +558,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"Project"> | string
   workspace_id?: Prisma.UuidWithAggregatesFilter<"Project"> | string
   customer_id?: Prisma.UuidWithAggregatesFilter<"Project"> | string
+  source_project_id?: Prisma.UuidNullableWithAggregatesFilter<"Project"> | string | null
   product_id?: Prisma.UuidNullableWithAggregatesFilter<"Project"> | string | null
   owner_user_id?: Prisma.UuidNullableWithAggregatesFilter<"Project"> | string | null
   code?: Prisma.StringWithAggregatesFilter<"Project"> | string
@@ -595,6 +613,8 @@ export type ProjectCreateInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
@@ -609,6 +629,7 @@ export type ProjectUncheckedCreateInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -634,6 +655,7 @@ export type ProjectUncheckedCreateInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
@@ -669,6 +691,8 @@ export type ProjectUpdateInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
@@ -683,6 +707,7 @@ export type ProjectUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -708,6 +733,7 @@ export type ProjectUncheckedUpdateInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
@@ -720,6 +746,7 @@ export type ProjectCreateManyInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -778,6 +805,7 @@ export type ProjectUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -815,6 +843,11 @@ export type ProjectOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type ProjectNullableScalarRelationFilter = {
+  is?: Prisma.ProjectWhereInput | null
+  isNot?: Prisma.ProjectWhereInput | null
+}
+
 export type ProjectWorkspace_idCodeCompoundUniqueInput = {
   workspace_id: string
   code: string
@@ -824,6 +857,7 @@ export type ProjectCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
+  source_project_id?: Prisma.SortOrder
   product_id?: Prisma.SortOrder
   owner_user_id?: Prisma.SortOrder
   code?: Prisma.SortOrder
@@ -860,6 +894,7 @@ export type ProjectMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
+  source_project_id?: Prisma.SortOrder
   product_id?: Prisma.SortOrder
   owner_user_id?: Prisma.SortOrder
   code?: Prisma.SortOrder
@@ -890,6 +925,7 @@ export type ProjectMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspace_id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrder
+  source_project_id?: Prisma.SortOrder
   product_id?: Prisma.SortOrder
   owner_user_id?: Prisma.SortOrder
   code?: Prisma.SortOrder
@@ -924,11 +960,6 @@ export type ProjectSumOrderByAggregateInput = {
 export type ProjectScalarRelationFilter = {
   is?: Prisma.ProjectWhereInput
   isNot?: Prisma.ProjectWhereInput
-}
-
-export type ProjectNullableScalarRelationFilter = {
-  is?: Prisma.ProjectWhereInput | null
-  isNot?: Prisma.ProjectWhereInput | null
 }
 
 export type ProjectCreateNestedManyWithoutWorkspaceInput = {
@@ -1099,6 +1130,26 @@ export type ProjectUncheckedUpdateManyWithoutProductNestedInput = {
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
+export type ProjectCreateNestedOneWithoutSalesInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutSalesInput, Prisma.ProjectUncheckedCreateWithoutSalesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSalesInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectCreateNestedManyWithoutSource_projectInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutSource_projectInput, Prisma.ProjectUncheckedCreateWithoutSource_projectInput> | Prisma.ProjectCreateWithoutSource_projectInput[] | Prisma.ProjectUncheckedCreateWithoutSource_projectInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSource_projectInput | Prisma.ProjectCreateOrConnectWithoutSource_projectInput[]
+  createMany?: Prisma.ProjectCreateManySource_projectInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
+export type ProjectUncheckedCreateNestedManyWithoutSource_projectInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutSource_projectInput, Prisma.ProjectUncheckedCreateWithoutSource_projectInput> | Prisma.ProjectCreateWithoutSource_projectInput[] | Prisma.ProjectUncheckedCreateWithoutSource_projectInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSource_projectInput | Prisma.ProjectCreateOrConnectWithoutSource_projectInput[]
+  createMany?: Prisma.ProjectCreateManySource_projectInputEnvelope
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+}
+
 export type EnumProjectStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProjectStatus
 }
@@ -1109,6 +1160,44 @@ export type NullableDecimalFieldUpdateOperationsInput = {
   decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
   multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type ProjectUpdateOneWithoutSalesNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutSalesInput, Prisma.ProjectUncheckedCreateWithoutSalesInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSalesInput
+  upsert?: Prisma.ProjectUpsertWithoutSalesInput
+  disconnect?: Prisma.ProjectWhereInput | boolean
+  delete?: Prisma.ProjectWhereInput | boolean
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutSalesInput, Prisma.ProjectUpdateWithoutSalesInput>, Prisma.ProjectUncheckedUpdateWithoutSalesInput>
+}
+
+export type ProjectUpdateManyWithoutSource_projectNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutSource_projectInput, Prisma.ProjectUncheckedCreateWithoutSource_projectInput> | Prisma.ProjectCreateWithoutSource_projectInput[] | Prisma.ProjectUncheckedCreateWithoutSource_projectInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSource_projectInput | Prisma.ProjectCreateOrConnectWithoutSource_projectInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutSource_projectInput | Prisma.ProjectUpsertWithWhereUniqueWithoutSource_projectInput[]
+  createMany?: Prisma.ProjectCreateManySource_projectInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutSource_projectInput | Prisma.ProjectUpdateWithWhereUniqueWithoutSource_projectInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutSource_projectInput | Prisma.ProjectUpdateManyWithWhereWithoutSource_projectInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
+}
+
+export type ProjectUncheckedUpdateManyWithoutSource_projectNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutSource_projectInput, Prisma.ProjectUncheckedCreateWithoutSource_projectInput> | Prisma.ProjectCreateWithoutSource_projectInput[] | Prisma.ProjectUncheckedCreateWithoutSource_projectInput[]
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutSource_projectInput | Prisma.ProjectCreateOrConnectWithoutSource_projectInput[]
+  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutSource_projectInput | Prisma.ProjectUpsertWithWhereUniqueWithoutSource_projectInput[]
+  createMany?: Prisma.ProjectCreateManySource_projectInputEnvelope
+  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
+  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutSource_projectInput | Prisma.ProjectUpdateWithWhereUniqueWithoutSource_projectInput[]
+  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutSource_projectInput | Prisma.ProjectUpdateManyWithWhereWithoutSource_projectInput[]
+  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
 export type ProjectCreateNestedOneWithoutLicensesInput = {
@@ -1227,6 +1316,8 @@ export type ProjectCreateWithoutWorkspaceInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
@@ -1240,6 +1331,7 @@ export type ProjectCreateWithoutWorkspaceInput = {
 export type ProjectUncheckedCreateWithoutWorkspaceInput = {
   id?: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -1265,6 +1357,7 @@ export type ProjectUncheckedCreateWithoutWorkspaceInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
@@ -1306,6 +1399,7 @@ export type ProjectScalarWhereInput = {
   id?: Prisma.UuidFilter<"Project"> | string
   workspace_id?: Prisma.UuidFilter<"Project"> | string
   customer_id?: Prisma.UuidFilter<"Project"> | string
+  source_project_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   product_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   owner_user_id?: Prisma.UuidNullableFilter<"Project"> | string | null
   code?: Prisma.StringFilter<"Project"> | string
@@ -1360,6 +1454,8 @@ export type ProjectCreateWithoutOwnerInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
@@ -1373,6 +1469,7 @@ export type ProjectUncheckedCreateWithoutOwnerInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   code: string
   branch_name?: string | null
@@ -1397,6 +1494,7 @@ export type ProjectUncheckedCreateWithoutOwnerInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
@@ -1457,6 +1555,8 @@ export type ProjectCreateWithoutCustomerInput = {
   updated_at?: Date | string
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
@@ -1470,6 +1570,7 @@ export type ProjectCreateWithoutCustomerInput = {
 export type ProjectUncheckedCreateWithoutCustomerInput = {
   id?: string
   workspace_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -1495,6 +1596,7 @@ export type ProjectUncheckedCreateWithoutCustomerInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
@@ -1556,6 +1658,8 @@ export type ProjectCreateWithoutProductInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
@@ -1569,6 +1673,7 @@ export type ProjectUncheckedCreateWithoutProductInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   owner_user_id?: string | null
   code: string
   branch_name?: string | null
@@ -1593,6 +1698,7 @@ export type ProjectUncheckedCreateWithoutProductInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
@@ -1627,7 +1733,7 @@ export type ProjectUpdateManyWithWhereWithoutProductInput = {
   data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutProductInput>
 }
 
-export type ProjectCreateWithoutLicensesInput = {
+export type ProjectCreateWithoutSalesInput = {
   id?: string
   code: string
   branch_name?: string | null
@@ -1654,8 +1760,10 @@ export type ProjectCreateWithoutLicensesInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
+  licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
@@ -1663,7 +1771,88 @@ export type ProjectCreateWithoutLicensesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
 }
 
-export type ProjectUncheckedCreateWithoutLicensesInput = {
+export type ProjectUncheckedCreateWithoutSalesInput = {
+  id?: string
+  workspace_id: string
+  customer_id: string
+  source_project_id?: string | null
+  product_id?: string | null
+  owner_user_id?: string | null
+  code: string
+  branch_name?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  start_date?: Date | string | null
+  target_end_date?: Date | string | null
+  live_at?: Date | string | null
+  budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: string | null
+  admin_url?: string | null
+  repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
+  license_webhook_url?: string | null
+  license_webhook_secret?: string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
+  server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutSalesInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutSalesInput, Prisma.ProjectUncheckedCreateWithoutSalesInput>
+}
+
+export type ProjectCreateWithoutSource_projectInput = {
+  id?: string
+  code: string
+  branch_name?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  start_date?: Date | string | null
+  target_end_date?: Date | string | null
+  live_at?: Date | string | null
+  budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: string | null
+  admin_url?: string | null
+  repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
+  license_webhook_url?: string | null
+  license_webhook_secret?: string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
+  product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
+  owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
+  licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
+  server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
+  billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutSource_projectInput = {
   id?: string
   workspace_id: string
   customer_id: string
@@ -1692,6 +1881,197 @@ export type ProjectUncheckedCreateWithoutLicensesInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
+  licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
+  server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutProjectInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutSource_projectInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutSource_projectInput, Prisma.ProjectUncheckedCreateWithoutSource_projectInput>
+}
+
+export type ProjectCreateManySource_projectInputEnvelope = {
+  data: Prisma.ProjectCreateManySource_projectInput | Prisma.ProjectCreateManySource_projectInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProjectUpsertWithoutSalesInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutSalesInput, Prisma.ProjectUncheckedUpdateWithoutSalesInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutSalesInput, Prisma.ProjectUncheckedCreateWithoutSalesInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutSalesInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutSalesInput, Prisma.ProjectUncheckedUpdateWithoutSalesInput>
+}
+
+export type ProjectUpdateWithoutSalesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  target_end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
+  owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
+  licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
+  server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
+  billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutSalesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  target_end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
+  server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUpsertWithWhereUniqueWithoutSource_projectInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutSource_projectInput, Prisma.ProjectUncheckedUpdateWithoutSource_projectInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutSource_projectInput, Prisma.ProjectUncheckedCreateWithoutSource_projectInput>
+}
+
+export type ProjectUpdateWithWhereUniqueWithoutSource_projectInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutSource_projectInput, Prisma.ProjectUncheckedUpdateWithoutSource_projectInput>
+}
+
+export type ProjectUpdateManyWithWhereWithoutSource_projectInput = {
+  where: Prisma.ProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutSource_projectInput>
+}
+
+export type ProjectCreateWithoutLicensesInput = {
+  id?: string
+  code: string
+  branch_name?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  start_date?: Date | string | null
+  target_end_date?: Date | string | null
+  live_at?: Date | string | null
+  budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: string | null
+  admin_url?: string | null
+  repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
+  license_webhook_url?: string | null
+  license_webhook_secret?: string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
+  customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
+  product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
+  owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
+  server_links?: Prisma.ProjectServerCreateNestedManyWithoutProjectInput
+  domains?: Prisma.DomainCreateNestedManyWithoutProjectInput
+  billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutProjectInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutProjectInput
+  webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutLicensesInput = {
+  id?: string
+  workspace_id: string
+  customer_id: string
+  source_project_id?: string | null
+  product_id?: string | null
+  owner_user_id?: string | null
+  code: string
+  branch_name?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  start_date?: Date | string | null
+  target_end_date?: Date | string | null
+  live_at?: Date | string | null
+  budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: string | null
+  admin_url?: string | null
+  repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
+  license_webhook_url?: string | null
+  license_webhook_secret?: string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
@@ -1742,6 +2122,8 @@ export type ProjectUpdateWithoutLicensesInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
@@ -1755,6 +2137,7 @@ export type ProjectUncheckedUpdateWithoutLicensesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1780,6 +2163,7 @@ export type ProjectUncheckedUpdateWithoutLicensesInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
@@ -1814,6 +2198,8 @@ export type ProjectCreateWithoutServer_linksInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
@@ -1827,6 +2213,7 @@ export type ProjectUncheckedCreateWithoutServer_linksInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -1852,6 +2239,7 @@ export type ProjectUncheckedCreateWithoutServer_linksInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
@@ -1902,6 +2290,8 @@ export type ProjectUpdateWithoutServer_linksInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
@@ -1915,6 +2305,7 @@ export type ProjectUncheckedUpdateWithoutServer_linksInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1940,6 +2331,7 @@ export type ProjectUncheckedUpdateWithoutServer_linksInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
@@ -1974,6 +2366,8 @@ export type ProjectCreateWithoutDomainsInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
@@ -1987,6 +2381,7 @@ export type ProjectUncheckedCreateWithoutDomainsInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -2012,6 +2407,7 @@ export type ProjectUncheckedCreateWithoutDomainsInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutProjectInput
@@ -2062,6 +2458,8 @@ export type ProjectUpdateWithoutDomainsInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
@@ -2075,6 +2473,7 @@ export type ProjectUncheckedUpdateWithoutDomainsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2100,6 +2499,7 @@ export type ProjectUncheckedUpdateWithoutDomainsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
@@ -2134,6 +2534,8 @@ export type ProjectCreateWithoutBilling_schedulesInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
@@ -2147,6 +2549,7 @@ export type ProjectUncheckedCreateWithoutBilling_schedulesInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -2172,6 +2575,7 @@ export type ProjectUncheckedCreateWithoutBilling_schedulesInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
@@ -2222,6 +2626,8 @@ export type ProjectUpdateWithoutBilling_schedulesInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
@@ -2235,6 +2641,7 @@ export type ProjectUncheckedUpdateWithoutBilling_schedulesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2260,6 +2667,7 @@ export type ProjectUncheckedUpdateWithoutBilling_schedulesInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
@@ -2294,6 +2702,8 @@ export type ProjectCreateWithoutInvoicesInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
@@ -2307,6 +2717,7 @@ export type ProjectUncheckedCreateWithoutInvoicesInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -2332,6 +2743,7 @@ export type ProjectUncheckedCreateWithoutInvoicesInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
@@ -2382,6 +2794,8 @@ export type ProjectUpdateWithoutInvoicesInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
@@ -2395,6 +2809,7 @@ export type ProjectUncheckedUpdateWithoutInvoicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2420,6 +2835,7 @@ export type ProjectUncheckedUpdateWithoutInvoicesInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
@@ -2454,6 +2870,8 @@ export type ProjectCreateWithoutWebhook_deliveriesInput = {
   deleted_at?: Date | string | null
   workspace: Prisma.WorkspaceCreateNestedOneWithoutProjectsInput
   customer: Prisma.CustomerCreateNestedOneWithoutProjectsInput
+  source_project?: Prisma.ProjectCreateNestedOneWithoutSalesInput
+  sales?: Prisma.ProjectCreateNestedManyWithoutSource_projectInput
   product?: Prisma.ProductCreateNestedOneWithoutProjectsInput
   owner?: Prisma.UserCreateNestedOneWithoutOwned_projectsInput
   licenses?: Prisma.LicenseCreateNestedManyWithoutProjectInput
@@ -2467,6 +2885,7 @@ export type ProjectUncheckedCreateWithoutWebhook_deliveriesInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -2492,6 +2911,7 @@ export type ProjectUncheckedCreateWithoutWebhook_deliveriesInput = {
   created_at?: Date | string
   updated_at?: Date | string
   deleted_at?: Date | string | null
+  sales?: Prisma.ProjectUncheckedCreateNestedManyWithoutSource_projectInput
   licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutProjectInput
   server_links?: Prisma.ProjectServerUncheckedCreateNestedManyWithoutProjectInput
   domains?: Prisma.DomainUncheckedCreateNestedManyWithoutProjectInput
@@ -2542,6 +2962,8 @@ export type ProjectUpdateWithoutWebhook_deliveriesInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
@@ -2555,6 +2977,7 @@ export type ProjectUncheckedUpdateWithoutWebhook_deliveriesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2580,6 +3003,7 @@ export type ProjectUncheckedUpdateWithoutWebhook_deliveriesInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
@@ -2590,6 +3014,7 @@ export type ProjectUncheckedUpdateWithoutWebhook_deliveriesInput = {
 export type ProjectCreateManyWorkspaceInput = {
   id?: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -2643,6 +3068,8 @@ export type ProjectUpdateWithoutWorkspaceInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
@@ -2656,6 +3083,7 @@ export type ProjectUpdateWithoutWorkspaceInput = {
 export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2681,6 +3109,7 @@ export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
@@ -2692,6 +3121,7 @@ export type ProjectUncheckedUpdateWithoutWorkspaceInput = {
 export type ProjectUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2723,6 +3153,7 @@ export type ProjectCreateManyOwnerInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   product_id?: string | null
   code: string
   branch_name?: string | null
@@ -2776,6 +3207,8 @@ export type ProjectUpdateWithoutOwnerInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
@@ -2789,6 +3222,7 @@ export type ProjectUncheckedUpdateWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2813,6 +3247,7 @@ export type ProjectUncheckedUpdateWithoutOwnerInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
@@ -2825,6 +3260,7 @@ export type ProjectUncheckedUpdateManyWithoutOwnerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2854,6 +3290,7 @@ export type ProjectUncheckedUpdateManyWithoutOwnerInput = {
 export type ProjectCreateManyCustomerInput = {
   id?: string
   workspace_id: string
+  source_project_id?: string | null
   product_id?: string | null
   owner_user_id?: string | null
   code: string
@@ -2907,6 +3344,8 @@ export type ProjectUpdateWithoutCustomerInput = {
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
@@ -2920,6 +3359,7 @@ export type ProjectUpdateWithoutCustomerInput = {
 export type ProjectUncheckedUpdateWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2945,6 +3385,7 @@ export type ProjectUncheckedUpdateWithoutCustomerInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
@@ -2956,6 +3397,7 @@ export type ProjectUncheckedUpdateWithoutCustomerInput = {
 export type ProjectUncheckedUpdateManyWithoutCustomerInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2987,6 +3429,7 @@ export type ProjectCreateManyProductInput = {
   id?: string
   workspace_id: string
   customer_id: string
+  source_project_id?: string | null
   owner_user_id?: string | null
   code: string
   branch_name?: string | null
@@ -3040,6 +3483,8 @@ export type ProjectUpdateWithoutProductInput = {
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
   customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  source_project?: Prisma.ProjectUpdateOneWithoutSalesNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
   owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
   licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
@@ -3053,6 +3498,7 @@ export type ProjectUncheckedUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3077,6 +3523,7 @@ export type ProjectUncheckedUpdateWithoutProductInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
   licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
   server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
   domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
@@ -3089,6 +3536,145 @@ export type ProjectUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
   customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  source_project_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  target_end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type ProjectCreateManySource_projectInput = {
+  id?: string
+  workspace_id: string
+  customer_id: string
+  product_id?: string | null
+  owner_user_id?: string | null
+  code: string
+  branch_name?: string | null
+  name: string
+  description?: string | null
+  status?: $Enums.ProjectStatus
+  start_date?: Date | string | null
+  target_end_date?: Date | string | null
+  live_at?: Date | string | null
+  budget?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: string
+  manual_fx_rate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: string | null
+  admin_url?: string | null
+  repository_url?: string | null
+  github_repo_id?: string | null
+  github_repo_full_name?: string | null
+  license_webhook_url?: string | null
+  license_webhook_secret?: string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+}
+
+export type ProjectUpdateWithoutSource_projectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  target_end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutProjectsNestedInput
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutProjectsNestedInput
+  sales?: Prisma.ProjectUpdateManyWithoutSource_projectNestedInput
+  product?: Prisma.ProductUpdateOneWithoutProjectsNestedInput
+  owner?: Prisma.UserUpdateOneWithoutOwned_projectsNestedInput
+  licenses?: Prisma.LicenseUpdateManyWithoutProjectNestedInput
+  server_links?: Prisma.ProjectServerUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutProjectNestedInput
+  billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutProjectNestedInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutSource_projectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProjectStatusFieldUpdateOperationsInput | $Enums.ProjectStatus
+  start_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  target_end_date?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  live_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  budget?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  manual_fx_rate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  live_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admin_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  repository_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  github_repo_full_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  license_webhook_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tech_stack?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sales?: Prisma.ProjectUncheckedUpdateManyWithoutSource_projectNestedInput
+  licenses?: Prisma.LicenseUncheckedUpdateManyWithoutProjectNestedInput
+  server_links?: Prisma.ProjectServerUncheckedUpdateManyWithoutProjectNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutProjectNestedInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutProjectNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutProjectNestedInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateManyWithoutSource_projectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspace_id?: Prisma.StringFieldUpdateOperationsInput | string
+  customer_id?: Prisma.StringFieldUpdateOperationsInput | string
+  product_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   owner_user_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   code?: Prisma.StringFieldUpdateOperationsInput | string
   branch_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3121,6 +3707,7 @@ export type ProjectUncheckedUpdateManyWithoutProductInput = {
  */
 
 export type ProjectCountOutputType = {
+  sales: number
   licenses: number
   server_links: number
   domains: number
@@ -3130,6 +3717,7 @@ export type ProjectCountOutputType = {
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  sales?: boolean | ProjectCountOutputTypeCountSalesArgs
   licenses?: boolean | ProjectCountOutputTypeCountLicensesArgs
   server_links?: boolean | ProjectCountOutputTypeCountServer_linksArgs
   domains?: boolean | ProjectCountOutputTypeCountDomainsArgs
@@ -3146,6 +3734,13 @@ export type ProjectCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
    * Select specific fields to fetch from the ProjectCountOutputType
    */
   select?: Prisma.ProjectCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountSalesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectWhereInput
 }
 
 /**
@@ -3195,6 +3790,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   workspace_id?: boolean
   customer_id?: boolean
+  source_project_id?: boolean
   product_id?: boolean
   owner_user_id?: boolean
   code?: boolean
@@ -3222,6 +3818,8 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   deleted_at?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  source_project?: boolean | Prisma.Project$source_projectArgs<ExtArgs>
+  sales?: boolean | Prisma.Project$salesArgs<ExtArgs>
   product?: boolean | Prisma.Project$productArgs<ExtArgs>
   owner?: boolean | Prisma.Project$ownerArgs<ExtArgs>
   licenses?: boolean | Prisma.Project$licensesArgs<ExtArgs>
@@ -3237,6 +3835,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   workspace_id?: boolean
   customer_id?: boolean
+  source_project_id?: boolean
   product_id?: boolean
   owner_user_id?: boolean
   code?: boolean
@@ -3264,6 +3863,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   deleted_at?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  source_project?: boolean | Prisma.Project$source_projectArgs<ExtArgs>
   product?: boolean | Prisma.Project$productArgs<ExtArgs>
   owner?: boolean | Prisma.Project$ownerArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
@@ -3272,6 +3872,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   workspace_id?: boolean
   customer_id?: boolean
+  source_project_id?: boolean
   product_id?: boolean
   owner_user_id?: boolean
   code?: boolean
@@ -3299,6 +3900,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   deleted_at?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  source_project?: boolean | Prisma.Project$source_projectArgs<ExtArgs>
   product?: boolean | Prisma.Project$productArgs<ExtArgs>
   owner?: boolean | Prisma.Project$ownerArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
@@ -3307,6 +3909,7 @@ export type ProjectSelectScalar = {
   id?: boolean
   workspace_id?: boolean
   customer_id?: boolean
+  source_project_id?: boolean
   product_id?: boolean
   owner_user_id?: boolean
   code?: boolean
@@ -3334,10 +3937,12 @@ export type ProjectSelectScalar = {
   deleted_at?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "customer_id" | "product_id" | "owner_user_id" | "code" | "branch_name" | "name" | "description" | "status" | "start_date" | "target_end_date" | "live_at" | "budget" | "currency" | "manual_fx_rate" | "live_url" | "admin_url" | "repository_url" | "github_repo_id" | "github_repo_full_name" | "license_webhook_url" | "license_webhook_secret" | "tech_stack" | "notes" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "customer_id" | "source_project_id" | "product_id" | "owner_user_id" | "code" | "branch_name" | "name" | "description" | "status" | "start_date" | "target_end_date" | "live_at" | "budget" | "currency" | "manual_fx_rate" | "live_url" | "admin_url" | "repository_url" | "github_repo_id" | "github_repo_full_name" | "license_webhook_url" | "license_webhook_secret" | "tech_stack" | "notes" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  source_project?: boolean | Prisma.Project$source_projectArgs<ExtArgs>
+  sales?: boolean | Prisma.Project$salesArgs<ExtArgs>
   product?: boolean | Prisma.Project$productArgs<ExtArgs>
   owner?: boolean | Prisma.Project$ownerArgs<ExtArgs>
   licenses?: boolean | Prisma.Project$licensesArgs<ExtArgs>
@@ -3351,12 +3956,14 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  source_project?: boolean | Prisma.Project$source_projectArgs<ExtArgs>
   product?: boolean | Prisma.Project$productArgs<ExtArgs>
   owner?: boolean | Prisma.Project$ownerArgs<ExtArgs>
 }
 export type ProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
+  source_project?: boolean | Prisma.Project$source_projectArgs<ExtArgs>
   product?: boolean | Prisma.Project$productArgs<ExtArgs>
   owner?: boolean | Prisma.Project$ownerArgs<ExtArgs>
 }
@@ -3366,6 +3973,8 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     workspace: Prisma.$WorkspacePayload<ExtArgs>
     customer: Prisma.$CustomerPayload<ExtArgs>
+    source_project: Prisma.$ProjectPayload<ExtArgs> | null
+    sales: Prisma.$ProjectPayload<ExtArgs>[]
     product: Prisma.$ProductPayload<ExtArgs> | null
     owner: Prisma.$UserPayload<ExtArgs> | null
     licenses: Prisma.$LicensePayload<ExtArgs>[]
@@ -3379,6 +3988,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     id: string
     workspace_id: string
     customer_id: string
+    source_project_id: string | null
     product_id: string | null
     owner_user_id: string | null
     code: string
@@ -3803,6 +4413,8 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   customer<T extends Prisma.CustomerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  source_project<T extends Prisma.Project$source_projectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$source_projectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sales<T extends Prisma.Project$salesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$salesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   product<T extends Prisma.Project$productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$productArgs<ExtArgs>>): Prisma.Prisma__ProductClient<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   owner<T extends Prisma.Project$ownerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$ownerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   licenses<T extends Prisma.Project$licensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$licensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LicensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3843,6 +4455,7 @@ export interface ProjectFieldRefs {
   readonly id: Prisma.FieldRef<"Project", 'String'>
   readonly workspace_id: Prisma.FieldRef<"Project", 'String'>
   readonly customer_id: Prisma.FieldRef<"Project", 'String'>
+  readonly source_project_id: Prisma.FieldRef<"Project", 'String'>
   readonly product_id: Prisma.FieldRef<"Project", 'String'>
   readonly owner_user_id: Prisma.FieldRef<"Project", 'String'>
   readonly code: Prisma.FieldRef<"Project", 'String'>
@@ -4266,6 +4879,49 @@ export type ProjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Projects to delete.
    */
   limit?: number
+}
+
+/**
+ * Project.source_project
+ */
+export type Project$source_projectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
+}
+
+/**
+ * Project.sales
+ */
+export type Project$salesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
+  orderBy?: Prisma.ProjectOrderByWithRelationInput | Prisma.ProjectOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectScalarFieldEnum | Prisma.ProjectScalarFieldEnum[]
 }
 
 /**

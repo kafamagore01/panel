@@ -40,6 +40,7 @@ export type ProductOption = Option & {
 export type ProjectFormValues = {
   id?: string;
   customer_id: string;
+  source_project_id: string;
   product_id: string;
   owner_user_id: string;
   name: string;
@@ -62,8 +63,21 @@ export type ProjectFormValues = {
   license_webhook_secret: string;
 };
 
+export type SourceProjectOption = Option & {
+  product_id: string;
+  owner_user_id: string;
+  name: string;
+  branch_name: string;
+  description: string;
+  repository_url: string;
+  github_repo_id: string;
+  github_repo_full_name: string;
+  tech_stack: string;
+};
+
 const EMPTY: ProjectFormValues = {
   customer_id: "",
+  source_project_id: "",
   product_id: "",
   owner_user_id: "",
   name: "",
@@ -91,7 +105,7 @@ export function ProjectForm({
   customers,
   products,
   members,
-  branchBases,
+  sourceProjects,
   rates,
   onDone,
 }: {
@@ -99,7 +113,7 @@ export function ProjectForm({
   customers: Option[];
   products: ProductOption[];
   members: Option[];
-  branchBases: Option[];
+  sourceProjects: SourceProjectOption[];
   /** TCMB günlük kur bülteni; alınamadıysa null. */
   rates: ExchangeRates | null;
   onDone: () => void;
@@ -108,9 +122,16 @@ export function ProjectForm({
   const isEdit = Boolean(initial?.id);
   const [values, setValues] = useState<ProjectFormValues>({ ...EMPTY, ...initial });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
-  const [sellToBranch, setSellToBranch] = useState(false);
-  const [baseProjectId, setBaseProjectId] = useState("");
+  const [reuseExistingProject, setReuseExistingProject] = useState(false);
+  const [sourceProjectId, setSourceProjectId] = useState("");
   const [isPending, startTransition] = useTransition();
+  const selectedSourceProject = sourceProjects.find(
+    (project) => project.id === sourceProjectId
+  );
+  const hasInheritedGithubRepo = Boolean(
+    selectedSourceProject?.github_repo_id ||
+      selectedSourceProject?.github_repo_full_name
+  );
 
   function set<K extends keyof ProjectFormValues>(key: K, value: ProjectFormValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -140,6 +161,35 @@ export function ProjectForm({
         name: prev.name || product.name,
         repository_url: prev.repository_url || product.repository_url || "",
       }));
+    }
+  }
+
+  /** Kaynak proje seçilince müşteriye özel alanlar hariç yeniden kullanılabilir bilgiler dolar. */
+  function onSourceProjectChange(projectId: string) {
+    setSourceProjectId(projectId);
+    const source = sourceProjects.find((project) => project.id === projectId);
+    if (!source) return;
+
+    setValues((prev) => ({
+      ...prev,
+      source_project_id: source.id,
+      product_id: source.product_id,
+      owner_user_id: source.owner_user_id,
+      name: source.name,
+      branch_name: source.branch_name,
+      description: source.description,
+      repository_url: source.repository_url,
+      github_repo_id: source.github_repo_id,
+      github_repo_full_name: source.github_repo_full_name,
+      tech_stack: source.tech_stack,
+    }));
+  }
+
+  function onReuseExistingProjectChange(checked: boolean) {
+    setReuseExistingProject(checked);
+    if (!checked) {
+      setSourceProjectId("");
+      setValues((prev) => ({ ...prev, source_project_id: "" }));
     }
   }
 
@@ -177,8 +227,8 @@ export function ProjectForm({
       ...values,
       product_id: values.product_id || "",
       owner_user_id: values.owner_user_id || "",
-      sell_to_branch: sellToBranch,
-      base_project_id: sellToBranch ? baseProjectId : "",
+      reuse_existing_project: reuseExistingProject,
+      source_project_id: reuseExistingProject ? sourceProjectId : "",
     };
     startTransition(async () => {
       const res = isEdit
@@ -209,7 +259,11 @@ export function ProjectForm({
           </Select>
         </Field>
         <Field label="Ürün (Katalog)" error={errors.product_id} hint="Seçince form otomatik doldurulur.">
-          <Select value={values.product_id || "none"} onValueChange={(v) => onProductChange(v === "none" ? "" : v)}>
+          <Select
+            value={values.product_id || "none"}
+            onValueChange={(v) => onProductChange(v === "none" ? "" : v)}
+            disabled={Boolean(selectedSourceProject?.product_id)}
+          >
             <SelectTrigger><SelectValue placeholder="Ürün seçin" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="none">— Seçilmedi —</SelectItem>
@@ -221,13 +275,62 @@ export function ProjectForm({
         </Field>
       </div>
 
+      {!isEdit && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-[#141821]">
+                Mevcut Projeyi Başka Müşteriye Sat
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Aynı ürün ve repo üzerinden yeni bir müşteri veya şube kaydı oluşturur.
+              </p>
+            </div>
+            <Switch
+              checked={reuseExistingProject}
+              onCheckedChange={onReuseExistingProjectChange}
+            />
+          </div>
+          {reuseExistingProject && (
+            <div className="mt-3 space-y-2">
+              <Select value={sourceProjectId} onValueChange={onSourceProjectChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Satılacak kaynak projeyi seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sourceProjects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.source_project_id && (
+                <p className="text-xs text-rose-600">{errors.source_project_id[0]}</p>
+              )}
+              {sourceProjectId && (
+                <p className="text-xs text-muted-foreground">
+                  Ürün, repo, branch, açıklama ve teknoloji bilgileri kaynak projeden
+                  getirildi. Müşteri, bütçe, tarihler ve yayın adresleri bu satışa özeldir.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       <Field label="Proje Adı" error={errors.name} required>
         <Input value={values.name} onChange={(e) => set("name", e.target.value)} required />
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Branch Adı" error={errors.branch_name}>
-          <Input value={values.branch_name} onChange={(e) => set("branch_name", e.target.value)} placeholder="main" />
+        <Field label="Repo Branch'i" error={errors.branch_name}>
+          <Input
+            value={values.branch_name}
+            onChange={(e) => set("branch_name", e.target.value)}
+            placeholder="main"
+            readOnly={Boolean(selectedSourceProject?.branch_name)}
+          />
         </Field>
         <Field label="Durum" error={errors.status}>
           <Select value={values.status} onValueChange={(v) => set("status", v)}>
@@ -240,32 +343,6 @@ export function ProjectForm({
           </Select>
         </Field>
       </div>
-
-      {!isEdit && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-semibold text-[#141821]">Başka Branch&apos;e Sat</p>
-              <p className="text-xs text-muted-foreground">
-                Var olan bir projenin yeni branch sürümü olarak kodlanır (PRJ-001-02).
-              </p>
-            </div>
-            <Switch checked={sellToBranch} onCheckedChange={setSellToBranch} />
-          </div>
-          {sellToBranch && (
-            <div className="mt-3">
-              <Select value={baseProjectId} onValueChange={setBaseProjectId}>
-                <SelectTrigger><SelectValue placeholder="Baz proje seçin" /></SelectTrigger>
-                <SelectContent>
-                  {branchBases.map((b) => (
-                    <SelectItem key={b.id} value={b.id}>{b.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        </div>
-      )}
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Sorumlu" error={errors.owner_user_id}>
@@ -329,11 +406,22 @@ export function ProjectForm({
           </p>
         </div>
 
-        <RepoPicker
-          value={values.github_repo_full_name}
-          onSelect={onRepoSelect}
-          onClear={onRepoClear}
-        />
+        {hasInheritedGithubRepo ? (
+          <div className="rounded-lg border border-[#5267ff]/20 bg-[#5267ff]/5 px-3 py-2">
+            <p className="text-sm font-medium text-[#141821]">
+              {values.github_repo_full_name}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Bu repo kaynak projeden bağlıdır.
+            </p>
+          </div>
+        ) : (
+          <RepoPicker
+            value={values.github_repo_full_name}
+            onSelect={onRepoSelect}
+            onClear={onRepoClear}
+          />
+        )}
 
         {values.github_repo_full_name && (
           <RepoStatusPanel
@@ -348,7 +436,11 @@ export function ProjectForm({
         error={errors.repository_url}
         hint="GitHub'dan repo seçtiğinizde otomatik dolar; farklı bir adres de yazabilirsiniz."
       >
-        <Input value={values.repository_url} onChange={(e) => set("repository_url", e.target.value)} />
+        <Input
+          value={values.repository_url}
+          onChange={(e) => set("repository_url", e.target.value)}
+          readOnly={Boolean(selectedSourceProject?.repository_url)}
+        />
       </Field>
 
       <Field label="Teknoloji Yığını" error={errors.tech_stack} hint="Virgülle ayırın: Next.js, PostgreSQL, Redis">

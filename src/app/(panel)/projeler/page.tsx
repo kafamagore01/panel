@@ -32,43 +32,64 @@ export default async function ProjectsPage({
     ];
   }
 
-  const [projects, total, customers, products, memberships, rates] = await Promise.all([
-    db.project.findMany({
-      where,
-      orderBy: { created_at: "desc" },
-      skip,
-      take,
-      include: {
-        customer: { select: { legal_name: true } },
-        _count: { select: { licenses: true } },
-      },
-    }),
-    db.project.count({ where }),
-    db.customer.findMany({
-      where: { status: { not: "archived" } },
-      orderBy: { legal_name: "asc" },
-      select: { id: true, legal_name: true },
-    }),
-    db.product.findMany({
-      orderBy: { name: "asc" },
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        repository_url: true,
-        _count: { select: { projects: true } },
-      },
-    }),
-    // Aktif üyeler (proje sorumlusu seçimi için)
-    ctx?.workspaceId
-      ? prisma.workspaceUser.findMany({
-          where: { workspace_id: ctx.workspaceId, status: "active" },
-          include: { user: { select: { id: true, name: true } } },
-        })
-      : Promise.resolve([]),
-    // Dövizli bütçelerin TL karşılığı için TCMB günlük kuru (erişilemezse null)
-    getExchangeRates(),
-  ]);
+  const [projects, total, customers, products, memberships, sourceProjects, rates] =
+    await Promise.all([
+      db.project.findMany({
+        where,
+        orderBy: { created_at: "desc" },
+        skip,
+        take,
+        include: {
+          customer: { select: { legal_name: true } },
+          source_project: { select: { code: true } },
+          _count: { select: { licenses: true } },
+        },
+      }),
+      db.project.count({ where }),
+      db.customer.findMany({
+        where: { status: { not: "archived" } },
+        orderBy: { legal_name: "asc" },
+        select: { id: true, legal_name: true },
+      }),
+      db.product.findMany({
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          repository_url: true,
+          _count: { select: { projects: true } },
+        },
+      }),
+      // Aktif üyeler (proje sorumlusu seçimi için)
+      ctx?.workspaceId
+        ? prisma.workspaceUser.findMany({
+            where: { workspace_id: ctx.workspaceId, status: "active" },
+            include: { user: { select: { id: true, name: true } } },
+          })
+        : Promise.resolve([]),
+      // Satış/kurulum için sayfalama dışında kalan tüm aktif kaynak projeler.
+      db.project.findMany({
+        where: { status: { not: "archived" } },
+        orderBy: [{ name: "asc" }, { created_at: "asc" }],
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          customer: { select: { legal_name: true } },
+          product_id: true,
+          owner_user_id: true,
+          branch_name: true,
+          description: true,
+          repository_url: true,
+          github_repo_id: true,
+          github_repo_full_name: true,
+          tech_stack: true,
+        },
+      }),
+      // Dövizli bütçelerin TL karşılığı için TCMB günlük kuru (erişilemezse null)
+      getExchangeRates(),
+    ]);
 
   const rows: ProjectRow[] = projects.map((p) => ({
     id: p.id,
@@ -80,9 +101,11 @@ export default async function ProjectsPage({
     live_url: p.live_url,
     license_count: p._count.licenses,
     github_repo_full_name: p.github_repo_full_name,
+    source_project_code: p.source_project?.code ?? null,
     raw: {
       id: p.id,
       customer_id: p.customer_id,
+      source_project_id: p.source_project_id ?? "",
       product_id: p.product_id ?? "",
       owner_user_id: p.owner_user_id ?? "",
       name: p.name,
@@ -121,16 +144,31 @@ export default async function ProjectsPage({
     project_count: p._count.projects,
   }));
   const memberOptions = memberships.map((m) => ({ id: m.user.id, label: m.user.name }));
-  const branchBases = projects
-    .filter((p) => p.status !== "archived")
-    .map((p) => ({ id: p.id, label: `${p.code} · ${p.name}` }));
+  const sourceProjectOptions = sourceProjects.map((project) => ({
+    id: project.id,
+    label: `${project.code} · ${project.name} (${project.customer.legal_name})`,
+    product_id: project.product_id ?? "",
+    owner_user_id: project.owner_user_id ?? "",
+    name: project.name,
+    branch_name: project.branch_name ?? "",
+    description: project.description ?? "",
+    repository_url: project.repository_url ?? "",
+    github_repo_id: project.github_repo_id ?? "",
+    github_repo_full_name: project.github_repo_full_name ?? "",
+    tech_stack: Array.isArray(project.tech_stack)
+      ? (project.tech_stack as string[]).join(", ")
+      : "",
+  }));
 
   const canManage = hasPermission(ctx?.role ?? null, "record.manage");
   const canArchive = hasPermission(ctx?.role ?? null, "record.archive");
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Projeler" description="Müşteri projelerini ve branch sürümlerini yönetin." />
+      <PageHeader
+        title="Projeler"
+        description="Müşteri projelerini ve aynı repo üzerinden yapılan satışları yönetin."
+      />
       <ListToolbar statusOptions={PROJECT_STATUS_OPTIONS} searchPlaceholder="Proje adı veya kod ara..." />
       <ProjectsView
         projects={rows}
@@ -138,7 +176,7 @@ export default async function ProjectsPage({
         products={productOptions}
         catalog={catalog}
         members={memberOptions}
-        branchBases={branchBases}
+        sourceProjects={sourceProjectOptions}
         rates={rates}
         canManage={canManage}
         canArchive={canArchive}

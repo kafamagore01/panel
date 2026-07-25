@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db/prisma";
-import { hashLicenseKey } from "@/lib/crypto/license-key";
+import { hashLicenseKey, LICENSE_KEY_REGEX } from "@/lib/crypto/license-key";
 import { normalizeDomain } from "@/lib/domain";
 import { limitValidateApi } from "@/lib/security/rate-limit";
+import { recordValidationFailure } from "@/lib/licenses/validation-log";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +14,15 @@ export const dynamic = "force-dynamic";
  *
  * Akış (DB transaction + row lock ile):
  *  1. Rate limit (IP başına 60/dk)
- *  2. Girdi + domain normalizasyonu (422)
+ *  2. Girdi + anahtar biçimi + domain normalizasyonu (422)
  *  3. HMAC hash ile lisans arama (404)
- *  4. Domain eşleşmesi (403, detaysız)
- *  5. Durum kontrolleri (suspended/revoked/not_started/expired; grace → geçerli)
+ *  4. Aktif domain eşleşmesi (403, detaysız)
+ *  5. Durum kontrolleri — yalnızca active/grace kabul edilir; tarih bazlı
+ *     ek süre (grace) değerlendirmesi ayrıca yapılır
  *  6. Aktivasyon limiti + upsert
  *  7. last_validated_at güncelle → 200
+ *
+ * Başarısız doğrulamalar (lisans bulunduysa) license_events'e yazılır.
  */
 
 const bodySchema = z.object({
@@ -27,6 +31,9 @@ const bodySchema = z.object({
   instance_id: z.string().max(200).optional(),
   app_version: z.string().max(50).optional(),
 });
+
+/** API'nin geçerli saydığı DB durumları; diğerleri doğrulamayı reddeder. */
+const ACCEPTED_STATUSES = new Set(["active", "grace"]);
 
 function clientIp(req: NextRequest): string {
   const fwd = req.headers.get("x-forwarded-for");
@@ -81,15 +88,20 @@ export async function POST(req: NextRequest) {
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) return deny(422, "invalid_body");
 
+  // Biçimi hatalı anahtarlar DB'ye hiç gitmez
+  if (!LICENSE_KEY_REGEX.test(parsed.data.license_key.trim().toUpperCase())) {
+    return deny(422, "invalid_key_format");
+  }
+
   const normalized = normalizeDomain(parsed.data.domain);
   if (!normalized) return deny(422, "invalid_domain");
 
-  const keyHash = hashLicenseKey(parsed.data.license_key);
+  const keyHash = hashLicenseKey(parsed.data.license_key.trim().toUpperCase());
   const now = new Date();
 
   type ValidateResult =
     | { http: 200; payload: Record<string, unknown> }
-    | { http: number; code: string };
+    | { http: number; code: string; licenseId?: string };
 
   try {
     const result = await prisma.$transaction(async (tx): Promise<ValidateResult> => {
@@ -104,22 +116,34 @@ export async function POST(req: NextRequest) {
       const license = rows[0];
       if (!license) return { http: 404, code: "not_found" as const };
 
-      // 4) Domain eşleşmesi (detaysız)
+      // 4) Aktif domain eşleşmesi (detaysız; pasif kayıtlar eşleşmez)
       const domainRows = await tx.$queryRaw<Array<{ id: string }>>`
         SELECT id FROM license_domains
-        WHERE license_id = ${license.id}::uuid AND normalized_domain = ${normalized}
+        WHERE license_id = ${license.id}::uuid
+          AND normalized_domain = ${normalized}
+          AND status = 'active'
         LIMIT 1
       `;
       if (domainRows.length === 0) {
-        return { http: 403, code: "domain_mismatch" as const };
+        return { http: 403, code: "domain_mismatch" as const, licenseId: license.id };
       }
       const domainId = domainRows[0].id;
 
-      // 5) Durum kontrolleri
-      if (license.status === "suspended") return { http: 403, code: "suspended" as const };
-      if (license.status === "revoked") return { http: 403, code: "revoked" as const };
+      // 5) Durum kontrolleri — beyaz liste dışındaki her durum reddedilir
+      if (!ACCEPTED_STATUSES.has(license.status)) {
+        const code =
+          license.status === "suspended"
+            ? "suspended"
+            : license.status === "revoked"
+              ? "revoked"
+              : license.status === "pending"
+                ? "pending"
+                : "expired";
+        return { http: 403, code, licenseId: license.id };
+      }
+
       if (license.starts_at && license.starts_at > now) {
-        return { http: 403, code: "not_started" as const };
+        return { http: 403, code: "not_started" as const, licenseId: license.id };
       }
 
       let inGrace = false;
@@ -128,7 +152,7 @@ export async function POST(req: NextRequest) {
         if (graceEnd && graceEnd >= now) {
           inGrace = true;
         } else {
-          return { http: 403, code: "expired" as const };
+          return { http: 403, code: "expired" as const, licenseId: license.id };
         }
       }
 
@@ -149,7 +173,11 @@ export async function POST(req: NextRequest) {
           `;
           const activeCount = Number(activeCountRows[0]?.count ?? 0);
           if (activeCount >= license.activation_limit) {
-            return { http: 403, code: "activation_limit_exceeded" as const };
+            return {
+              http: 403,
+              code: "activation_limit_exceeded" as const,
+              licenseId: license.id,
+            };
           }
         }
 
@@ -196,8 +224,13 @@ export async function POST(req: NextRequest) {
         headers: { "Cache-Control": "no-store" },
       });
     }
-    return deny(result.http, "code" in result ? result.code : "error");
+
     // not: "code" in result kontrolü, 200 dışı tüm dalların code taşıdığını garanti eder
+    const code = "code" in result ? result.code : "error";
+    if ("licenseId" in result && result.licenseId) {
+      await recordValidationFailure(result.licenseId, code);
+    }
+    return deny(result.http, code);
   } catch (error) {
     console.error("Lisans doğrulama hatası:", error);
     return deny(500, "server_error");

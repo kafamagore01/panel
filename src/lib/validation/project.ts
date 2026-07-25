@@ -89,13 +89,20 @@ export const projectSchema = z
       .optional()
       .transform((v) => (v ? v : undefined)),
     license_webhook_secret: optStr(200),
-    // Kod üretim kipi
-    sell_to_branch: z.boolean().optional().default(false),
-    base_project_id: z
+    // Mevcut bir projeyi aynı repo üzerinden farklı müşteriye satma/kurma kipi
+    reuse_existing_project: z.boolean().optional().default(false),
+    source_project_id: z
       .union([z.uuid(), z.literal("")])
       .optional()
       .transform((v) => (v ? v : undefined)),
   })
+  .refine(
+    (data) => !data.reuse_existing_project || data.source_project_id != null,
+    {
+      message: "Satılacak kaynak proje seçilmelidir.",
+      path: ["source_project_id"],
+    }
+  )
   .refine(
     (data) =>
       !data.license_webhook_url ||

@@ -317,6 +317,7 @@ model Project {
   id                     String        @id @default(uuid(4)) @db.Uuid
   workspace_id           String        @db.Uuid
   customer_id            String        @db.Uuid
+  source_project_id      String?       @db.Uuid
   product_id             String?       @db.Uuid
   owner_user_id          String?       @db.Uuid
   code                   String
@@ -347,6 +348,8 @@ model Project {
 
   workspace          Workspace         @relation(fields: [workspace_id], references: [id])
   customer           Customer          @relation(fields: [customer_id], references: [id])
+  source_project     Project?          @relation("ProjectSales", fields: [source_project_id], references: [id], onDelete: SetNull)
+  sales              Project[]         @relation("ProjectSales")
   product            Product?          @relation(fields: [product_id], references: [id])
   owner              User?             @relation("ProjectOwner", fields: [owner_user_id], references: [id], onDelete: SetNull)
   licenses           License[]
@@ -360,6 +363,7 @@ model Project {
   @@index([workspace_id])
   @@index([workspace_id, status])
   @@index([customer_id])
+  @@index([source_project_id])
   @@index([workspace_id, github_repo_full_name])
   @@map("projects")
 }

@@ -19,17 +19,17 @@ function handleError(error: unknown): ActionResponse<never> {
 /**
  * Sonraki proje kodunu üretir.
  * - Normal kip: en yüksek PRJ-NNN + 1 → PRJ-001, PRJ-002...
- * - "Başka branch'e sat" kipi: baz projenin kodu PRJ-001 ise → PRJ-001-02, -03...
+ * - Mevcut projeyi yeniden satma kipi: kaynak kod PRJ-001 ise → PRJ-001-02, -03...
  */
 async function generateProjectCode(
   db: TenantDb,
-  baseProjectId?: string
+  sourceProjectId?: string
 ): Promise<string> {
-  if (baseProjectId) {
-    const base = await db.project.findUnique({ where: { id: baseProjectId } });
-    if (!base) throw new Error("Baz proje bulunamadı.");
-    // Baz kodun kök kısmı (PRJ-001-02 → PRJ-001)
-    const root = base.code.replace(/-\d{2,}$/, "");
+  if (sourceProjectId) {
+    const source = await db.project.findUnique({ where: { id: sourceProjectId } });
+    if (!source) throw new Error("Kaynak proje bulunamadı.");
+    // Kaynak kodun kök kısmı (PRJ-001-02 → PRJ-001)
+    const root = source.code.replace(/-\d{2,}$/, "");
     const siblings = await db.project.findMany({
       where: { code: { startsWith: `${root}-` } },
       select: { code: true },
@@ -57,12 +57,12 @@ async function generateProjectCode(
 
 /** Form için önizleme: bir sonraki kodu döndürür. */
 export async function previewNextProjectCode(
-  baseProjectId?: string
+  sourceProjectId?: string
 ): Promise<ActionResponse<{ code: string }>> {
   try {
     await requirePermission("record.manage");
     const db = await getTenantDb();
-    const code = await generateProjectCode(db, baseProjectId || undefined);
+    const code = await generateProjectCode(db, sourceProjectId || undefined);
     return ok({ code });
   } catch (error) {
     return handleError(error);
@@ -80,11 +80,20 @@ export async function createProject(
 
     const db = await getTenantDb();
 
-    // Müşteri doğrulaması (aynı workspace)
-    const customer = await db.customer.findUnique({
-      where: { id: data.customer_id },
-    });
+    // Müşteri ve varsa kaynak proje doğrulaması (tenant client aynı workspace'i zorlar).
+    const [customer, sourceProject] = await Promise.all([
+      db.customer.findUnique({ where: { id: data.customer_id } }),
+      data.reuse_existing_project && data.source_project_id
+        ? db.project.findUnique({ where: { id: data.source_project_id } })
+        : Promise.resolve(null),
+    ]);
     if (!customer) return fail("Seçilen müşteri bulunamadı.");
+    if (data.reuse_existing_project && !sourceProject) {
+      return fail("Seçilen kaynak proje bulunamadı.");
+    }
+    if (sourceProject?.status === "archived") {
+      return fail("Arşivlenmiş bir proje kaynak olarak kullanılamaz.");
+    }
 
     // Webhook SSRF + şifreleme
     let encryptedSecret: string | undefined;
@@ -95,18 +104,20 @@ export async function createProject(
 
     const code = await generateProjectCode(
       db,
-      data.sell_to_branch ? data.base_project_id : undefined
+      sourceProject?.id
     );
 
     const created = await db.project.create({
       data: {
         workspace_id: ctx.workspaceId,
         customer_id: data.customer_id,
-        product_id: data.product_id,
+        source_project_id: sourceProject?.id,
+        // Kaynak projede tanımlıysa ürün ve repo kimliği aynı kalır.
+        product_id: sourceProject?.product_id ?? data.product_id,
         owner_user_id: data.owner_user_id,
         code,
         name: data.name,
-        branch_name: data.branch_name,
+        branch_name: sourceProject?.branch_name ?? data.branch_name,
         description: data.description,
         status: data.status,
         start_date: data.start_date ? new Date(data.start_date) : undefined,
@@ -118,9 +129,10 @@ export async function createProject(
         manual_fx_rate: data.manual_fx_rate ?? undefined,
         live_url: data.live_url,
         admin_url: data.admin_url,
-        repository_url: data.repository_url,
-        github_repo_id: data.github_repo_id,
-        github_repo_full_name: data.github_repo_full_name,
+        repository_url: sourceProject?.repository_url ?? data.repository_url,
+        github_repo_id: sourceProject?.github_repo_id ?? data.github_repo_id,
+        github_repo_full_name:
+          sourceProject?.github_repo_full_name ?? data.github_repo_full_name,
         tech_stack: data.tech_stack
           ? data.tech_stack.split(",").map((s) => s.trim()).filter(Boolean)
           : undefined,

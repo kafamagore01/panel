@@ -28,6 +28,7 @@ import {
   type ProjectFormValues,
   type Option,
   type ProductOption,
+  type SourceProjectOption,
 } from "./project-form";
 import { ProductCatalog, type CatalogProduct } from "./product-catalog";
 import { RepoCell } from "./repo-cell";
@@ -45,6 +46,7 @@ export type ProjectRow = {
   live_url: string | null;
   license_count: number;
   github_repo_full_name: string | null;
+  source_project_code: string | null;
   raw: ProjectFormValues;
 };
 
@@ -54,7 +56,7 @@ export function ProjectsView({
   products,
   catalog,
   members,
-  branchBases,
+  sourceProjects,
   rates,
   canManage,
   canArchive,
@@ -64,7 +66,7 @@ export function ProjectsView({
   products: ProductOption[];
   catalog: CatalogProduct[];
   members: Option[];
-  branchBases: Option[];
+  sourceProjects: SourceProjectOption[];
   /** TCMB günlük kur bülteni; dövizli bütçelerin TL karşılığı için. */
   rates: ExchangeRates | null;
   canManage: boolean;
@@ -129,7 +131,14 @@ export function ProjectsView({
                       )}
                     </div>
                     {p.branch_name && (
-                      <div className="text-xs text-muted-foreground">branch: {p.branch_name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        repo branch: {p.branch_name}
+                      </div>
+                    )}
+                    {p.source_project_code && (
+                      <div className="text-xs text-[#5267ff]">
+                        kaynak proje: {p.source_project_code}
+                      </div>
                     )}
                   </TableCell>
                   <TableCell className="text-sm">{p.customer_name}</TableCell>
@@ -200,7 +209,7 @@ export function ProjectsView({
           customers={customers}
           products={products}
           members={members}
-          branchBases={branchBases}
+          sourceProjects={sourceProjects}
           rates={rates}
           onDone={() => setDrawerOpen(false)}
         />
