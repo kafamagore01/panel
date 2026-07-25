@@ -41,7 +41,16 @@ export default async function ServersPage({
       take,
       include: {
         project_links: {
-          include: { project: { select: { code: true, name: true } } },
+          include: {
+            project: {
+              select: {
+                code: true,
+                name: true,
+                branch_name: true,
+                customer: { select: { legal_name: true } },
+              },
+            },
+          },
         },
       },
     }),
@@ -49,7 +58,13 @@ export default async function ServersPage({
     db.project.findMany({
       where: { status: { not: "archived" } },
       orderBy: { code: "asc" },
-      select: { id: true, code: true, name: true },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        branch_name: true,
+        customer: { select: { legal_name: true } },
+      },
     }),
     getExchangeRates(),
   ]);
@@ -66,6 +81,8 @@ export default async function ServersPage({
       (pl): ServerLink => ({
         project_id: pl.project_id,
         project_label: `${pl.project.code} · ${pl.project.name}`,
+        customer_name: pl.project.customer.legal_name,
+        branch_name: pl.project.branch_name,
         role: pl.role,
         environment: pl.environment,
       })
@@ -95,7 +112,10 @@ export default async function ServersPage({
     },
   }));
 
-  const projectOptions = projects.map((p) => ({ id: p.id, label: `${p.code} · ${p.name}` }));
+  const projectOptions = projects.map((p) => ({
+    id: p.id,
+    label: `${p.code} · ${p.name} · ${p.customer.legal_name} · Şube: ${p.branch_name?.trim() || "Belirtilmedi"}`,
+  }));
 
   const canManage = hasPermission(ctx?.role ?? null, "record.manage");
   const canArchive = hasPermission(ctx?.role ?? null, "record.archive");

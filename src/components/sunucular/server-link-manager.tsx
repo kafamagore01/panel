@@ -20,9 +20,27 @@ import { useRouter } from "next/navigation";
 export type ServerLink = {
   project_id: string;
   project_label: string;
+  customer_name: string;
+  branch_name: string | null;
   role: string | null;
   environment: string | null;
 };
+
+const ENVIRONMENT_LABELS: Record<string, string> = {
+  production: "Canlı",
+  staging: "Hazırlık",
+  local: "Yerel",
+};
+
+function detailValue(value: string | null) {
+  return value?.trim() || "Belirtilmedi";
+}
+
+function environmentLabel(value: string | null) {
+  const normalized = value?.trim().toLowerCase();
+  if (!normalized) return "Belirtilmedi";
+  return ENVIRONMENT_LABELS[normalized] ?? value;
+}
 
 export function ServerLinkManager({
   open,
@@ -84,7 +102,7 @@ export function ServerLinkManager({
       <div className="space-y-4 pt-4">
         <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
           <Select value={projectId} onValueChange={setProjectId}>
-            <SelectTrigger><SelectValue placeholder="Proje seçin" /></SelectTrigger>
+            <SelectTrigger className="w-full"><SelectValue placeholder="Proje seçin" /></SelectTrigger>
             <SelectContent>
               {projects.map((p) => (
                 <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
@@ -113,12 +131,24 @@ export function ServerLinkManager({
             <p className="py-6 text-center text-sm text-muted-foreground">Henüz proje eşleştirilmedi.</p>
           ) : (
             links.map((l) => (
-              <div key={l.project_id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
-                <div>
+              <div key={l.project_id} className="flex items-start justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-[#141821]">{l.project_label}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {l.role ?? "—"} · {l.environment ?? "—"}
-                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{l.customer_name}</p>
+                  <dl className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
+                    <div className="min-w-0">
+                      <dt className="text-muted-foreground">Şube</dt>
+                      <dd className="break-all font-medium text-[#141821]">{detailValue(l.branch_name)}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-muted-foreground">Rol</dt>
+                      <dd className="break-all font-medium text-[#141821]">{detailValue(l.role)}</dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-muted-foreground">Ortam</dt>
+                      <dd className="font-medium text-[#141821]">{environmentLabel(l.environment)}</dd>
+                    </div>
+                  </dl>
                 </div>
                 <Button variant="ghost" size="icon" onClick={() => remove(l.project_id)} disabled={isPending} className="text-rose-600">
                   <Trash2 className="h-4 w-4" />

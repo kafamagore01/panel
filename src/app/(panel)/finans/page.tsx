@@ -44,7 +44,13 @@ export default async function FinancePage() {
       db.project.findMany({
         where: { status: { not: "archived" } },
         orderBy: { code: "asc" },
-        select: { id: true, code: true, name: true },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          branch_name: true,
+          customer: { select: { legal_name: true } },
+        },
       }),
       db.invoice.aggregate({
         _sum: { balance_due: true },
@@ -80,7 +86,10 @@ export default async function FinancePage() {
   }));
 
   const customerOptions = customers.map((c) => ({ id: c.id, label: c.legal_name }));
-  const projectOptions = projects.map((p) => ({ id: p.id, label: `${p.code} · ${p.name}` }));
+  const projectOptions = projects.map((p) => ({
+    id: p.id,
+    label: `${p.code} · ${p.name} · ${p.customer.legal_name} · Şube: ${p.branch_name?.trim() || "Belirtilmedi"}`,
+  }));
 
   return (
     <div className="space-y-6">
