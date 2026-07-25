@@ -1,15 +1,12 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { buildPgConfig } from "../src/lib/db/pg-config";
 import bcrypt from "bcryptjs";
 
-const connectionString =
-  process.env.DIRECT_URL ?? process.env.DATABASE_URL ?? "";
-const wantsSsl = connectionString.length > 0 && !/sslmode=disable/i.test(connectionString);
-const adapter = new PrismaPg({
-  connectionString,
-  ...(wantsSsl ? { ssl: { rejectUnauthorized: false } } : {}),
-});
+const adapter = new PrismaPg(
+  buildPgConfig(process.env.DIRECT_URL ?? process.env.DATABASE_URL ?? "")
+);
 const prisma = new PrismaClient({ adapter });
 
 const OWNER_EMAIL = process.env.SEED_OWNER_EMAIL ?? "owner@panel.local";
