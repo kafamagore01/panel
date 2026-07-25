@@ -1,38 +1,37 @@
 import crypto from "node:crypto";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import type { JWT } from "next-auth/jwt";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
-import { PanelAdapter } from "./adapter";
 import { consumeLoginTicket } from "./otp";
 
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30; // 30 gün
 
+function expiryDate(): Date {
+  return new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
+}
+
 /**
- * Auth.js v5 — Credentials + database session (JWT yok).
+ * Auth.js v5 — Credentials + veritabanı oturumu (çerezde JWT yok).
  *
- * Credentials provider normalde JWT oturuma zorlar; jwt.encode override'ı ile
- * giriş anında sessions tablosuna kayıt atılır ve cookie değeri olarak ham
- * sessionToken döndürülür. Sonraki isteklerde strategy "database" olduğu için
- * cookie değeri adapter.getSessionAndUser ile veritabanından doğrulanır.
+ * Not: @auth/core, "yalnızca credentials" + strategy:"database" kombinasyonunu
+ * reddeder (assert.js). Bu yüzden strategy "jwt" seçilir; ancak jwt.encode/decode
+ * override'ı ile çerez değeri bir JWT değil, sessions tablosundaki opak bir
+ * session_token olur. Böylece oturumlar tümüyle veritabanında tutulur/doğrulanır.
  *
- * İki giriş yolu vardır (orkestrasyon src/actions/auth.ts içindedir):
+ * İki giriş yolu (orkestrasyon src/actions/auth.ts):
  *  1. email + password  → yalnızca 2FA kapalı kullanıcılar
  *  2. ticket            → 2FA OTP doğrulaması tamamlanmış kullanıcılar
  */
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PanelAdapter(),
-  session: { strategy: "database", maxAge: SESSION_MAX_AGE_SECONDS },
+  session: { strategy: "jwt", maxAge: SESSION_MAX_AGE_SECONDS },
   pages: { signIn: "/giris" },
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
   providers: [
     Credentials({
-      credentials: {
-        email: {},
-        password: {},
-        ticket: {},
-      },
+      credentials: { email: {}, password: {}, ticket: {} },
       async authorize(credentials) {
         const ticket =
           typeof credentials?.ticket === "string" ? credentials.ticket : null;
@@ -55,7 +54,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const valid = await bcrypt.compare(password, user.password_hash);
         if (!valid) return null;
 
-        // 2FA açık kullanıcı parola yoluyla oturum açamaz; OTP akışı zorunlu
+        // 2FA açık kullanıcı parola yoluyla giremez; OTP akışı zorunlu
         if (user.two_factor_enabled_at) return null;
 
         return { id: user.id, email: user.email, name: user.name };
@@ -63,28 +62,60 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   jwt: {
-    async encode({ token }) {
-      const userId = token?.sub;
-      if (!userId) throw new Error("Oturum oluşturulamadı.");
+    // Çerez değerini üretir: DB'de session_token oluşturur/uzatır ve onu döndürür.
+    async encode({ token }): Promise<string> {
+      if (!token?.sub) return "";
+      const existing = (token as JWT & { sessionToken?: string }).sessionToken;
+      if (typeof existing === "string" && existing.length > 0) {
+        await prisma.session.updateMany({
+          where: { session_token: existing },
+          data: { expires: expiryDate() },
+        });
+        return existing;
+      }
       const sessionToken = crypto.randomUUID();
       await prisma.session.create({
         data: {
           session_token: sessionToken,
-          user_id: userId,
-          expires: new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000),
+          user_id: token.sub,
+          expires: expiryDate(),
         },
       });
       return sessionToken;
     },
-    async decode() {
-      // Cookie değeri JWT değil sessionToken'dır; çözümleme yapılmaz.
-      return null;
+    // Çerez değeri (opak session_token) → DB'den doğrulanır.
+    async decode({ token }): Promise<JWT | null> {
+      if (!token || typeof token !== "string") return null;
+      const session = await prisma.session.findUnique({
+        where: { session_token: token },
+        include: { user: { select: { id: true, name: true, email: true } } },
+      });
+      if (!session || session.expires < new Date()) return null;
+      return {
+        sub: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        sessionToken: token,
+      } as JWT;
     },
   },
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) session.user.id = user.id;
+    async session({ session, token }) {
+      if (token?.sub && session.user) session.user.id = token.sub;
       return session;
+    },
+  },
+  events: {
+    // Çıkışta ilgili DB oturumunu sil (opak token üzerinden).
+    async signOut(message) {
+      const token =
+        "token" in message
+          ? (message.token as (JWT & { sessionToken?: string }) | null)
+          : null;
+      const sessionToken = token?.sessionToken;
+      if (typeof sessionToken === "string" && sessionToken.length > 0) {
+        await prisma.session.deleteMany({ where: { session_token: sessionToken } });
+      }
     },
   },
 });
