@@ -12,7 +12,13 @@ import { BASE_CURRENCY, type ExchangeRates } from "@/lib/currency";
 export type { ExchangeRates };
 
 const TCMB_URL = "https://www.tcmb.gov.tr/kurlar/today.xml";
-const REQUEST_TIMEOUT_MS = 6_000;
+const REQUEST_TIMEOUT_MS = 2_500;
+/**
+ * Tüm adaylar için toplam süre bütçesi. Kur, sayfanın yan bilgisidir; TCMB
+ * yavaşladığında her adayı ayrı ayrı beklemek sayfa render'ını (ve onunla
+ * birlikte veritabanı bağlantısını) dakikalarca açık tutardı.
+ */
+const TOTAL_BUDGET_MS = 4_000;
 /** Bülten günde bir yayımlanır; süreç içinde 30 dakikalık tazelik yeterli. */
 const MEMORY_TTL_MS = 30 * 60 * 1000;
 /** TCMB'ye ulaşılamadığında her istekte yeniden denememek için bekleme. */
@@ -68,8 +74,11 @@ export async function getExchangeRates(): Promise<ExchangeRates | null> {
   if (cache && cachedDay === today && now - cachedAt < MEMORY_TTL_MS) return cache;
   if (lastFailureAt && now - lastFailureAt < RETRY_COOLDOWN_MS) return cache;
 
+  const deadline = now + TOTAL_BUDGET_MS;
   for (const url of candidateUrls()) {
-    const bulletin = await fetchBulletin(url);
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) break;
+    const bulletin = await fetchBulletin(url, Math.min(REQUEST_TIMEOUT_MS, remaining));
     if (bulletin) {
       cache = bulletin;
       cachedAt = now;
@@ -88,7 +97,7 @@ export async function getExchangeRates(): Promise<ExchangeRates | null> {
 function candidateUrls(): string[] {
   const urls = [TCMB_URL];
   const day = new Date();
-  for (let i = 0; i < 7; i += 1) {
+  for (let i = 0; i < 4; i += 1) {
     day.setDate(day.getDate() - 1);
     urls.push(archiveUrl(day));
   }
@@ -103,16 +112,18 @@ function archiveUrl(day: Date): string {
   return `https://www.tcmb.gov.tr/kurlar/${yyyy}${mm}/${dd}${mm}${yyyy}.xml`;
 }
 
-async function fetchBulletin(url: string): Promise<ExchangeRates | null> {
+async function fetchBulletin(url: string, timeoutMs: number): Promise<ExchangeRates | null> {
   try {
     const res = await fetch(url, {
       next: { revalidate: 3600, tags: ["tcmb-rates"] },
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     if (!res.ok) return null;
     return parseTcmbXml(await res.text());
   } catch (error) {
-    console.error("TCMB kuru alınamadı:", url, error);
+    // Kur zorunlu veri değil; yığın izi yerine tek satır uyarı yeterli.
+    const reason = error instanceof Error ? error.message : String(error);
+    console.warn(`TCMB kuru alınamadı (${url}): ${reason}`);
     return null;
   }
 }
