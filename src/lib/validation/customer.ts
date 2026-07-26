@@ -75,4 +75,4 @@ export const CUSTOMER_STATUS_OPTIONS = [
   { value: "active", label: "Aktif" },
   { value: "suspended", label: "Askıda" },
   { value: "archived", label: "Arşivlendi" },
-];
+] as const;

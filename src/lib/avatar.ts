@@ -1,5 +1,5 @@
-const MAX_AVATAR_BYTES = 350 * 1024;
-export const MAX_AVATAR_DATA_URL_LENGTH = 500_000;
+const MAX_AVATAR_BYTES = 96 * 1024;
+export const MAX_AVATAR_DATA_URL_LENGTH = 140_000;
 const MAX_REMOTE_AVATAR_URL_LENGTH = 2048;
 
 export function isValidAvatarDataUrl(value: string): boolean {

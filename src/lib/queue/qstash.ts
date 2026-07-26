@@ -14,7 +14,12 @@ export function getQStash(): Client | null {
     if (!token && process.env.NODE_ENV === "production") {
       throw new Error("Üretimde QSTASH_TOKEN zorunludur.");
     }
-    client = token ? new Client({ token }) : null;
+    client = token
+      ? new Client({
+          token,
+          retry: { retries: 1, backoff: () => 100 },
+        })
+      : null;
   }
   return client;
 }

@@ -2,7 +2,12 @@ import type { Prisma } from "@/generated/prisma/client";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
-import { parseListParams, pageCount, type SearchParams } from "@/lib/pagination";
+import {
+  FORM_OPTION_LIMIT,
+  parseListParams,
+  pageCount,
+  type SearchParams,
+} from "@/lib/pagination";
 import { PageHeader } from "@/components/page-header";
 import { ListToolbar } from "@/components/list-toolbar";
 import { PaginationBar } from "@/components/pagination-bar";
@@ -18,6 +23,7 @@ import {
   DOMAIN_EXPIRY_FILTERS,
 } from "@/lib/validation/domain";
 import { daysUntil, EXPIRY_WARNING_DAYS } from "@/lib/domain";
+import { parseOptionValue } from "@/lib/query-params";
 
 export const metadata = { title: "Domainler · Operasyon Merkezi" };
 
@@ -39,12 +45,13 @@ export default async function DomainsPage({
   );
 
   const where: Prisma.DomainWhereInput = {};
-  if (status === DOMAIN_EXPIRY_FILTERS.expiring) {
+  const validStatus = parseOptionValue(status, DOMAIN_FILTER_OPTIONS);
+  if (validStatus === DOMAIN_EXPIRY_FILTERS.expiring) {
     where.expires_at = { gte: now, lte: warningLimit };
-  } else if (status === DOMAIN_EXPIRY_FILTERS.overdue) {
+  } else if (validStatus === DOMAIN_EXPIRY_FILTERS.overdue) {
     where.expires_at = { lt: now };
-  } else if (status) {
-    where.status = status as Prisma.DomainWhereInput["status"];
+  } else if (validStatus) {
+    where.status = validStatus;
   }
   if (search) {
     where.OR = [
@@ -102,15 +109,20 @@ export default async function DomainsPage({
         },
       },
     }),
-    db.domain.findMany({ select: { normalized_name: true } }),
+    db.domain.findMany({
+      take: FORM_OPTION_LIMIT,
+      select: { normalized_name: true },
+    }),
     db.customer.findMany({
       where: { status: { not: "archived" } },
       orderBy: { legal_name: "asc" },
+      take: FORM_OPTION_LIMIT,
       select: { id: true, legal_name: true },
     }),
     db.project.findMany({
       where: { status: { not: "archived" } },
       orderBy: { code: "asc" },
+      take: FORM_OPTION_LIMIT,
       select: { id: true, code: true, name: true },
     }),
   ]);

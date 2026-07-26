@@ -6,7 +6,7 @@ export const SERVER_STATUS_OPTIONS = [
   { value: "maintenance", label: "Bakım" },
   { value: "suspended", label: "Askıda" },
   { value: "terminated", label: "Sonlandırıldı" },
-];
+] as const;
 
 export const COST_PERIODS = ["monthly", "yearly"] as const;
 

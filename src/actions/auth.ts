@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db/prisma";
 import { signIn, signOut } from "@/lib/auth";
+import { getAuthContext } from "@/lib/auth/context";
 import { createOtp, verifyOtp, OTP_TTL_MS } from "@/lib/auth/otp";
 import {
   isLoginLocked,
@@ -163,6 +164,42 @@ export async function resendOtpAction(): Promise<ActionResponse<null>> {
 }
 
 export async function logoutAction(): Promise<ActionResponse<null>> {
-  await signOut({ redirect: false });
+  const ctx = await getAuthContext();
+  const store = await cookies();
+  const currentToken =
+    store.get("authjs.session-token")?.value ??
+    store.get("__Secure-authjs.session-token")?.value;
+
+  if (currentToken) {
+    try {
+      await prisma.session.deleteMany({
+        where: {
+          session_token: currentToken,
+          ...(ctx ? { user_id: ctx.user.id } : {}),
+        },
+      });
+    } catch (error) {
+      console.error("Oturum sunucuda iptal edilemedi:", error);
+      return fail(
+        "Oturum güvenli biçimde sonlandırılamadı. Lütfen tekrar deneyin."
+      );
+    }
+  }
+
+  try {
+    await signOut({ redirect: false });
+  } catch (error) {
+    // DB tokenı yukarıda iptal edildi; cookie temizliği yenilemede tamamlanır.
+    console.error("Çıkış cookie temizliği tamamlanamadı:", error);
+  }
+  if (ctx) {
+    await writeAudit({
+      workspace_id: ctx.workspaceId,
+      actor_user_id: ctx.user.id,
+      action: "LOGOUT",
+      auditable_type: "user",
+      auditable_id: ctx.user.id,
+    });
+  }
   return ok(null, "Oturum kapatıldı.");
 }

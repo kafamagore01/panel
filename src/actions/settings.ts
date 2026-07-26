@@ -103,21 +103,21 @@ export async function changePassword(
   if (!valid) return fail("Mevcut parolanız hatalı.");
 
   const password_hash = await bcrypt.hash(parsed.data.new_password, 12);
-  await prisma.user.update({
-    where: { id: ctx.user.id },
-    data: { password_hash, force_password_reset: false },
-  });
-
-  // Diğer oturumları sonlandır (mevcut hariç)
   const store = await cookies();
   const currentToken =
     store.get("authjs.session-token")?.value ??
     store.get("__Secure-authjs.session-token")?.value;
-  await prisma.session.deleteMany({
-    where: {
-      user_id: ctx.user.id,
-      ...(currentToken ? { session_token: { not: currentToken } } : {}),
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: ctx.user.id },
+      data: { password_hash, force_password_reset: false },
+    });
+    await tx.session.deleteMany({
+      where: {
+        user_id: ctx.user.id,
+        ...(currentToken ? { session_token: { not: currentToken } } : {}),
+      },
+    });
   });
 
   await writeAudit({
@@ -194,6 +194,10 @@ export async function confirm2FAChange(
 
   const result = await verifyOtp(otpId, purpose, parsed.data.code);
   if (!result.ok) return fail(result.error);
+  if (result.userId !== ctx.user.id) {
+    store.delete(TFA_COOKIE);
+    return fail("Doğrulama isteği bu kullanıcıya ait değil.");
+  }
 
   const enable = purpose === "enable_2fa";
   await prisma.user.update({

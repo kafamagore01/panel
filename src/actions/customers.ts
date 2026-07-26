@@ -1,7 +1,9 @@
 "use server";
 
+import { z } from "zod";
 import { requirePermission, PermissionError } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
+import { prisma } from "@/lib/db/prisma";
 import { writeAudit } from "@/lib/audit";
 import {
   customerSchema,
@@ -13,6 +15,9 @@ import {
 } from "@/lib/customer-name";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
 import { revalidatePath } from "next/cache";
+import { logError } from "@/lib/logger";
+
+const customerIdSchema = z.uuid("Müşteri kimliği geçersiz.");
 
 type TenantDb = Awaited<ReturnType<typeof getTenantDb>>;
 
@@ -40,7 +45,7 @@ function getCustomerData(input: CustomerInput) {
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
-  console.error(error);
+  logError("action.customer_failed", error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
 }
 
@@ -238,30 +243,74 @@ export async function archiveCustomer(
 ): Promise<ActionResponse<null>> {
   try {
     const ctx = await requirePermission("record.archive");
-    const db = await getTenantDb();
-
-    const customer = await db.customer.findUnique({ where: { id } });
-    if (!customer) return fail("Müşteri bulunamadı.");
-
-    const [projectCount, branchCount] = await Promise.all([
-      db.project.count({ where: { customer_id: id } }),
-      db.customer.count({ where: { parent_customer_id: id } }),
-    ]);
-    if (branchCount > 0) {
-      return fail(
-        "Bu ana merkeze bağlı şubeler bulunduğu için arşivlenemez. Önce şubeleri başka bir ana merkeze taşıyın veya arşivleyin."
-      );
-    }
-    if (projectCount > 0) {
-      return fail(
-        "Bu müşteriye ait projeler bulunduğu için arşivlenemez. Önce projeleri arşivleyin."
-      );
+    if (!customerIdSchema.safeParse(id).success) {
+      return fail("Müşteri kimliği geçersiz.");
     }
 
-    await db.customer.update({
-      where: { id },
-      data: { status: "archived", deleted_at: new Date() },
-    });
+    type ArchiveResult =
+      | { kind: "error"; message: string }
+      | { kind: "ok"; customer: NonNullable<Awaited<ReturnType<typeof prisma.customer.findUnique>>> };
+    const result = await prisma.$transaction(
+      async (tx): Promise<ArchiveResult> => {
+        await tx.$queryRaw`
+          SELECT id
+          FROM customers
+          WHERE id = ${id}::uuid
+            AND workspace_id = ${ctx.workspaceId}::uuid
+            AND deleted_at IS NULL
+          FOR UPDATE
+        `;
+        const customer = await tx.customer.findFirst({
+          where: {
+            id,
+            workspace_id: ctx.workspaceId,
+            deleted_at: null,
+          },
+        });
+        if (!customer) {
+          return { kind: "error", message: "Müşteri bulunamadı." };
+        }
+
+        const [projectCount, branchCount] = await Promise.all([
+          tx.project.count({
+            where: {
+              workspace_id: ctx.workspaceId,
+              customer_id: id,
+              deleted_at: null,
+            },
+          }),
+          tx.customer.count({
+            where: {
+              workspace_id: ctx.workspaceId,
+              parent_customer_id: id,
+              deleted_at: null,
+            },
+          }),
+        ]);
+        if (branchCount > 0) {
+          return {
+            kind: "error",
+            message:
+              "Bu ana merkeze bağlı şubeler bulunduğu için arşivlenemez. Önce şubeleri başka bir ana merkeze taşıyın veya arşivleyin.",
+          };
+        }
+        if (projectCount > 0) {
+          return {
+            kind: "error",
+            message:
+              "Bu müşteriye ait projeler bulunduğu için arşivlenemez. Önce projeleri arşivleyin.",
+          };
+        }
+
+        await tx.customer.update({
+          where: { id },
+          data: { status: "archived", deleted_at: new Date() },
+        });
+        return { kind: "ok", customer };
+      },
+      { maxWait: 5_000, timeout: 15_000 }
+    );
+    if (result.kind === "error") return fail(result.message);
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -269,7 +318,7 @@ export async function archiveCustomer(
       action: "ARCHIVE",
       auditable_type: "customer",
       auditable_id: id,
-      before_data: customer,
+      before_data: result.customer,
     });
 
     revalidatePath("/musteriler");

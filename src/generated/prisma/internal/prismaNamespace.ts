@@ -2423,6 +2423,10 @@ export const WebhookDeliveryScalarFieldEnum = {
   status: 'status',
   http_status: 'http_status',
   attempt_count: 'attempt_count',
+  publish_attempt_count: 'publish_attempt_count',
+  queued_at: 'queued_at',
+  next_publish_at: 'next_publish_at',
+  processing_started_at: 'processing_started_at',
   delivered_at: 'delivered_at',
   response_excerpt: 'response_excerpt',
   last_error: 'last_error',
@@ -2444,6 +2448,7 @@ export const AuditLogScalarFieldEnum = {
   after_data: 'after_data',
   ip_address: 'ip_address',
   user_agent: 'user_agent',
+  request_id: 'request_id',
   created_at: 'created_at'
 } as const
 

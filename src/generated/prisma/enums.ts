@@ -206,6 +206,7 @@ export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 export const WebhookDeliveryStatus = {
   pending: 'pending',
+  processing: 'processing',
   delivered: 'delivered',
   failed: 'failed'
 } as const

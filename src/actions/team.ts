@@ -20,10 +20,11 @@ import { writeAudit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email";
 import { inviteEmail } from "@/lib/email/templates";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
+import { logError } from "@/lib/logger";
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
-  console.error(error);
+  logError("action.team_failed", error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
 }
 
@@ -64,7 +65,12 @@ export async function inviteMember(
 
     type InviteResult =
       | { kind: "error"; message: string }
-      | { kind: "ok"; userId: string; isNew: boolean };
+      | {
+          kind: "ok";
+          userId: string;
+          membershipId: string;
+          isNew: boolean;
+        };
 
     const result = await prisma.$transaction(async (tx): Promise<InviteResult> => {
       let user = await tx.user.findUnique({ where: { email: normalizedEmail } });
@@ -89,15 +95,21 @@ export async function inviteMember(
       });
       if (existing) return { kind: "error", message: "Bu kullanıcı zaten çalışma alanında." };
 
-      await tx.workspaceUser.create({
+      const membership = await tx.workspaceUser.create({
         data: {
           workspace_id: workspaceId,
           user_id: user.id,
           role,
-          status: "active",
+          // Yeni hesap, geçici parola gerçekten gönderilene kadar erişim kazanmaz.
+          status: isNew ? "inactive" : "active",
         },
       });
-      return { kind: "ok", userId: user.id, isNew };
+      return {
+        kind: "ok",
+        userId: user.id,
+        membershipId: membership.id,
+        isNew,
+      };
     });
 
     if (result.kind === "error") return fail(result.message);
@@ -116,6 +128,62 @@ export async function inviteMember(
         await sendEmail({ to: normalizedEmail, ...mail });
       } catch (error) {
         console.error("Davet e-postası gönderilemedi:", error);
+        try {
+          await prisma.$transaction(async (tx) => {
+            await tx.workspaceUser.deleteMany({
+              where: {
+                id: result.membershipId,
+                workspace_id: workspaceId,
+                user_id: result.userId,
+                status: "inactive",
+              },
+            });
+            await tx.user.deleteMany({
+              where: {
+                id: result.userId,
+                email: normalizedEmail,
+                sessions: { none: {} },
+                memberships: { none: {} },
+              },
+            });
+          });
+        } catch (cleanupError) {
+          console.error("Başarısız davet geri alınamadı:", cleanupError);
+        }
+        return fail(
+          "Davet e-postası gönderilemedi; üyelik etkinleştirilmedi."
+        );
+      }
+      const activated = await prisma.workspaceUser.updateMany({
+        where: {
+          id: result.membershipId,
+          workspace_id: workspaceId,
+          user_id: result.userId,
+          status: "inactive",
+        },
+        data: { status: "active" },
+      });
+      if (activated.count !== 1) {
+        await prisma.$transaction(async (tx) => {
+          await tx.workspaceUser.deleteMany({
+            where: {
+              id: result.membershipId,
+              workspace_id: workspaceId,
+              user_id: result.userId,
+              status: "inactive",
+            },
+          });
+          await tx.user.deleteMany({
+            where: {
+              id: result.userId,
+              sessions: { none: {} },
+              memberships: { none: {} },
+            },
+          });
+        });
+        return fail(
+          "Davet gönderildi ancak üyelik etkinleştirilemedi. İşlemi yeniden deneyin."
+        );
       }
     }
 

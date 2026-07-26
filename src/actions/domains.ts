@@ -8,11 +8,21 @@ import { writeAudit } from "@/lib/audit";
 import { normalizeDomain } from "@/lib/domain";
 import { domainSchema, importLicenseDomainSchema } from "@/lib/validation/domain";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
+import { logError } from "@/lib/logger";
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
-  console.error(error);
+  logError("action.domain_failed", error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code: unknown }).code === "P2002"
+  );
 }
 
 type DomainData = ReturnType<typeof domainSchema.parse>;
@@ -78,9 +88,11 @@ export async function createDomain(
       created = await db.domain.create({
         data: { ...buildData(parsed.data, normalized), workspace_id: ctx.workspaceId },
       });
-    } catch {
-      // Benzersizlik ihlali: aynı ad daha önce eklenip arşivlenmiş olabilir
-      return fail("Bu alan adı daha önce kaydedilmiş (arşivlenmiş olabilir).");
+    } catch (error) {
+      if (isUniqueViolation(error)) {
+        return fail("Bu alan adı daha önce kaydedilmiş (arşivlenmiş olabilir).");
+      }
+      throw error;
     }
 
     await writeAudit({
@@ -219,8 +231,11 @@ export async function importLicenseDomain(
           status: "active",
         },
       });
-    } catch {
-      return fail("Bu alan adı daha önce kaydedilmiş (arşivlenmiş olabilir).");
+    } catch (error) {
+      if (isUniqueViolation(error)) {
+        return fail("Bu alan adı daha önce kaydedilmiş (arşivlenmiş olabilir).");
+      }
+      throw error;
     }
 
     await writeAudit({

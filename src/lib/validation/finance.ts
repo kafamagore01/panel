@@ -100,7 +100,10 @@ export const scheduleSchema = z.object({
   tax_rate: z
     .union([z.string(), z.number(), z.literal("")])
     .optional()
-    .transform((v) => (v === "" || v === undefined ? 20 : Number(v))),
+    .transform((v) => (v === "" || v === undefined ? 20 : Number(v)))
+    .refine((v) => Number.isFinite(v) && v >= 0 && v <= 100, {
+      message: "KDV oranı 0-100 arasında olmalıdır.",
+    }),
   currency: z.enum(CURRENCY_CODES, "Geçersiz para birimi.").default("TRY"),
   /** Boş bırakılırsa TCMB'nin o günkü kuru kullanılır (her gün tazelenir). */
   manual_fx_rate: manualFxRate,
@@ -109,13 +112,31 @@ export const scheduleSchema = z.object({
     .union([z.string(), z.number(), z.literal("")])
     .optional()
     .transform((v) => (v === "" || v === undefined ? 1 : Number(v)))
-    .refine((v) => Number.isInteger(v) && v >= 1, { message: "Aralık en az 1 olmalıdır." }),
+    .refine((v) => Number.isInteger(v) && v >= 1 && v <= 120, {
+      message: "Aralık 1-120 arasında olmalıdır.",
+    }),
   starts_on: z.string().min(1, "Başlangıç tarihi zorunludur."),
   ends_on: z.union([z.string(), z.literal("")]).optional().transform((v) => (v ? v : undefined)),
   due_days: z
     .union([z.string(), z.number(), z.literal("")])
     .optional()
-    .transform((v) => (v === "" || v === undefined ? 7 : Number(v))),
+    .transform((v) => (v === "" || v === undefined ? 7 : Number(v)))
+    .refine((v) => Number.isInteger(v) && v >= 0 && v <= 365, {
+      message: "Vade günü 0-365 arasında olmalıdır.",
+    }),
+}).superRefine((data, ctx) => {
+  if (
+    data.ends_on &&
+    Number.isFinite(Date.parse(data.starts_on)) &&
+    Number.isFinite(Date.parse(data.ends_on)) &&
+    new Date(data.ends_on) < new Date(data.starts_on)
+  ) {
+    ctx.addIssue({
+      code: "custom",
+      path: ["ends_on"],
+      message: "Bitiş tarihi başlangıç tarihinden önce olamaz.",
+    });
+  }
 });
 
 export type ScheduleInput = z.infer<typeof scheduleSchema>;

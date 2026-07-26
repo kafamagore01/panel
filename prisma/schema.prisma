@@ -746,6 +746,7 @@ model AuditLog {
   after_data     Json?
   ip_address     String?
   user_agent     String?
+  request_id     String?
   created_at     DateTime @default(now())
 
   workspace Workspace? @relation(fields: [workspace_id], references: [id], onDelete: SetNull)
@@ -753,5 +754,6 @@ model AuditLog {
 
   @@index([workspace_id, created_at])
   @@index([auditable_type, auditable_id])
+  @@index([request_id])
   @@map("audit_logs")
 }

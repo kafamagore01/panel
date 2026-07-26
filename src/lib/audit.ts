@@ -1,6 +1,8 @@
 import { headers } from "next/headers";
 import { prisma } from "@/lib/db/prisma";
 import type { Prisma } from "@/generated/prisma/client";
+import crypto from "node:crypto";
+import { logError } from "@/lib/logger";
 
 /**
  * Denetim izi (audit log) yardımcıları.
@@ -49,16 +51,28 @@ function toJson(value: unknown): Prisma.InputJsonValue | undefined {
 export async function getRequestMeta(): Promise<{
   ip: string | null;
   userAgent: string | null;
+  requestId: string;
 }> {
   try {
     const h = await headers();
     const forwarded = h.get("x-forwarded-for");
     const ip =
       forwarded?.split(",")[0]?.trim() || h.get("x-real-ip") || null;
-    return { ip, userAgent: h.get("user-agent") };
+    const incomingRequestId = h.get("x-request-id");
+    const requestId =
+      incomingRequestId &&
+      incomingRequestId.length <= 128 &&
+      /^[A-Za-z0-9._:-]+$/.test(incomingRequestId)
+        ? incomingRequestId
+        : crypto.randomUUID();
+    return { ip, userAgent: h.get("user-agent"), requestId };
   } catch {
     // Request bağlamı dışında (ör. cron) çağrıldıysa
-    return { ip: null, userAgent: null };
+    return {
+      ip: null,
+      userAgent: null,
+      requestId: crypto.randomUUID(),
+    };
   }
 }
 
@@ -70,11 +84,12 @@ export type AuditEntry = {
   auditable_id?: string | null;
   before_data?: unknown;
   after_data?: unknown;
+  request_id?: string | null;
 };
 
 /** Denetim kaydı yazar; hata durumunda ana işlemi bloklamaz. */
 export async function writeAudit(entry: AuditEntry): Promise<void> {
-  const { ip, userAgent } = await getRequestMeta();
+  const { ip, userAgent, requestId } = await getRequestMeta();
   try {
     await prisma.auditLog.create({
       data: {
@@ -87,9 +102,16 @@ export async function writeAudit(entry: AuditEntry): Promise<void> {
         after_data: toJson(entry.after_data),
         ip_address: ip,
         user_agent: userAgent,
+        request_id: entry.request_id ?? requestId,
       },
     });
   } catch (error) {
-    console.error("Denetim kaydı yazılamadı:", error);
+    logError("security.audit_write_failed", error, {
+      request_id: entry.request_id ?? requestId,
+      workspace_id: entry.workspace_id ?? null,
+      actor_user_id: entry.actor_user_id ?? null,
+      action: entry.action,
+      auditable_type: entry.auditable_type,
+    });
   }
 }

@@ -7,7 +7,7 @@ export const LICENSE_STATUS_OPTIONS = [
   { value: "expired", label: "Süresi Doldu" },
   { value: "suspended", label: "Askıda" },
   { value: "revoked", label: "İptal Edildi" },
-];
+] as const;
 
 const optDate = z
   .union([z.string(), z.literal("")])

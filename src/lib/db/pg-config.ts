@@ -4,6 +4,8 @@ type PgConfig = {
   max: number;
   idleTimeoutMillis: number;
   connectionTimeoutMillis: number;
+  statement_timeout: number;
+  query_timeout: number;
 };
 
 /**
@@ -38,6 +40,9 @@ function poolLimits() {
     idleTimeoutMillis: 60_000,
     // Havuz doluysa süresiz beklemek yerine hata ver.
     connectionTimeoutMillis: 10_000,
+    // Tek bir sorgu/lock bekleyişinin request ömrünü sınırsız tutmasını engeller.
+    statement_timeout: 30_000,
+    query_timeout: 35_000,
   };
 }
 

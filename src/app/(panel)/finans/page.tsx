@@ -11,6 +11,7 @@ import {
 } from "@/components/finans/finance-view";
 import { formatMoney, toNumber } from "@/lib/format";
 import { getExchangeRates } from "@/lib/exchange-rate";
+import { FORM_OPTION_LIMIT } from "@/lib/pagination";
 
 export const metadata = { title: "Finans · Operasyon Merkezi" };
 
@@ -25,7 +26,16 @@ export default async function FinancePage() {
 
   const db = await getTenantDb();
 
-  const [invoices, schedules, customers, projects, outstanding, overdueCount, rates] =
+  const [
+    invoices,
+    schedules,
+    customers,
+    projects,
+    outstanding,
+    overdueCount,
+    totalInvoiceCount,
+    rates,
+  ] =
     await Promise.all([
       db.invoice.findMany({
         orderBy: { created_at: "desc" },
@@ -40,11 +50,13 @@ export default async function FinancePage() {
       db.customer.findMany({
         where: { status: { not: "archived" } },
         orderBy: { legal_name: "asc" },
+        take: FORM_OPTION_LIMIT,
         select: { id: true, legal_name: true },
       }),
       db.project.findMany({
         where: { status: { not: "archived" } },
         orderBy: { code: "asc" },
+        take: FORM_OPTION_LIMIT,
         select: {
           id: true,
           customer_id: true,
@@ -61,6 +73,7 @@ export default async function FinancePage() {
         where: { status: { in: ["issued", "partial", "overdue"] } },
       }),
       db.invoice.count({ where: { status: "overdue" } }),
+      db.invoice.count(),
       // Dövizli tutarların TL karşılığı için TCMB günlük kuru (erişilemezse null)
       getExchangeRates(),
     ]);
@@ -122,7 +135,7 @@ export default async function FinancePage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <KpiCard title="Açık Bakiye" value={formatMoney(toNumber(outstanding._sum.balance_due), "TRY")} icon="Wallet" tone="primary" />
         <KpiCard title="Gecikmiş Fatura" value={overdueCount} icon="CircleAlert" tone="danger" />
-        <KpiCard title="Toplam Fatura" value={invoices.length} icon="FileText" />
+        <KpiCard title="Toplam Fatura" value={totalInvoiceCount} icon="FileText" />
       </div>
 
       <FinanceView

@@ -15,10 +15,11 @@ import { computeInvoiceTotals, buildCustomerSnapshot } from "@/lib/finance";
 import { nextInvoiceNumber } from "@/lib/finance/invoice-number";
 import { calculatePaymentState } from "@/lib/finance/payment-state";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
+import { logError } from "@/lib/logger";
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
-  console.error(error);
+  logError("action.finance_failed", error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
 }
 
@@ -305,7 +306,7 @@ export async function recordPayment(
     const workspaceId = ctx.workspaceId;
 
     type TxResult =
-      | { kind: "duplicate" }
+      | { kind: "replay"; status: string; invoiceId: string }
       | { kind: "error"; message: string }
       | { kind: "ok"; status: string; invoiceId: string };
 
@@ -326,9 +327,29 @@ export async function recordPayment(
       // ilk transaction commit ettikten sonra burada güvenle görülür.
       const existing = await tx.payment.findUnique({
         where: { idempotency_key: data.idempotency_key },
+        include: {
+          invoice: {
+            select: { id: true, workspace_id: true, status: true },
+          },
+        },
       });
       if (existing) {
-        return { kind: "duplicate" };
+        if (
+          existing.invoice_id !== data.invoice_id ||
+          existing.invoice.workspace_id !== workspaceId ||
+          Number(existing.amount) !== data.amount
+        ) {
+          return {
+            kind: "error",
+            message:
+              "Idempotency anahtarı farklı bir ödeme isteğinde kullanılmış.",
+          };
+        }
+        return {
+          kind: "replay",
+          status: existing.invoice.status,
+          invoiceId: existing.invoice.id,
+        };
       }
 
       const invoice = await tx.invoice.findUnique({
@@ -381,10 +402,13 @@ export async function recordPayment(
       };
     });
 
-    if (result.kind === "duplicate") {
-      return fail("Bu ödeme zaten kaydedilmiş (mükerrer işlem engellendi).");
-    }
     if (result.kind === "error") return fail(result.message);
+    if (result.kind === "replay") {
+      return ok(
+        { status: result.status },
+        "Ödeme daha önce kaydedilmiş; mevcut sonuç döndürüldü."
+      );
+    }
 
     await writeAudit({
       workspace_id: workspaceId,

@@ -6,10 +6,11 @@ import { getTenantDb } from "@/lib/db/tenant";
 import { writeAudit } from "@/lib/audit";
 import { serverSchema, projectServerSchema } from "@/lib/validation/server";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
+import { logError } from "@/lib/logger";
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
-  console.error(error);
+  logError("action.server_failed", error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
 }
 

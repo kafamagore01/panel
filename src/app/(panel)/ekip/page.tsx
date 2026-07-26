@@ -7,6 +7,7 @@ import {
   type WorkspaceItem,
   type MemberItem,
 } from "@/components/ekip/team-view";
+import { FORM_OPTION_LIMIT } from "@/lib/pagination";
 
 export const metadata = { title: "Ekip · Operasyon Merkezi" };
 
@@ -16,6 +17,7 @@ export default async function TeamPage() {
 
   const memberships = await prisma.workspaceUser.findMany({
     where: { user_id: ctx.user.id },
+    take: FORM_OPTION_LIMIT,
     include: { workspace: { select: { id: true, name: true, deleted_at: true } } },
   });
 
@@ -32,6 +34,7 @@ export default async function TeamPage() {
   if (ctx.workspaceId) {
     const rows = await prisma.workspaceUser.findMany({
       where: { workspace_id: ctx.workspaceId },
+      take: FORM_OPTION_LIMIT,
       include: { user: { select: { id: true, name: true, email: true } } },
       orderBy: { created_at: "asc" },
     });

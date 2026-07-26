@@ -2,7 +2,12 @@ import type { Prisma } from "@/generated/prisma/client";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
-import { parseListParams, pageCount, type SearchParams } from "@/lib/pagination";
+import {
+  FORM_OPTION_LIMIT,
+  parseListParams,
+  pageCount,
+  type SearchParams,
+} from "@/lib/pagination";
 import { PageHeader } from "@/components/page-header";
 import { ListToolbar } from "@/components/list-toolbar";
 import { PaginationBar } from "@/components/pagination-bar";
@@ -11,6 +16,7 @@ import {
   type CustomerRow,
 } from "@/components/musteriler/customers-view";
 import { CUSTOMER_STATUS_OPTIONS } from "@/lib/validation/customer";
+import { parseOptionValue } from "@/lib/query-params";
 
 export const metadata = { title: "Müşteriler · Operasyon Merkezi" };
 
@@ -25,7 +31,8 @@ export default async function CustomersPage({
   const db = await getTenantDb();
 
   const where: Prisma.CustomerWhereInput = {};
-  if (status) where.status = status as Prisma.CustomerWhereInput["status"];
+  const validStatus = parseOptionValue(status, CUSTOMER_STATUS_OPTIONS);
+  if (validStatus) where.status = validStatus;
   if (search) {
     where.OR = [
       { legal_name: { contains: search, mode: "insensitive" } },
@@ -50,6 +57,7 @@ export default async function CustomersPage({
     db.customer.findMany({
       where: { parent_customer_id: null },
       orderBy: { legal_name: "asc" },
+      take: FORM_OPTION_LIMIT,
       select: { id: true, legal_name: true },
     }),
   ]);

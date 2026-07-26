@@ -15,7 +15,15 @@ let redisClient: Redis | null = null;
 
 export function getRedis(): Redis | null {
   if (!hasUpstash) return null;
-  redisClient ??= Redis.fromEnv();
+  redisClient ??= new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    signal: () => AbortSignal.timeout(3_000),
+    retry: {
+      retries: 1,
+      backoff: () => 100,
+    },
+  });
   return redisClient;
 }
 

@@ -1,19 +1,24 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 import { requirePermission, PermissionError } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
+import { prisma } from "@/lib/db/prisma";
 import { validateTenantReferences } from "@/lib/db/tenant-references";
 import { writeAudit } from "@/lib/audit";
 import { productSchema } from "@/lib/validation/product";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
+import { logError } from "@/lib/logger";
+
+const productIdSchema = z.uuid("Ürün kimliği geçersiz.");
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
   if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
     return fail("Bu ürün kodu bu çalışma alanında zaten kullanılıyor.");
   }
-  console.error(error);
+  logError("action.product_failed", error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
 }
 
@@ -90,17 +95,52 @@ export async function updateProduct(
 export async function deleteProduct(id: string): Promise<ActionResponse<null>> {
   try {
     const ctx = await requirePermission("record.archive");
-    const db = await getTenantDb();
-
-    const usage = await db.project.count({ where: { product_id: id } });
-    if (usage > 0) {
-      return fail("Bu ürün projelerde kullanıldığı için silinemez.");
+    if (!productIdSchema.safeParse(id).success) {
+      return fail("Ürün kimliği geçersiz.");
     }
 
-    const before = await db.product.findUnique({ where: { id } });
-    if (!before) return fail("Ürün bulunamadı.");
-
-    await db.product.update({ where: { id }, data: { deleted_at: new Date() } });
+    const result = await prisma.$transaction(
+      async (tx) => {
+        await tx.$queryRaw`
+          SELECT id
+          FROM products
+          WHERE id = ${id}::uuid
+            AND workspace_id = ${ctx.workspaceId}::uuid
+            AND deleted_at IS NULL
+          FOR UPDATE
+        `;
+        const product = await tx.product.findFirst({
+          where: {
+            id,
+            workspace_id: ctx.workspaceId,
+            deleted_at: null,
+          },
+        });
+        if (!product) {
+          return { kind: "error" as const, message: "Ürün bulunamadı." };
+        }
+        const usage = await tx.project.count({
+          where: {
+            workspace_id: ctx.workspaceId,
+            product_id: id,
+            deleted_at: null,
+          },
+        });
+        if (usage > 0) {
+          return {
+            kind: "error" as const,
+            message: "Bu ürün projelerde kullanıldığı için silinemez.",
+          };
+        }
+        await tx.product.update({
+          where: { id },
+          data: { deleted_at: new Date() },
+        });
+        return { kind: "ok" as const, product };
+      },
+      { maxWait: 5_000, timeout: 15_000 }
+    );
+    if (result.kind === "error") return fail(result.message);
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -108,7 +148,7 @@ export async function deleteProduct(id: string): Promise<ActionResponse<null>> {
       action: "DELETE",
       auditable_type: "product",
       auditable_id: id,
-      before_data: before,
+      before_data: result.product,
     });
 
     revalidatePath("/projeler");

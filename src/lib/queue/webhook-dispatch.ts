@@ -2,11 +2,30 @@ import crypto from "node:crypto";
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { getQStash, appBaseUrl } from "./qstash";
+import { logError } from "@/lib/logger";
 
 const REPUBLISH_AFTER_MS = 5 * 60 * 1000;
 const PUBLISH_BACKOFF_MS = 60 * 1000;
 const STALE_PROCESSING_MS = 2 * 60 * 1000;
 const RECONCILE_BATCH_SIZE = 100;
+const QSTASH_PUBLISH_TIMEOUT_MS = 8_000;
+
+async function withPublishTimeout<T>(promise: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(
+          () => reject(new Error("QStash publish zaman aşımına uğradı.")),
+          QSTASH_PUBLISH_TIMEOUT_MS
+        );
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
 
 /**
  * Lisans mutasyonuyla aynı transaction içinde kalıcı outbox kaydı oluşturur.
@@ -70,12 +89,14 @@ export async function publishWebhookDelivery(
   if (!qstash) return false;
 
   try {
-    await qstash.publishJSON({
-      url: `${appBaseUrl()}/api/qstash/webhook-deliver`,
-      body: { delivery_id: delivery.id },
-      retries: 3,
-      deduplicationId: delivery.idempotency_key,
-    });
+    await withPublishTimeout(
+      qstash.publishJSON({
+        url: `${appBaseUrl()}/api/qstash/webhook-deliver`,
+        body: { delivery_id: delivery.id },
+        retries: 3,
+        deduplicationId: delivery.idempotency_key,
+      })
+    );
     const queuedAt = new Date();
     await prisma.webhookDelivery.update({
       where: { id: delivery.id },
@@ -89,7 +110,9 @@ export async function publishWebhookDelivery(
     });
     return true;
   } catch (error) {
-    console.error("QStash publish hatası:", error);
+    logError("qstash.publish_failed", error, {
+      delivery_id: delivery.id,
+    });
     await prisma.webhookDelivery.update({
       where: { id: delivery.id },
       data: {

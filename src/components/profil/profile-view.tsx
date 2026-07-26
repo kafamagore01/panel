@@ -68,7 +68,8 @@ function Card({ title, description, children }: { title: string; description?: s
 }
 
 const MAX_AVATAR_FILE_SIZE = 5 * 1024 * 1024;
-const AVATAR_SIZE = 320;
+const AVATAR_SIZE = 256;
+const MAX_PREPARED_AVATAR_SIZE = 96 * 1024;
 const ALLOWED_AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function initials(name: string): string {
@@ -138,9 +139,14 @@ async function prepareAvatar(file: File): Promise<string> {
     );
 
     const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg", 0.86)
+      canvas.toBlob(resolve, "image/jpeg", 0.78)
     );
     if (!blob) throw new Error("Görsel işlenemedi.");
+    if (blob.size > MAX_PREPARED_AVATAR_SIZE) {
+      throw new Error(
+        "İşlenen profil fotoğrafı çok büyük. Daha sade bir görsel seçin."
+      );
+    }
 
     return blobToDataUrl(blob);
   } finally {

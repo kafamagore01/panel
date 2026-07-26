@@ -2,7 +2,12 @@ import type { Prisma } from "@/generated/prisma/client";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
-import { parseListParams, pageCount, type SearchParams } from "@/lib/pagination";
+import {
+  FORM_OPTION_LIMIT,
+  parseListParams,
+  pageCount,
+  type SearchParams,
+} from "@/lib/pagination";
 import { PageHeader } from "@/components/page-header";
 import { ListToolbar } from "@/components/list-toolbar";
 import { PaginationBar } from "@/components/pagination-bar";
@@ -10,6 +15,7 @@ import { ServersView, type ServerRow } from "@/components/sunucular/servers-view
 import type { ServerLink } from "@/components/sunucular/server-link-manager";
 import { SERVER_STATUS_OPTIONS } from "@/lib/validation/server";
 import { getExchangeRates } from "@/lib/exchange-rate";
+import { parseOptionValue } from "@/lib/query-params";
 
 export const metadata = { title: "Sunucular · Operasyon Merkezi" };
 
@@ -23,7 +29,8 @@ export default async function ServersPage({
   const db = await getTenantDb();
 
   const where: Prisma.ServerWhereInput = {};
-  if (status) where.status = status as Prisma.ServerWhereInput["status"];
+  const validStatus = parseOptionValue(status, SERVER_STATUS_OPTIONS);
+  if (validStatus) where.status = validStatus;
   if (search) {
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },
@@ -58,6 +65,7 @@ export default async function ServersPage({
     db.project.findMany({
       where: { status: { not: "archived" } },
       orderBy: { code: "asc" },
+      take: FORM_OPTION_LIMIT,
       select: {
         id: true,
         code: true,

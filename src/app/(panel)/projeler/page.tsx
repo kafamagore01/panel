@@ -3,13 +3,19 @@ import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
 import { prisma } from "@/lib/db/prisma";
-import { parseListParams, pageCount, type SearchParams } from "@/lib/pagination";
+import {
+  FORM_OPTION_LIMIT,
+  parseListParams,
+  pageCount,
+  type SearchParams,
+} from "@/lib/pagination";
 import { PageHeader } from "@/components/page-header";
 import { ListToolbar } from "@/components/list-toolbar";
 import { PaginationBar } from "@/components/pagination-bar";
 import { ProjectsView, type ProjectRow } from "@/components/projeler/projects-view";
 import { PROJECT_STATUS_OPTIONS } from "@/lib/validation/project";
 import { getExchangeRates } from "@/lib/exchange-rate";
+import { parseOptionValue } from "@/lib/query-params";
 
 export const metadata = { title: "Projeler · Operasyon Merkezi" };
 
@@ -23,7 +29,8 @@ export default async function ProjectsPage({
   const db = await getTenantDb();
 
   const where: Prisma.ProjectWhereInput = {};
-  if (status) where.status = status as Prisma.ProjectWhereInput["status"];
+  const validStatus = parseOptionValue(status, PROJECT_STATUS_OPTIONS);
+  if (validStatus) where.status = validStatus;
   if (search) {
     where.OR = [
       { name: { contains: search, mode: "insensitive" } },
@@ -49,10 +56,12 @@ export default async function ProjectsPage({
       db.customer.findMany({
         where: { status: { not: "archived" } },
         orderBy: { legal_name: "asc" },
+        take: FORM_OPTION_LIMIT,
         select: { id: true, legal_name: true },
       }),
       db.product.findMany({
         orderBy: { name: "asc" },
+        take: FORM_OPTION_LIMIT,
         select: {
           id: true,
           code: true,
@@ -65,6 +74,7 @@ export default async function ProjectsPage({
       ctx?.workspaceId
         ? prisma.workspaceUser.findMany({
             where: { workspace_id: ctx.workspaceId, status: "active" },
+            take: FORM_OPTION_LIMIT,
             include: { user: { select: { id: true, name: true } } },
           })
         : Promise.resolve([]),
@@ -72,6 +82,7 @@ export default async function ProjectsPage({
       db.project.findMany({
         where: { status: { not: "archived" } },
         orderBy: [{ name: "asc" }, { created_at: "asc" }],
+        take: FORM_OPTION_LIMIT,
         select: {
           id: true,
           code: true,

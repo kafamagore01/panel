@@ -19,7 +19,7 @@ export function ListToolbar({
   statusOptions,
   searchPlaceholder = "Ara...",
 }: {
-  statusOptions?: StatusFilterOption[];
+  statusOptions?: readonly StatusFilterOption[];
   searchPlaceholder?: string;
 }) {
   const router = useRouter();

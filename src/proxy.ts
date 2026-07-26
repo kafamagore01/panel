@@ -23,7 +23,10 @@ function hasSessionCookie(request: NextRequest): boolean {
   );
 }
 
-function applySecurityHeaders(response: NextResponse): NextResponse {
+function applySecurityHeaders(
+  response: NextResponse,
+  requestId: string
+): NextResponse {
   const isDev = process.env.NODE_ENV !== "production";
   const csp = [
     "default-src 'self'",
@@ -43,6 +46,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Robots-Tag", "noindex, nofollow");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("X-Request-Id", requestId);
   if (!isDev) {
     response.headers.set(
       "Strict-Transport-Security",
@@ -55,12 +59,20 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const authed = hasSessionCookie(request);
+  const incomingRequestId = request.headers.get("x-request-id");
+  const requestId =
+    incomingRequestId &&
+    incomingRequestId.length <= 128 &&
+    /^[A-Za-z0-9._:-]+$/.test(incomingRequestId)
+      ? incomingRequestId
+      : crypto.randomUUID();
 
   if (pathname === "/") {
     return applySecurityHeaders(
       NextResponse.redirect(
         new URL(authed ? "/dashboard" : "/giris", request.url)
-      )
+      ),
+      requestId
     );
   }
 
@@ -70,17 +82,24 @@ export function proxy(request: NextRequest) {
 
   if (!isPublic && !authed) {
     return applySecurityHeaders(
-      NextResponse.redirect(new URL("/giris", request.url))
+      NextResponse.redirect(new URL("/giris", request.url)),
+      requestId
     );
   }
 
   if (pathname === "/giris" && authed) {
     return applySecurityHeaders(
-      NextResponse.redirect(new URL("/dashboard", request.url))
+      NextResponse.redirect(new URL("/dashboard", request.url)),
+      requestId
     );
   }
 
-  return applySecurityHeaders(NextResponse.next());
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-request-id", requestId);
+  return applySecurityHeaders(
+    NextResponse.next({ request: { headers: requestHeaders } }),
+    requestId
+  );
 }
 
 export const config = {

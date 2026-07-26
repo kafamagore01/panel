@@ -5,7 +5,7 @@ export const DOMAIN_STATUS_OPTIONS = [
   { value: "expired", label: "Süresi Doldu" },
   { value: "transferred", label: "Devredildi" },
   { value: "cancelled", label: "Bırakıldı" },
-];
+] as const;
 
 /** Kayıt durumuna ek olarak süreye göre süzen sanal filtreler (?durum=). */
 export const DOMAIN_EXPIRY_FILTERS = {
@@ -17,7 +17,7 @@ export const DOMAIN_FILTER_OPTIONS = [
   ...DOMAIN_STATUS_OPTIONS,
   { value: DOMAIN_EXPIRY_FILTERS.expiring, label: "30 Gün İçinde Bitiyor" },
   { value: DOMAIN_EXPIRY_FILTERS.overdue, label: "Süresi Geçmiş" },
-];
+] as const;
 
 const optStr = (max = 300) =>
   z.string().trim().max(max).optional().transform((v) => (v ? v : undefined));

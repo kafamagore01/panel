@@ -18,7 +18,7 @@ export const PROJECT_STATUS_OPTIONS = [
   { value: "on_hold", label: "Askıda" },
   { value: "completed", label: "Tamamlandı" },
   { value: "archived", label: "Arşivlendi" },
-];
+] as const;
 
 export const projectSchema = z
   .object({

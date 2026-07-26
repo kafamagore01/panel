@@ -8,6 +8,7 @@ import {
   SsrfError,
 } from "@/lib/security/ssrf-guard";
 import { verifyQStashRequest } from "@/lib/queue/verify";
+import { logError } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -193,7 +194,10 @@ export async function POST(req: NextRequest) {
       },
     });
     if (!ssrfBlocked) {
-      console.error("Webhook teslim hatası:", error);
+      logError("webhook.delivery_failed", error, {
+        delivery_id: delivery.id,
+        workspace_id: delivery.workspace_id,
+      });
     }
     return NextResponse.json(
       { error: ssrfBlocked ? "ssrf_blocked" : "delivery_error" },

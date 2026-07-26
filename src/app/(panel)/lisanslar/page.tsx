@@ -2,7 +2,12 @@ import type { Prisma } from "@/generated/prisma/client";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
-import { parseListParams, pageCount, type SearchParams } from "@/lib/pagination";
+import {
+  FORM_OPTION_LIMIT,
+  parseListParams,
+  pageCount,
+  type SearchParams,
+} from "@/lib/pagination";
 import { PageHeader } from "@/components/page-header";
 import { ListToolbar } from "@/components/list-toolbar";
 import { PaginationBar } from "@/components/pagination-bar";
@@ -10,6 +15,7 @@ import { KpiCard } from "@/components/kpi-card";
 import { LicensesView, type LicenseRow } from "@/components/lisanslar/licenses-view";
 import { LICENSE_STATUS_OPTIONS } from "@/lib/validation/license";
 import type { DomainItem } from "@/components/lisanslar/domain-manager";
+import { parseOptionValue } from "@/lib/query-params";
 
 export const metadata = { title: "Lisanslar · Operasyon Merkezi" };
 
@@ -23,7 +29,8 @@ export default async function LicensesPage({
   const db = await getTenantDb();
 
   const where: Prisma.LicenseWhereInput = {};
-  if (status) where.status = status as Prisma.LicenseWhereInput["status"];
+  const validStatus = parseOptionValue(status, LICENSE_STATUS_OPTIONS);
+  if (validStatus) where.status = validStatus;
   if (search) {
     where.OR = [
       { product_name: { contains: search, mode: "insensitive" } },
@@ -56,6 +63,7 @@ export default async function LicensesPage({
       db.project.findMany({
         where: { status: { not: "archived" } },
         orderBy: { code: "asc" },
+        take: FORM_OPTION_LIMIT,
         select: { id: true, code: true, name: true, product: { select: { name: true } } },
       }),
     ]);

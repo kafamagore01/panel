@@ -29,11 +29,13 @@ export type AggregateWebhookDelivery = {
 export type WebhookDeliveryAvgAggregateOutputType = {
   http_status: number | null
   attempt_count: number | null
+  publish_attempt_count: number | null
 }
 
 export type WebhookDeliverySumAggregateOutputType = {
   http_status: number | null
   attempt_count: number | null
+  publish_attempt_count: number | null
 }
 
 export type WebhookDeliveryMinAggregateOutputType = {
@@ -46,6 +48,10 @@ export type WebhookDeliveryMinAggregateOutputType = {
   status: $Enums.WebhookDeliveryStatus | null
   http_status: number | null
   attempt_count: number | null
+  publish_attempt_count: number | null
+  queued_at: Date | null
+  next_publish_at: Date | null
+  processing_started_at: Date | null
   delivered_at: Date | null
   response_excerpt: string | null
   last_error: string | null
@@ -63,6 +69,10 @@ export type WebhookDeliveryMaxAggregateOutputType = {
   status: $Enums.WebhookDeliveryStatus | null
   http_status: number | null
   attempt_count: number | null
+  publish_attempt_count: number | null
+  queued_at: Date | null
+  next_publish_at: Date | null
+  processing_started_at: Date | null
   delivered_at: Date | null
   response_excerpt: string | null
   last_error: string | null
@@ -81,6 +91,10 @@ export type WebhookDeliveryCountAggregateOutputType = {
   status: number
   http_status: number
   attempt_count: number
+  publish_attempt_count: number
+  queued_at: number
+  next_publish_at: number
+  processing_started_at: number
   delivered_at: number
   response_excerpt: number
   last_error: number
@@ -93,11 +107,13 @@ export type WebhookDeliveryCountAggregateOutputType = {
 export type WebhookDeliveryAvgAggregateInputType = {
   http_status?: true
   attempt_count?: true
+  publish_attempt_count?: true
 }
 
 export type WebhookDeliverySumAggregateInputType = {
   http_status?: true
   attempt_count?: true
+  publish_attempt_count?: true
 }
 
 export type WebhookDeliveryMinAggregateInputType = {
@@ -110,6 +126,10 @@ export type WebhookDeliveryMinAggregateInputType = {
   status?: true
   http_status?: true
   attempt_count?: true
+  publish_attempt_count?: true
+  queued_at?: true
+  next_publish_at?: true
+  processing_started_at?: true
   delivered_at?: true
   response_excerpt?: true
   last_error?: true
@@ -127,6 +147,10 @@ export type WebhookDeliveryMaxAggregateInputType = {
   status?: true
   http_status?: true
   attempt_count?: true
+  publish_attempt_count?: true
+  queued_at?: true
+  next_publish_at?: true
+  processing_started_at?: true
   delivered_at?: true
   response_excerpt?: true
   last_error?: true
@@ -145,6 +169,10 @@ export type WebhookDeliveryCountAggregateInputType = {
   status?: true
   http_status?: true
   attempt_count?: true
+  publish_attempt_count?: true
+  queued_at?: true
+  next_publish_at?: true
+  processing_started_at?: true
   delivered_at?: true
   response_excerpt?: true
   last_error?: true
@@ -250,6 +278,10 @@ export type WebhookDeliveryGroupByOutputType = {
   status: $Enums.WebhookDeliveryStatus
   http_status: number | null
   attempt_count: number
+  publish_attempt_count: number
+  queued_at: Date | null
+  next_publish_at: Date | null
+  processing_started_at: Date | null
   delivered_at: Date | null
   response_excerpt: string | null
   last_error: string | null
@@ -291,6 +323,10 @@ export type WebhookDeliveryWhereInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFilter<"WebhookDelivery"> | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.IntNullableFilter<"WebhookDelivery"> | number | null
   attempt_count?: Prisma.IntFilter<"WebhookDelivery"> | number
+  publish_attempt_count?: Prisma.IntFilter<"WebhookDelivery"> | number
+  queued_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
+  next_publish_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
+  processing_started_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
   delivered_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
   response_excerpt?: Prisma.StringNullableFilter<"WebhookDelivery"> | string | null
   last_error?: Prisma.StringNullableFilter<"WebhookDelivery"> | string | null
@@ -312,6 +348,10 @@ export type WebhookDeliveryOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   http_status?: Prisma.SortOrderInput | Prisma.SortOrder
   attempt_count?: Prisma.SortOrder
+  publish_attempt_count?: Prisma.SortOrder
+  queued_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  next_publish_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  processing_started_at?: Prisma.SortOrderInput | Prisma.SortOrder
   delivered_at?: Prisma.SortOrderInput | Prisma.SortOrder
   response_excerpt?: Prisma.SortOrderInput | Prisma.SortOrder
   last_error?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -336,6 +376,10 @@ export type WebhookDeliveryWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumWebhookDeliveryStatusFilter<"WebhookDelivery"> | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.IntNullableFilter<"WebhookDelivery"> | number | null
   attempt_count?: Prisma.IntFilter<"WebhookDelivery"> | number
+  publish_attempt_count?: Prisma.IntFilter<"WebhookDelivery"> | number
+  queued_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
+  next_publish_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
+  processing_started_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
   delivered_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
   response_excerpt?: Prisma.StringNullableFilter<"WebhookDelivery"> | string | null
   last_error?: Prisma.StringNullableFilter<"WebhookDelivery"> | string | null
@@ -357,6 +401,10 @@ export type WebhookDeliveryOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   http_status?: Prisma.SortOrderInput | Prisma.SortOrder
   attempt_count?: Prisma.SortOrder
+  publish_attempt_count?: Prisma.SortOrder
+  queued_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  next_publish_at?: Prisma.SortOrderInput | Prisma.SortOrder
+  processing_started_at?: Prisma.SortOrderInput | Prisma.SortOrder
   delivered_at?: Prisma.SortOrderInput | Prisma.SortOrder
   response_excerpt?: Prisma.SortOrderInput | Prisma.SortOrder
   last_error?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -383,6 +431,10 @@ export type WebhookDeliveryScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumWebhookDeliveryStatusWithAggregatesFilter<"WebhookDelivery"> | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.IntNullableWithAggregatesFilter<"WebhookDelivery"> | number | null
   attempt_count?: Prisma.IntWithAggregatesFilter<"WebhookDelivery"> | number
+  publish_attempt_count?: Prisma.IntWithAggregatesFilter<"WebhookDelivery"> | number
+  queued_at?: Prisma.DateTimeNullableWithAggregatesFilter<"WebhookDelivery"> | Date | string | null
+  next_publish_at?: Prisma.DateTimeNullableWithAggregatesFilter<"WebhookDelivery"> | Date | string | null
+  processing_started_at?: Prisma.DateTimeNullableWithAggregatesFilter<"WebhookDelivery"> | Date | string | null
   delivered_at?: Prisma.DateTimeNullableWithAggregatesFilter<"WebhookDelivery"> | Date | string | null
   response_excerpt?: Prisma.StringNullableWithAggregatesFilter<"WebhookDelivery"> | string | null
   last_error?: Prisma.StringNullableWithAggregatesFilter<"WebhookDelivery"> | string | null
@@ -398,6 +450,10 @@ export type WebhookDeliveryCreateInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -419,6 +475,10 @@ export type WebhookDeliveryUncheckedCreateInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -434,6 +494,10 @@ export type WebhookDeliveryUpdateInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -455,6 +519,10 @@ export type WebhookDeliveryUncheckedUpdateInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -473,6 +541,10 @@ export type WebhookDeliveryCreateManyInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -488,6 +560,10 @@ export type WebhookDeliveryUpdateManyMutationInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -506,6 +582,10 @@ export type WebhookDeliveryUncheckedUpdateManyInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -534,6 +614,10 @@ export type WebhookDeliveryCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   http_status?: Prisma.SortOrder
   attempt_count?: Prisma.SortOrder
+  publish_attempt_count?: Prisma.SortOrder
+  queued_at?: Prisma.SortOrder
+  next_publish_at?: Prisma.SortOrder
+  processing_started_at?: Prisma.SortOrder
   delivered_at?: Prisma.SortOrder
   response_excerpt?: Prisma.SortOrder
   last_error?: Prisma.SortOrder
@@ -544,6 +628,7 @@ export type WebhookDeliveryCountOrderByAggregateInput = {
 export type WebhookDeliveryAvgOrderByAggregateInput = {
   http_status?: Prisma.SortOrder
   attempt_count?: Prisma.SortOrder
+  publish_attempt_count?: Prisma.SortOrder
 }
 
 export type WebhookDeliveryMaxOrderByAggregateInput = {
@@ -556,6 +641,10 @@ export type WebhookDeliveryMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   http_status?: Prisma.SortOrder
   attempt_count?: Prisma.SortOrder
+  publish_attempt_count?: Prisma.SortOrder
+  queued_at?: Prisma.SortOrder
+  next_publish_at?: Prisma.SortOrder
+  processing_started_at?: Prisma.SortOrder
   delivered_at?: Prisma.SortOrder
   response_excerpt?: Prisma.SortOrder
   last_error?: Prisma.SortOrder
@@ -573,6 +662,10 @@ export type WebhookDeliveryMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   http_status?: Prisma.SortOrder
   attempt_count?: Prisma.SortOrder
+  publish_attempt_count?: Prisma.SortOrder
+  queued_at?: Prisma.SortOrder
+  next_publish_at?: Prisma.SortOrder
+  processing_started_at?: Prisma.SortOrder
   delivered_at?: Prisma.SortOrder
   response_excerpt?: Prisma.SortOrder
   last_error?: Prisma.SortOrder
@@ -583,6 +676,7 @@ export type WebhookDeliveryMinOrderByAggregateInput = {
 export type WebhookDeliverySumOrderByAggregateInput = {
   http_status?: Prisma.SortOrder
   attempt_count?: Prisma.SortOrder
+  publish_attempt_count?: Prisma.SortOrder
 }
 
 export type WebhookDeliveryCreateNestedManyWithoutWorkspaceInput = {
@@ -723,6 +817,10 @@ export type WebhookDeliveryCreateWithoutWorkspaceInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -742,6 +840,10 @@ export type WebhookDeliveryUncheckedCreateWithoutWorkspaceInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -789,6 +891,10 @@ export type WebhookDeliveryScalarWhereInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFilter<"WebhookDelivery"> | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.IntNullableFilter<"WebhookDelivery"> | number | null
   attempt_count?: Prisma.IntFilter<"WebhookDelivery"> | number
+  publish_attempt_count?: Prisma.IntFilter<"WebhookDelivery"> | number
+  queued_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
+  next_publish_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
+  processing_started_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
   delivered_at?: Prisma.DateTimeNullableFilter<"WebhookDelivery"> | Date | string | null
   response_excerpt?: Prisma.StringNullableFilter<"WebhookDelivery"> | string | null
   last_error?: Prisma.StringNullableFilter<"WebhookDelivery"> | string | null
@@ -804,6 +910,10 @@ export type WebhookDeliveryCreateWithoutProjectInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -823,6 +933,10 @@ export type WebhookDeliveryUncheckedCreateWithoutProjectInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -864,6 +978,10 @@ export type WebhookDeliveryCreateWithoutLicenseInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -883,6 +1001,10 @@ export type WebhookDeliveryUncheckedCreateWithoutLicenseInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -926,6 +1048,10 @@ export type WebhookDeliveryCreateManyWorkspaceInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -941,6 +1067,10 @@ export type WebhookDeliveryUpdateWithoutWorkspaceInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -960,6 +1090,10 @@ export type WebhookDeliveryUncheckedUpdateWithoutWorkspaceInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -977,6 +1111,10 @@ export type WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -994,6 +1132,10 @@ export type WebhookDeliveryCreateManyProjectInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -1009,6 +1151,10 @@ export type WebhookDeliveryUpdateWithoutProjectInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1028,6 +1174,10 @@ export type WebhookDeliveryUncheckedUpdateWithoutProjectInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1045,6 +1195,10 @@ export type WebhookDeliveryUncheckedUpdateManyWithoutProjectInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1062,6 +1216,10 @@ export type WebhookDeliveryCreateManyLicenseInput = {
   status?: $Enums.WebhookDeliveryStatus
   http_status?: number | null
   attempt_count?: number
+  publish_attempt_count?: number
+  queued_at?: Date | string | null
+  next_publish_at?: Date | string | null
+  processing_started_at?: Date | string | null
   delivered_at?: Date | string | null
   response_excerpt?: string | null
   last_error?: string | null
@@ -1077,6 +1235,10 @@ export type WebhookDeliveryUpdateWithoutLicenseInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1096,6 +1258,10 @@ export type WebhookDeliveryUncheckedUpdateWithoutLicenseInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1113,6 +1279,10 @@ export type WebhookDeliveryUncheckedUpdateManyWithoutLicenseInput = {
   status?: Prisma.EnumWebhookDeliveryStatusFieldUpdateOperationsInput | $Enums.WebhookDeliveryStatus
   http_status?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  publish_attempt_count?: Prisma.IntFieldUpdateOperationsInput | number
+  queued_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  next_publish_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  processing_started_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   delivered_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   response_excerpt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   last_error?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1133,6 +1303,10 @@ export type WebhookDeliverySelect<ExtArgs extends runtime.Types.Extensions.Inter
   status?: boolean
   http_status?: boolean
   attempt_count?: boolean
+  publish_attempt_count?: boolean
+  queued_at?: boolean
+  next_publish_at?: boolean
+  processing_started_at?: boolean
   delivered_at?: boolean
   response_excerpt?: boolean
   last_error?: boolean
@@ -1154,6 +1328,10 @@ export type WebhookDeliverySelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   status?: boolean
   http_status?: boolean
   attempt_count?: boolean
+  publish_attempt_count?: boolean
+  queued_at?: boolean
+  next_publish_at?: boolean
+  processing_started_at?: boolean
   delivered_at?: boolean
   response_excerpt?: boolean
   last_error?: boolean
@@ -1175,6 +1353,10 @@ export type WebhookDeliverySelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   status?: boolean
   http_status?: boolean
   attempt_count?: boolean
+  publish_attempt_count?: boolean
+  queued_at?: boolean
+  next_publish_at?: boolean
+  processing_started_at?: boolean
   delivered_at?: boolean
   response_excerpt?: boolean
   last_error?: boolean
@@ -1196,6 +1378,10 @@ export type WebhookDeliverySelectScalar = {
   status?: boolean
   http_status?: boolean
   attempt_count?: boolean
+  publish_attempt_count?: boolean
+  queued_at?: boolean
+  next_publish_at?: boolean
+  processing_started_at?: boolean
   delivered_at?: boolean
   response_excerpt?: boolean
   last_error?: boolean
@@ -1203,7 +1389,7 @@ export type WebhookDeliverySelectScalar = {
   updated_at?: boolean
 }
 
-export type WebhookDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "project_id" | "license_id" | "idempotency_key" | "event_type" | "payload" | "status" | "http_status" | "attempt_count" | "delivered_at" | "response_excerpt" | "last_error" | "created_at" | "updated_at", ExtArgs["result"]["webhookDelivery"]>
+export type WebhookDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "project_id" | "license_id" | "idempotency_key" | "event_type" | "payload" | "status" | "http_status" | "attempt_count" | "publish_attempt_count" | "queued_at" | "next_publish_at" | "processing_started_at" | "delivered_at" | "response_excerpt" | "last_error" | "created_at" | "updated_at", ExtArgs["result"]["webhookDelivery"]>
 export type WebhookDeliveryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
@@ -1238,6 +1424,10 @@ export type $WebhookDeliveryPayload<ExtArgs extends runtime.Types.Extensions.Int
     status: $Enums.WebhookDeliveryStatus
     http_status: number | null
     attempt_count: number
+    publish_attempt_count: number
+    queued_at: Date | null
+    next_publish_at: Date | null
+    processing_started_at: Date | null
     delivered_at: Date | null
     response_excerpt: string | null
     last_error: string | null
@@ -1679,6 +1869,10 @@ export interface WebhookDeliveryFieldRefs {
   readonly status: Prisma.FieldRef<"WebhookDelivery", 'WebhookDeliveryStatus'>
   readonly http_status: Prisma.FieldRef<"WebhookDelivery", 'Int'>
   readonly attempt_count: Prisma.FieldRef<"WebhookDelivery", 'Int'>
+  readonly publish_attempt_count: Prisma.FieldRef<"WebhookDelivery", 'Int'>
+  readonly queued_at: Prisma.FieldRef<"WebhookDelivery", 'DateTime'>
+  readonly next_publish_at: Prisma.FieldRef<"WebhookDelivery", 'DateTime'>
+  readonly processing_started_at: Prisma.FieldRef<"WebhookDelivery", 'DateTime'>
   readonly delivered_at: Prisma.FieldRef<"WebhookDelivery", 'DateTime'>
   readonly response_excerpt: Prisma.FieldRef<"WebhookDelivery", 'String'>
   readonly last_error: Prisma.FieldRef<"WebhookDelivery", 'String'>

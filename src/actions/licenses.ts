@@ -27,6 +27,7 @@ import {
   createLicenseWebhookDelivery,
   publishWebhookDelivery,
 } from "@/lib/queue/webhook-dispatch";
+import { logError } from "@/lib/logger";
 
 /** Aynı lisansın bu süre içinde ikinci kez yenilenmesi engellenir. */
 const RENEWAL_LOCK_MS = 15_000;
@@ -35,7 +36,7 @@ const licenseIdSchema = z.uuid("Lisans kimliği geçersiz.");
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
-  console.error(error);
+  logError("action.license_failed", error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
 }
 
@@ -71,7 +72,15 @@ async function lockTenantLicense(
 }
 
 async function publishOutbox(deliveryId: string | null): Promise<void> {
-  if (deliveryId) await publishWebhookDelivery(deliveryId);
+  if (!deliveryId) return;
+  try {
+    await publishWebhookDelivery(deliveryId);
+  } catch (error) {
+    // Kalıcı outbox kaydı commit edildi; cron daha sonra yeniden yayınlayacak.
+    logError("webhook.outbox_initial_publish_failed", error, {
+      delivery_id: deliveryId,
+    });
+  }
 }
 
 /** Yeni lisans üretir. Düz anahtar yalnızca yanıtta tek kez döner. */
