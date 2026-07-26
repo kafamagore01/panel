@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getAuthContext } from "@/lib/auth/context";
+import {
+  getAuthContext,
+  isPasswordResetRequired,
+} from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { writeAudit } from "@/lib/audit";
 import { GithubError } from "@/lib/github/client";
@@ -27,6 +30,9 @@ export async function GET(request: NextRequest) {
   };
 
   const ctx = await getAuthContext();
+  if (isPasswordResetRequired(ctx)) {
+    return done("password_reset_required");
+  }
   if (!ctx?.workspaceId || !hasPermission(ctx.role, "system.manage")) {
     return done("forbidden");
   }

@@ -1,5 +1,10 @@
 import net from "node:net";
 import { prisma } from "@/lib/db/prisma";
+import {
+  resolveSafeHostname,
+  safeHttpRequest,
+  SsrfError,
+} from "@/lib/security/ssrf-guard";
 import type {
   CheckItem,
   OverallState,
@@ -25,8 +30,18 @@ const TCP_TIMEOUT_MS = 5_000;
 const CACHE_TTL_MS = 45_000;
 /** Tek turda kontrol edilecek azami kayıt sayısı (site ve sunucu için ayrı ayrı). */
 const MAX_TARGETS = 50;
+/** Aynı anda açılabilecek azami HTTP/TCP bağlantısı. */
+const MAX_CONCURRENT_CHECKS = 10;
+/** Aşırı sayıda workspace isteğinde process kuyruğunun büyümesini sınırlar. */
+const MAX_PENDING_CHECKS = 200;
+/** Kullanıcının zorla yenileme isteği için asgari bekleme süresi. */
+const FORCE_REFRESH_MIN_INTERVAL_MS = 15_000;
+/** Uzun ömürlü process'te workspace cache'inin azami anahtar sayısı. */
+const MAX_CACHE_ENTRIES = 500;
 
 const cache = new Map<string, { at: number; report: Promise<UptimeReport> }>();
+let activeChecks = 0;
+const checkWaiters: Array<() => void> = [];
 
 /** Yalnızca http/https adresleri kontrol edilir. */
 function parseUrl(raw: string): URL | null {
@@ -45,6 +60,9 @@ function describeFetchError(error: unknown): string {
   }
   if (error instanceof Error && error.name === "AbortError") {
     return "Zaman aşımı";
+  }
+  if (error instanceof SsrfError) {
+    return "Güvenli olmayan hedef";
   }
   return "Bağlantı kurulamadı";
 }
@@ -96,23 +114,27 @@ export async function checkUrl(
   const target = url;
   const started = Date.now();
 
-  async function request(method: "HEAD" | "GET"): Promise<Response> {
-    return fetch(target, {
+  async function request(method: "HEAD" | "GET") {
+    return safeHttpRequest(target, {
       method,
+      allowedProtocols: ["http:", "https:"],
       redirect: "follow",
-      cache: "no-store",
-      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+      maxRedirects: 3,
+      timeoutMs: HTTP_TIMEOUT_MS,
+      maxResponseBytes: 0,
+      subject: "Uptime hedefi",
       headers: { "user-agent": "OperasyonMerkezi-SistemDurumu/1.0" },
     });
   }
 
   try {
     let usedGet = false;
-    let res: Response;
+    let res: Awaited<ReturnType<typeof request>>;
 
     try {
       res = await request("HEAD");
-    } catch {
+    } catch (error) {
+      if (error instanceof SsrfError) throw error;
       // HEAD bağlantısı başarısız olsa bile tarayıcıların kullandığı GET
       // yöntemi çalışabilir; kapalı demeden önce onu da dene.
       res = await request("GET");
@@ -125,8 +147,6 @@ export async function checkUrl(
     if (!usedGet && res.status >= 400) {
       res = await request("GET");
     }
-    await res.body?.cancel().catch(() => undefined);
-
     const ok = isReachableStatus(res.status);
     return {
       ...meta,
@@ -155,32 +175,127 @@ export function checkTcp(
   port: number,
   meta: { id: string; name: string }
 ): Promise<CheckItem> {
+  const started = Date.now();
+
+  return resolveSafeHostname(host, {
+    timeoutMs: TCP_TIMEOUT_MS,
+    subject: "Sunucu hedefi",
+  })
+    .then(
+      (addresses) =>
+        new Promise<CheckItem>((resolve) => {
+          const target = addresses[0];
+          const socket = new net.Socket();
+          let settled = false;
+          const remainingTimeout = Math.max(
+            1,
+            TCP_TIMEOUT_MS - (Date.now() - started)
+          );
+
+          function finish(state: "up" | "down", error: string | null) {
+            if (settled) return;
+            settled = true;
+            socket.destroy();
+            resolve({
+              ...meta,
+              target: `${host}:${port}`,
+              state,
+              response_ms: Date.now() - started,
+              error,
+            });
+          }
+
+          socket.setTimeout(remainingTimeout);
+          socket.once("connect", () => finish("up", null));
+          socket.once("timeout", () => finish("down", "Zaman aşımı"));
+          socket.once("error", (error: NodeJS.ErrnoException) =>
+            finish("down", describeSocketError(error))
+          );
+          socket.connect({
+            host: target.address,
+            port,
+            family: target.family,
+          });
+        })
+    )
+    .catch((error) => ({
+      ...meta,
+      target: `${host}:${port}`,
+      state: "down" as const,
+      response_ms: Date.now() - started,
+      error:
+        error instanceof SsrfError
+          ? "Güvenli olmayan hedef"
+          : "Adres çözümlenemedi",
+    }));
+}
+
+function acquireCheckSlot(): Promise<void> {
+  if (activeChecks < MAX_CONCURRENT_CHECKS) {
+    activeChecks += 1;
+    return Promise.resolve();
+  }
+  if (checkWaiters.length >= MAX_PENDING_CHECKS) {
+    return Promise.reject(new Error("Sistem durumu kontrol kuyruğu dolu."));
+  }
+
   return new Promise((resolve) => {
-    const started = Date.now();
-    const socket = new net.Socket();
-    let settled = false;
-
-    function finish(state: "up" | "down", error: string | null) {
-      if (settled) return;
-      settled = true;
-      socket.destroy();
-      resolve({
-        ...meta,
-        target: `${host}:${port}`,
-        state,
-        response_ms: Date.now() - started,
-        error,
-      });
-    }
-
-    socket.setTimeout(TCP_TIMEOUT_MS);
-    socket.once("connect", () => finish("up", null));
-    socket.once("timeout", () => finish("down", "Zaman aşımı"));
-    socket.once("error", (error: NodeJS.ErrnoException) =>
-      finish("down", describeSocketError(error))
-    );
-    socket.connect(port, host);
+    checkWaiters.push(resolve);
   });
+}
+
+function releaseCheckSlot() {
+  const next = checkWaiters.shift();
+  if (next) {
+    next();
+    return;
+  }
+  activeChecks = Math.max(0, activeChecks - 1);
+}
+
+async function withCheckSlot<T>(task: () => Promise<T>): Promise<T> {
+  await acquireCheckSlot();
+  try {
+    return await task();
+  } finally {
+    releaseCheckSlot();
+  }
+}
+
+async function runWithConcurrency<T>(
+  tasks: Array<() => Promise<T>>,
+  limit: number
+): Promise<T[]> {
+  const results = new Array<T>(tasks.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (true) {
+      const index = nextIndex;
+      nextIndex += 1;
+      if (index >= tasks.length) return;
+      results[index] = await withCheckSlot(tasks[index]);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(limit, tasks.length) }, () => worker())
+  );
+  return results;
+}
+
+function pruneCache(now: number) {
+  for (const [workspaceId, entry] of cache) {
+    if (now - entry.at > CACHE_TTL_MS * 2) {
+      cache.delete(workspaceId);
+    }
+  }
+
+  while (cache.size >= MAX_CACHE_ENTRIES) {
+    const oldestKey = cache.keys().next().value as string | undefined;
+    if (!oldestKey) break;
+    cache.delete(oldestKey);
+  }
 }
 
 function summarize(sites: CheckItem[], servers: CheckItem[]): UptimeReport {
@@ -239,34 +354,38 @@ async function runChecks(workspaceId: string): Promise<UptimeReport> {
     }),
   ]);
 
-  const siteChecks = projects.flatMap((project) => {
+  const siteChecks = projects.flatMap<() => Promise<CheckItem>>((project) => {
     const raw = project.live_url?.trim();
     if (!raw) return [];
-    return [checkUrl(raw, { id: project.id, name: project.name })];
+    return [() => checkUrl(raw, { id: project.id, name: project.name })];
   });
 
-  const serverChecks = servers.map((server) => {
+  const serverChecks = servers.map<() => Promise<CheckItem>>((server) => {
     const host = server.hostname?.trim() || server.primary_ip?.trim();
     if (!host) {
-      return Promise.resolve<CheckItem>({
+      return () =>
+        Promise.resolve<CheckItem>({
+          id: server.id,
+          name: server.name,
+          target: "—",
+          state: "unknown",
+          response_ms: null,
+          error: "Adres girilmemiş",
+        });
+    }
+    return () =>
+      checkTcp(host, server.ssh_port, {
         id: server.id,
         name: server.name,
-        target: "—",
-        state: "unknown",
-        response_ms: null,
-        error: "Adres girilmemiş",
       });
-    }
-    return checkTcp(host, server.ssh_port, {
-      id: server.id,
-      name: server.name,
-    });
   });
 
-  const [siteResults, serverResults] = await Promise.all([
-    Promise.all(siteChecks),
-    Promise.all(serverChecks),
-  ]);
+  const results = await runWithConcurrency(
+    [...siteChecks, ...serverChecks],
+    MAX_CONCURRENT_CHECKS
+  );
+  const siteResults = results.slice(0, siteChecks.length);
+  const serverResults = results.slice(siteChecks.length);
 
   return summarize(siteResults, serverResults);
 }
@@ -279,16 +398,26 @@ export function getUptimeReport(
   workspaceId: string,
   { force = false }: { force?: boolean } = {}
 ): Promise<UptimeReport> {
+  const now = Date.now();
   const cached = cache.get(workspaceId);
-  if (!force && cached && Date.now() - cached.at < CACHE_TTL_MS) {
+  const cacheAge = cached ? now - cached.at : Number.POSITIVE_INFINITY;
+  if (
+    cached &&
+    ((!force && cacheAge < CACHE_TTL_MS) ||
+      (force && cacheAge < FORCE_REFRESH_MIN_INTERVAL_MS))
+  ) {
     return cached.report;
   }
 
+  pruneCache(now);
   const report = runChecks(workspaceId).catch((error) => {
     // Başarısız tur önbellekte kalmasın; sonraki istek yeniden denesin.
-    cache.delete(workspaceId);
+    if (cache.get(workspaceId)?.report === report) {
+      cache.delete(workspaceId);
+    }
     throw error;
   });
-  cache.set(workspaceId, { at: Date.now(), report });
+  cache.delete(workspaceId);
+  cache.set(workspaceId, { at: now, report });
   return report;
 }

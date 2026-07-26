@@ -7,6 +7,8 @@
  * kurulur — bkz. `lib/github/cache`.
  */
 
+import { lastPageFromLinkHeader } from "@/lib/github/version";
+
 const API_BASE = "https://api.github.com";
 const API_VERSION = "2022-11-28";
 const REQUEST_TIMEOUT_MS = 8_000;
@@ -90,11 +92,11 @@ type RawCommit = {
 
 // ─── Çekirdek istek ──────────────────────────────────────────────────────────
 
-async function githubRequest<T>(
+async function githubResponse(
   token: string,
   path: string,
   init?: RequestInit
-): Promise<T> {
+): Promise<Response> {
   let response: Response;
   try {
     response = await fetch(`${API_BASE}${path}`, {
@@ -117,6 +119,15 @@ async function githubRequest<T>(
   }
 
   if (!response.ok) throw toGithubError(response);
+  return response;
+}
+
+async function githubRequest<T>(
+  token: string,
+  path: string,
+  init?: RequestInit
+): Promise<T> {
+  const response = await githubResponse(token, path, init);
   return (await response.json()) as T;
 }
 
@@ -245,6 +256,31 @@ export async function fetchLatestCommit(
     committed_at: head.commit?.author?.date ?? null,
     html_url: head.html_url,
   };
+}
+
+/**
+ * Varsayılan dalda erişilebilen toplam commit sayısı. `per_page=1` kullanıldığı
+ * için GitHub'ın Link başlığındaki son sayfa numarası doğrudan toplamı verir.
+ */
+export async function fetchCommitCount(
+  token: string,
+  fullName: string,
+  branch: string
+): Promise<number> {
+  const query = `?per_page=1&sha=${encodeURIComponent(branch)}`;
+
+  try {
+    const response = await githubResponse(
+      token,
+      `/repos/${encodeRepoPath(fullName)}/commits${query}`
+    );
+    const commits = (await response.json()) as RawCommit[];
+    if (commits.length === 0) return 0;
+    return lastPageFromLinkHeader(response.headers.get("link")) ?? 1;
+  } catch (error) {
+    if (error instanceof GithubError && error.status === 409) return 0;
+    throw error;
+  }
 }
 
 // ─── Yardımcılar ─────────────────────────────────────────────────────────────

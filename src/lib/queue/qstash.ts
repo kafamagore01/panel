@@ -1,4 +1,5 @@
 import { Client } from "@upstash/qstash";
+import { applicationBaseUrl } from "@/lib/env";
 
 /**
  * QStash istemcisi. Token tanımlı değilse null döner ve kuyruk kayıtları
@@ -10,15 +11,14 @@ let client: Client | null | undefined;
 export function getQStash(): Client | null {
   if (client === undefined) {
     const token = process.env.QSTASH_TOKEN;
+    if (!token && process.env.NODE_ENV === "production") {
+      throw new Error("Üretimde QSTASH_TOKEN zorunludur.");
+    }
     client = token ? new Client({ token }) : null;
   }
   return client;
 }
 
 export function appBaseUrl(): string {
-  return (
-    process.env.APP_URL ??
-    process.env.NEXTAUTH_URL ??
-    "http://localhost:3000"
-  ).replace(/\/$/, "");
+  return applicationBaseUrl();
 }

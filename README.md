@@ -103,6 +103,18 @@ yalnızca **Owner** (`system.manage`) kurar veya kaldırır.
 2. *Personal Access Token:* Kurulum gerektirmez. Gereken kapsamlar: `repo`
    (özel repolar için) ve `read:org`.
 
+**Ortak uygulama sürümü**
+
+`/sistem-guncelleme`, panel reposunun varsayılan dalındaki toplam commit sayısını
+GitHub'dan canlı okuyup `package.json` major/minor serisiyle birleştirir
+(`1.0.14` gibi). Böylece yeni kurulumlarda sayaç sıfırlanmaz ve aynı repoya bağlı
+tüm kurulumlar aynı sürümü gösterir. Her 100 committe minor numarası artar:
+`1.0.99` sonrasında `1.1.0`, ardından `1.1.1` gelir. Özel repo erişiminde
+Ayarlar'daki şifreli GitHub bağlantısı kullanılır; çalışma alanı bağlantısından
+bağımsız ortak bir kimlik istenirse sunucuda salt-okunur `APP_GITHUB_TOKEN` tanımlanabilir.
+Build metadata'sı kaynak repoyu belirleyemiyorsa `APP_GITHUB_REPOSITORY=owner/repo`
+değeri kullanılabilir.
+
 **Kullanım**
 
 - Proje formunda **hızlı repo seçimi**: aranabilir liste (`GET /user/repos`), seçimde

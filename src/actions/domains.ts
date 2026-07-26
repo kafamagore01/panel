@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission, PermissionError } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
+import { validateTenantReferences } from "@/lib/db/tenant-references";
 import { writeAudit } from "@/lib/audit";
 import { normalizeDomain } from "@/lib/domain";
 import { domainSchema, importLicenseDomainSchema } from "@/lib/validation/domain";
@@ -61,6 +62,13 @@ export async function createDomain(
     if (!normalized) return fail("Geçersiz alan adı biçimi.");
 
     const db = await getTenantDb();
+    const references = await validateTenantReferences(db, ctx.workspaceId, {
+      customerId: parsed.data.customer_id,
+      projectId: parsed.data.project_id,
+      requireProjectCustomerMatch: true,
+    });
+    if (!references.ok) return fail(references.message);
+
     if (await isDuplicate(db, normalized)) {
       return fail("Bu alan adı zaten envanterde kayıtlı.");
     }
@@ -106,6 +114,12 @@ export async function updateDomain(
     const db = await getTenantDb();
     const before = await db.domain.findUnique({ where: { id } });
     if (!before) return fail("Alan adı bulunamadı.");
+    const references = await validateTenantReferences(db, ctx.workspaceId, {
+      customerId: parsed.data.customer_id,
+      projectId: parsed.data.project_id,
+      requireProjectCustomerMatch: true,
+    });
+    if (!references.ok) return fail(references.message);
 
     if (await isDuplicate(db, normalized, id)) {
       return fail("Bu alan adı zaten envanterde kayıtlı.");

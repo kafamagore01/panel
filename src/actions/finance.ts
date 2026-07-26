@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission, PermissionError } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
+import { validateTenantReferences } from "@/lib/db/tenant-references";
 import { prisma } from "@/lib/db/prisma";
 import { writeAudit } from "@/lib/audit";
 import {
@@ -11,29 +12,14 @@ import {
   scheduleSchema,
 } from "@/lib/validation/finance";
 import { computeInvoiceTotals, buildCustomerSnapshot } from "@/lib/finance";
+import { nextInvoiceNumber } from "@/lib/finance/invoice-number";
+import { calculatePaymentState } from "@/lib/finance/payment-state";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
   console.error(error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
-}
-
-/** Workspace içinde sıralı fatura numarası üretir: FT-YYYY-NNNN */
-async function generateInvoiceNo(workspaceId: string): Promise<string> {
-  const year = new Date().getFullYear();
-  const prefix = `FT-${year}-`;
-  const last = await prisma.invoice.findFirst({
-    where: { workspace_id: workspaceId, invoice_no: { startsWith: prefix } },
-    orderBy: { invoice_no: "desc" },
-    select: { invoice_no: true },
-  });
-  let seq = 1;
-  if (last) {
-    const m = last.invoice_no.match(/-(\d+)$/);
-    if (m) seq = Number.parseInt(m[1], 10) + 1;
-  }
-  return `${prefix}${String(seq).padStart(4, "0")}`;
 }
 
 export async function createInvoice(
@@ -67,30 +53,35 @@ export async function createInvoice(
     );
     const issuedOn = new Date(data.issued_on);
     const dueOn = new Date(data.payment_on);
-    const invoice_no = await generateInvoiceNo(ctx.workspaceId);
-
-    const created = await db.invoice.create({
-      data: {
-        workspace_id: ctx.workspaceId,
-        customer_id: data.customer_id,
-        project_id: data.project_id,
-        invoice_no,
-        issued_on: issuedOn,
-        due_on: dueOn,
-        period_start: data.period_start ? new Date(data.period_start) : null,
-        period_end: data.period_end ? new Date(data.period_end) : null,
-        status: "issued",
-        currency: data.currency,
-        manual_fx_rate: data.manual_fx_rate ?? null,
-        subtotal,
-        tax_total,
-        total,
-        paid_total: 0,
-        balance_due: total,
-        description: data.description,
-        notes: data.notes,
-        customer_snapshot: buildCustomerSnapshot(customer),
-      },
+    const created = await prisma.$transaction(async (tx) => {
+      const invoice_no = await nextInvoiceNumber(
+        tx,
+        ctx.workspaceId,
+        new Date().getFullYear()
+      );
+      return tx.invoice.create({
+        data: {
+          workspace_id: ctx.workspaceId,
+          customer_id: data.customer_id,
+          project_id: data.project_id,
+          invoice_no,
+          issued_on: issuedOn,
+          due_on: dueOn,
+          period_start: data.period_start ? new Date(data.period_start) : null,
+          period_end: data.period_end ? new Date(data.period_end) : null,
+          status: "issued",
+          currency: data.currency,
+          manual_fx_rate: data.manual_fx_rate ?? null,
+          subtotal,
+          tax_total,
+          total,
+          paid_total: 0,
+          balance_due: total,
+          description: data.description,
+          notes: data.notes,
+          customer_snapshot: buildCustomerSnapshot(customer),
+        },
+      });
     });
 
     await writeAudit({
@@ -103,7 +94,10 @@ export async function createInvoice(
     });
 
     revalidatePath("/finans");
-    return ok({ id: created.id, invoice_no }, `Fatura oluşturuldu: ${invoice_no}`);
+    return ok(
+      { id: created.id, invoice_no: created.invoice_no },
+      `Fatura oluşturuldu: ${created.invoice_no}`
+    );
   } catch (error) {
     return handleError(error);
   }
@@ -238,21 +232,46 @@ export async function updateInvoice(
 export async function voidInvoice(id: string): Promise<ActionResponse<null>> {
   try {
     const ctx = await requirePermission("finance.manage");
-    const db = await getTenantDb();
-    const invoice = await db.invoice.findUnique({ where: { id } });
-    if (!invoice) return fail("Fatura bulunamadı.");
+    type VoidResult =
+      | { kind: "error"; message: string }
+      | { kind: "ok"; previousStatus: string };
 
-    if (!["issued", "overdue"].includes(invoice.status)) {
-      return fail("Yalnızca düzenlenmiş veya gecikmiş faturalar iptal edilebilir.");
-    }
-    if (Number(invoice.paid_total) > 0) {
-      return fail("Ödeme alınmış faturalar iptal edilemez.");
-    }
+    const result = await prisma.$transaction(async (tx): Promise<VoidResult> => {
+      const locked = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT id
+        FROM invoices
+        WHERE id = ${id}::uuid
+          AND workspace_id = ${ctx.workspaceId}::uuid
+        FOR UPDATE
+      `;
+      if (locked.length === 0) {
+        return { kind: "error", message: "Fatura bulunamadı." };
+      }
 
-    await db.invoice.update({
-      where: { id },
-      data: { status: "void", balance_due: 0 },
+      const invoice = await tx.invoice.findUnique({ where: { id } });
+      if (!invoice) {
+        return { kind: "error", message: "Fatura bulunamadı." };
+      }
+      if (!["issued", "overdue"].includes(invoice.status)) {
+        return {
+          kind: "error",
+          message: "Yalnızca düzenlenmiş veya gecikmiş faturalar iptal edilebilir.",
+        };
+      }
+      if (Number(invoice.paid_total) > 0) {
+        return {
+          kind: "error",
+          message: "Ödeme alınmış faturalar iptal edilemez.",
+        };
+      }
+
+      await tx.invoice.update({
+        where: { id },
+        data: { status: "void", balance_due: 0 },
+      });
+      return { kind: "ok", previousStatus: invoice.status };
     });
+    if (result.kind === "error") return fail(result.message);
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -260,7 +279,7 @@ export async function voidInvoice(id: string): Promise<ActionResponse<null>> {
       action: "VOID",
       auditable_type: "invoice",
       auditable_id: id,
-      before_data: { status: invoice.status },
+      before_data: { status: result.previousStatus },
       after_data: { status: "void" },
     });
 
@@ -291,7 +310,20 @@ export async function recordPayment(
       | { kind: "ok"; status: string; invoiceId: string };
 
     const result = await prisma.$transaction(async (tx): Promise<TxResult> => {
-      // Mükerrer kontrolü (idempotency)
+      // Aynı faturadaki ödeme/iptal işlemlerini seri hale getir.
+      const locked = await tx.$queryRaw<Array<{ id: string }>>`
+        SELECT id
+        FROM invoices
+        WHERE id = ${data.invoice_id}::uuid
+          AND workspace_id = ${workspaceId}::uuid
+        FOR UPDATE
+      `;
+      if (locked.length === 0) {
+        return { kind: "error", message: "Fatura bulunamadı." };
+      }
+
+      // Kilit alındıktan sonra tekrar kontrol edilir; eşzamanlı aynı-key isteği
+      // ilk transaction commit ettikten sonra burada güvenle görülür.
       const existing = await tx.payment.findUnique({
         where: { idempotency_key: data.idempotency_key },
       });
@@ -299,18 +331,22 @@ export async function recordPayment(
         return { kind: "duplicate" };
       }
 
-      const invoice = await tx.invoice.findFirst({
-        where: { id: data.invoice_id, workspace_id: workspaceId },
+      const invoice = await tx.invoice.findUnique({
+        where: { id: data.invoice_id },
       });
       if (!invoice) return { kind: "error", message: "Fatura bulunamadı." };
       if (invoice.status === "void") return { kind: "error", message: "İptal edilmiş faturaya ödeme alınamaz." };
       if (invoice.status === "paid") return { kind: "error", message: "Fatura zaten tamamen ödenmiş." };
 
-      const balance = Number(invoice.balance_due);
-      if (data.amount > balance + 0.001) {
+      const paymentState = calculatePaymentState(
+        Number(invoice.total),
+        Number(invoice.paid_total),
+        data.amount
+      );
+      if (!paymentState.ok) {
         return {
           kind: "error",
-          message: `Ödeme tutarı bakiyeden (${balance.toFixed(2)}) fazla olamaz.`,
+          message: `Ödeme tutarı bakiyeden (${paymentState.balance.toFixed(2)}) fazla olamaz.`,
         };
       }
 
@@ -329,20 +365,20 @@ export async function recordPayment(
         },
       });
 
-      const newPaid = Math.round((Number(invoice.paid_total) + data.amount) * 100) / 100;
-      const newBalance = Math.round((Number(invoice.total) - newPaid) * 100) / 100;
-      const newStatus = newBalance <= 0.001 ? "paid" : "partial";
-
       await tx.invoice.update({
         where: { id: invoice.id },
         data: {
-          paid_total: newPaid,
-          balance_due: newBalance < 0 ? 0 : newBalance,
-          status: newStatus,
+          paid_total: paymentState.paidTotal,
+          balance_due: paymentState.balanceDue,
+          status: paymentState.status,
         },
       });
 
-      return { kind: "ok", status: newStatus, invoiceId: invoice.id };
+      return {
+        kind: "ok",
+        status: paymentState.status,
+        invoiceId: invoice.id,
+      };
     });
 
     if (result.kind === "duplicate") {
@@ -376,8 +412,16 @@ export async function createSchedule(
     const data = parsed.data;
 
     const db = await getTenantDb();
-    const customer = await db.customer.findUnique({ where: { id: data.customer_id } });
+    const [customer, references] = await Promise.all([
+      db.customer.findUnique({ where: { id: data.customer_id } }),
+      validateTenantReferences(db, ctx.workspaceId, {
+        customerId: data.customer_id,
+        projectId: data.project_id,
+        requireProjectCustomerMatch: true,
+      }),
+    ]);
     if (!customer) return fail("Müşteri bulunamadı.");
+    if (!references.ok) return fail(references.message);
 
     const startsOn = new Date(data.starts_on);
     const created = await db.billingSchedule.create({

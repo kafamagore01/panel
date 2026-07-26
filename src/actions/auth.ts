@@ -65,7 +65,9 @@ export async function loginAction(
     return fail("E-posta veya parola hatalı.");
   }
 
-  await clearLoginFailures(email, ip);
+  // Hesap anahtarı temizlenir; paylaşılan IP sayacı geçerli bir hesapla
+  // sıfırlanamaz ve pencere sonuna kadar saldırı sinyalini korur.
+  await clearLoginFailures(email);
 
   if (user.two_factor_enabled_at) {
     const { id, code } = await createOtp(user.id, "login");

@@ -27,6 +27,15 @@ export type AuthContext = {
   workspaces: WorkspaceMembership[];
 };
 
+export const PASSWORD_RESET_REQUIRED_MESSAGE =
+  "Güvenliğiniz için önce parolanızı değiştirmeniz gerekiyor.";
+
+export function isPasswordResetRequired(
+  ctx: AuthContext | null | undefined
+): boolean {
+  return ctx?.user.force_password_reset === true;
+}
+
 /**
  * Oturumdaki kullanıcıyı ve aktif workspace bağlamını döndürür.
  * Üyelik pasifse workspace bağlamı null olur (erişim reddedilir).

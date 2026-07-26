@@ -468,6 +468,7 @@ export type ProjectOrderByWithRelationInput = {
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  workspace_id_id?: Prisma.ProjectWorkspace_idIdCompoundUniqueInput
   workspace_id_code?: Prisma.ProjectWorkspace_idCodeCompoundUniqueInput
   AND?: Prisma.ProjectWhereInput | Prisma.ProjectWhereInput[]
   OR?: Prisma.ProjectWhereInput[]
@@ -512,7 +513,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   billing_schedules?: Prisma.BillingScheduleListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   webhook_deliveries?: Prisma.WebhookDeliveryListRelationFilter
-}, "id" | "workspace_id_code">
+}, "id" | "workspace_id_id" | "workspace_id_code">
 
 export type ProjectOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -846,6 +847,11 @@ export type ProjectOrderByRelationAggregateInput = {
 export type ProjectNullableScalarRelationFilter = {
   is?: Prisma.ProjectWhereInput | null
   isNot?: Prisma.ProjectWhereInput | null
+}
+
+export type ProjectWorkspace_idIdCompoundUniqueInput = {
+  workspace_id: string
+  id: string
 }
 
 export type ProjectWorkspace_idCodeCompoundUniqueInput = {

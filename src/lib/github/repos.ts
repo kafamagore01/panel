@@ -1,5 +1,6 @@
 import { cached } from "@/lib/github/cache";
 import {
+  fetchCommitCount,
   fetchLatestCommit,
   fetchRepo,
   fetchRepos,
@@ -8,6 +9,7 @@ import {
   type GithubRepo,
 } from "@/lib/github/client";
 import { getWorkspaceToken } from "@/lib/github/connection";
+import { buildGithubVersion } from "@/lib/github/version";
 
 /**
  * Repo verisinin canlı okunması.
@@ -19,6 +21,7 @@ import { getWorkspaceToken } from "@/lib/github/connection";
 
 const REPO_LIST_TTL_MS = 120_000;
 const SNAPSHOT_TTL_MS = 60_000;
+const APP_VERSION_TTL_MS = 60_000;
 /** Tek seferde paralel çekilecek repo sayısı (liste sayfası için yeterli). */
 const SNAPSHOT_CONCURRENCY = 6;
 
@@ -58,6 +61,49 @@ export type RepoSnapshot = {
 export type SnapshotResult =
   | { ok: true; snapshot: RepoSnapshot }
   | { ok: false; error: string };
+
+export type GithubAppVersion = {
+  version: string;
+  commit_count: number;
+  branch: string;
+  html_url: string;
+};
+
+/**
+ * Panelin ortak sürümünü GitHub varsayılan dalının canlı commit sayısından
+ * üretir. Özel repo erişimi için önce sunucu token'ı, yoksa çalışma alanının
+ * şifreli GitHub bağlantısı kullanılır.
+ */
+export async function getGithubAppVersion(
+  workspaceId: string,
+  fullName: string,
+  baseVersion: string
+): Promise<GithubAppVersion | null> {
+  const token =
+    process.env.APP_GITHUB_TOKEN?.trim() ||
+    await getWorkspaceToken(workspaceId);
+  if (!token) return null;
+
+  return cached(
+    `${workspaceId}:app-version:${fullName}:${baseVersion}`,
+    APP_VERSION_TTL_MS,
+    async () => {
+      const repo = await fetchRepo(token, fullName);
+      const commitCount = await fetchCommitCount(
+        token,
+        repo.full_name,
+        repo.default_branch
+      );
+
+      return {
+        version: buildGithubVersion(baseVersion, commitCount),
+        commit_count: commitCount,
+        branch: repo.default_branch,
+        html_url: repo.html_url,
+      };
+    }
+  );
+}
 
 export async function listRepoOptions(
   workspaceId: string

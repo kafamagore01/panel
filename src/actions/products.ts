@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission, PermissionError } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
+import { validateTenantReferences } from "@/lib/db/tenant-references";
 import { writeAudit } from "@/lib/audit";
 import { productSchema } from "@/lib/validation/product";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
@@ -25,6 +26,11 @@ export async function createProduct(
     if (!parsed.success) return zodFail(parsed.error);
 
     const db = await getTenantDb();
+    const references = await validateTenantReferences(db, ctx.workspaceId, {
+      customerId: parsed.data.customer_id,
+    });
+    if (!references.ok) return fail(references.message);
+
     const created = await db.product.create({
       data: { ...parsed.data, workspace_id: ctx.workspaceId },
     });
@@ -57,6 +63,10 @@ export async function updateProduct(
     const db = await getTenantDb();
     const before = await db.product.findUnique({ where: { id } });
     if (!before) return fail("Ürün bulunamadı.");
+    const references = await validateTenantReferences(db, ctx.workspaceId, {
+      customerId: parsed.data.customer_id,
+    });
+    if (!references.ok) return fail(references.message);
 
     const updated = await db.product.update({ where: { id }, data: parsed.data });
 

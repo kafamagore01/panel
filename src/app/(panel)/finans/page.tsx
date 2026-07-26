@@ -17,8 +17,9 @@ export const metadata = { title: "Finans · Operasyon Merkezi" };
 export default async function FinancePage() {
   const ctx = await getAuthContext();
   if (!hasPermission(ctx?.role ?? null, "finance.manage")) {
-    // Finans yalnızca yetkili roller içindir; salt-görüntüleme dahil değil
-    if (!hasPermission(ctx?.role ?? null, "module.view")) redirect("/dashboard");
+    // Finans yalnızca owner/admin/finance rollerine açıktır; UI gizlemek
+    // sunucu tarafındaki veri sorgularının yetki sınırı değildir.
+    redirect("/dashboard");
   }
   const canManage = hasPermission(ctx?.role ?? null, "finance.manage");
 

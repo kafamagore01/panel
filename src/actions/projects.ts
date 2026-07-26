@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requirePermission, PermissionError } from "@/lib/auth/permissions";
 import { getTenantDb, type TenantDb } from "@/lib/db/tenant";
+import { validateTenantReferences } from "@/lib/db/tenant-references";
 import { writeAudit } from "@/lib/audit";
 import { encryptSecret } from "@/lib/crypto/encryption";
 import { assertSafeWebhookUrl, SsrfError } from "@/lib/security/ssrf-guard";
@@ -94,6 +95,11 @@ export async function createProject(
     if (sourceProject?.status === "archived") {
       return fail("Arşivlenmiş bir proje kaynak olarak kullanılamaz.");
     }
+    const references = await validateTenantReferences(db, ctx.workspaceId, {
+      productId: sourceProject?.product_id ?? data.product_id,
+      ownerUserId: data.owner_user_id,
+    });
+    if (!references.ok) return fail(references.message);
 
     // Webhook SSRF + şifreleme
     let encryptedSecret: string | undefined;
@@ -171,6 +177,12 @@ export async function updateProject(
     const db = await getTenantDb();
     const before = await db.project.findUnique({ where: { id } });
     if (!before) return fail("Proje bulunamadı.");
+    const references = await validateTenantReferences(db, ctx.workspaceId, {
+      customerId: data.customer_id,
+      productId: data.product_id,
+      ownerUserId: data.owner_user_id,
+    });
+    if (!references.ok) return fail(references.message);
 
     let encryptedSecret: string | undefined | null = undefined;
     if (data.license_webhook_url) {

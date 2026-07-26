@@ -1,5 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getAuthContext } from "@/lib/auth/context";
+import {
+  getAuthContext,
+  isPasswordResetRequired,
+} from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import {
   OAUTH_STATE_COOKIE,
@@ -19,6 +22,10 @@ export async function GET(request: NextRequest) {
   const settings = new URL("/ayarlar", request.url);
 
   const ctx = await getAuthContext();
+  if (isPasswordResetRequired(ctx)) {
+    settings.searchParams.set("github", "password_reset_required");
+    return NextResponse.redirect(settings);
+  }
   if (!hasPermission(ctx?.role ?? null, "system.manage")) {
     settings.searchParams.set("github", "forbidden");
     return NextResponse.redirect(settings);

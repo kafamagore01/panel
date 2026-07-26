@@ -4,8 +4,12 @@ import crypto from "node:crypto";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import type { MembershipRole } from "@/generated/prisma/client";
-import { getAuthContext } from "@/lib/auth/context";
+import type { MembershipRole, Prisma } from "@/generated/prisma/client";
+import {
+  getAuthContext,
+  isPasswordResetRequired,
+  PASSWORD_RESET_REQUIRED_MESSAGE,
+} from "@/lib/auth/context";
 import {
   requirePermission,
   PermissionError,
@@ -28,6 +32,14 @@ const inviteSchema = z.object({
   email: z.email("Geçerli bir e-posta girin."),
   role: z.enum(["owner", "admin", "technical", "finance", "viewer"]),
 });
+const membershipRoleSchema = z.enum([
+  "owner",
+  "admin",
+  "technical",
+  "finance",
+  "viewer",
+]);
+const membershipIdSchema = z.uuid("Üyelik kimliği geçersiz.");
 
 /** Ekip üyesi davet et (e-posta bildirimli). RBAC atama kuralları uygulanır. */
 export async function inviteMember(
@@ -123,11 +135,18 @@ export async function inviteMember(
   }
 }
 
-/** Kalan aktif owner sayısı (son owner koruması için). */
-async function activeOwnerCount(workspaceId: string): Promise<number> {
-  return prisma.workspaceUser.count({
-    where: { workspace_id: workspaceId, role: "owner", status: "active" },
-  });
+/** Owner invariant'ını değiştiren işlemleri workspace satırında seri hale getirir. */
+async function lockWorkspaceForOwnerChange(
+  tx: Prisma.TransactionClient,
+  workspaceId: string
+): Promise<boolean> {
+  const rows = await tx.$queryRaw<Array<{ id: string }>>`
+    SELECT id
+    FROM workspaces
+    WHERE id = ${workspaceId}::uuid
+    FOR UPDATE
+  `;
+  return rows.length === 1;
 }
 
 export async function changeMemberRole(
@@ -137,32 +156,94 @@ export async function changeMemberRole(
   try {
     const ctx = await requirePermission("team.manage");
     const workspaceId = ctx.workspaceId;
-
-    const membership = await prisma.workspaceUser.findFirst({
-      where: { id: membershipId, workspace_id: workspaceId },
-    });
-    if (!membership) return fail("Üyelik bulunamadı.");
-
-    if (!assignableRolesFor(ctx.role).includes(newRole)) {
-      return fail("Bu rolü atama yetkiniz bulunmuyor.");
+    if (!membershipIdSchema.safeParse(membershipId).success) {
+      return fail("Üyelik kimliği geçersiz.");
     }
-    // Owner rolünü almak için mevcut owner da yalnız owner tarafından değiştirilebilir
-    if (membership.role === "owner" && ctx.role !== "owner") {
-      return fail("Owner rolündeki bir üyeyi yalnızca Owner değiştirebilir.");
-    }
-    // Son aktif owner rolü düşürülemez
-    if (
-      membership.role === "owner" &&
-      newRole !== "owner" &&
-      (await activeOwnerCount(workspaceId)) <= 1
-    ) {
-      return fail("Son aktif Owner rolü değiştirilemez.");
-    }
+    const parsedRole = membershipRoleSchema.safeParse(newRole);
+    if (!parsedRole.success) return fail("Geçersiz üyelik rolü.");
+    const requestedRole = parsedRole.data;
 
-    await prisma.workspaceUser.update({
-      where: { id: membershipId },
-      data: { role: newRole },
-    });
+    type RoleChangeResult =
+      | { kind: "error"; message: string }
+      | { kind: "ok"; previousRole: MembershipRole };
+
+    const result = await prisma.$transaction(
+      async (tx): Promise<RoleChangeResult> => {
+        if (!(await lockWorkspaceForOwnerChange(tx, workspaceId))) {
+          return { kind: "error", message: "Çalışma alanı bulunamadı." };
+        }
+
+        const actorMembership = await tx.workspaceUser.findUnique({
+          where: {
+            workspace_id_user_id: {
+              workspace_id: workspaceId,
+              user_id: ctx.user.id,
+            },
+          },
+        });
+        if (
+          !actorMembership ||
+          actorMembership.status !== "active" ||
+          !["owner", "admin"].includes(actorMembership.role)
+        ) {
+          return {
+            kind: "error",
+            message: "Üyelik yetkiniz bu sırada değişti. Sayfayı yenileyin.",
+          };
+        }
+
+        const membership = await tx.workspaceUser.findFirst({
+          where: { id: membershipId, workspace_id: workspaceId },
+        });
+        if (!membership) {
+          return { kind: "error", message: "Üyelik bulunamadı." };
+        }
+        if (
+          !assignableRolesFor(actorMembership.role).includes(requestedRole)
+        ) {
+          return {
+            kind: "error",
+            message: "Bu rolü atama yetkiniz bulunmuyor.",
+          };
+        }
+        if (
+          membership.role === "owner" &&
+          actorMembership.role !== "owner"
+        ) {
+          return {
+            kind: "error",
+            message: "Owner rolündeki bir üyeyi yalnızca Owner değiştirebilir.",
+          };
+        }
+
+        if (
+          membership.role === "owner" &&
+          membership.status === "active" &&
+          requestedRole !== "owner"
+        ) {
+          const activeOwners = await tx.workspaceUser.count({
+            where: {
+              workspace_id: workspaceId,
+              role: "owner",
+              status: "active",
+            },
+          });
+          if (activeOwners <= 1) {
+            return {
+              kind: "error",
+              message: "Son aktif Owner rolü değiştirilemez.",
+            };
+          }
+        }
+
+        await tx.workspaceUser.update({
+          where: { id: membershipId },
+          data: { role: requestedRole },
+        });
+        return { kind: "ok", previousRole: membership.role };
+      }
+    );
+    if (result.kind === "error") return fail(result.message);
 
     await writeAudit({
       workspace_id: workspaceId,
@@ -170,8 +251,8 @@ export async function changeMemberRole(
       action: "CHANGE_ROLE",
       auditable_type: "workspace_user",
       auditable_id: membershipId,
-      before_data: { role: membership.role },
-      after_data: { role: newRole },
+      before_data: { role: result.previousRole },
+      after_data: { role: requestedRole },
     });
 
     revalidatePath("/ekip");
@@ -188,29 +269,90 @@ export async function changeMemberStatus(
   try {
     const ctx = await requirePermission("team.manage");
     const workspaceId = ctx.workspaceId;
-
-    const membership = await prisma.workspaceUser.findFirst({
-      where: { id: membershipId, workspace_id: workspaceId },
-    });
-    if (!membership) return fail("Üyelik bulunamadı.");
-
-    // Kullanıcı kendi üyeliğini pasifleştiremez
-    if (membership.user_id === ctx.user.id && !active) {
-      return fail("Kendi üyeliğinizi pasifleştiremezsiniz.");
-    }
-    // Son aktif owner pasifleştirilemez
     if (
-      membership.role === "owner" &&
-      !active &&
-      (await activeOwnerCount(workspaceId)) <= 1
+      !membershipIdSchema.safeParse(membershipId).success ||
+      typeof active !== "boolean"
     ) {
-      return fail("Son aktif Owner pasifleştirilemez.");
+      return fail("Üyelik durumu isteği geçersiz.");
     }
+    type StatusChangeResult =
+      | { kind: "error"; message: string }
+      | { kind: "ok"; previousStatus: "active" | "inactive" };
 
-    await prisma.workspaceUser.update({
-      where: { id: membershipId },
-      data: { status: active ? "active" : "inactive" },
-    });
+    const result = await prisma.$transaction(
+      async (tx): Promise<StatusChangeResult> => {
+        if (!(await lockWorkspaceForOwnerChange(tx, workspaceId))) {
+          return { kind: "error", message: "Çalışma alanı bulunamadı." };
+        }
+
+        const actorMembership = await tx.workspaceUser.findUnique({
+          where: {
+            workspace_id_user_id: {
+              workspace_id: workspaceId,
+              user_id: ctx.user.id,
+            },
+          },
+        });
+        if (
+          !actorMembership ||
+          actorMembership.status !== "active" ||
+          !["owner", "admin"].includes(actorMembership.role)
+        ) {
+          return {
+            kind: "error",
+            message: "Üyelik yetkiniz bu sırada değişti. Sayfayı yenileyin.",
+          };
+        }
+
+        const membership = await tx.workspaceUser.findFirst({
+          where: { id: membershipId, workspace_id: workspaceId },
+        });
+        if (!membership) {
+          return { kind: "error", message: "Üyelik bulunamadı." };
+        }
+        if (membership.user_id === ctx.user.id && !active) {
+          return {
+            kind: "error",
+            message: "Kendi üyeliğinizi pasifleştiremezsiniz.",
+          };
+        }
+        if (
+          membership.role === "owner" &&
+          actorMembership.role !== "owner"
+        ) {
+          return {
+            kind: "error",
+            message: "Owner üyeliğini yalnızca Owner değiştirebilir.",
+          };
+        }
+        if (
+          membership.role === "owner" &&
+          membership.status === "active" &&
+          !active
+        ) {
+          const activeOwners = await tx.workspaceUser.count({
+            where: {
+              workspace_id: workspaceId,
+              role: "owner",
+              status: "active",
+            },
+          });
+          if (activeOwners <= 1) {
+            return {
+              kind: "error",
+              message: "Son aktif Owner pasifleştirilemez.",
+            };
+          }
+        }
+
+        await tx.workspaceUser.update({
+          where: { id: membershipId },
+          data: { status: active ? "active" : "inactive" },
+        });
+        return { kind: "ok", previousStatus: membership.status };
+      }
+    );
+    if (result.kind === "error") return fail(result.message);
 
     await writeAudit({
       workspace_id: workspaceId,
@@ -218,6 +360,8 @@ export async function changeMemberStatus(
       action: active ? "ACTIVATE_MEMBER" : "DEACTIVATE_MEMBER",
       auditable_type: "workspace_user",
       auditable_id: membershipId,
+      before_data: { status: result.previousStatus },
+      after_data: { status: active ? "active" : "inactive" },
     });
 
     revalidatePath("/ekip");
@@ -238,6 +382,9 @@ export async function createWorkspace(
   try {
     const ctx = await getAuthContext();
     if (!ctx) return fail("Oturum bulunamadı.");
+    if (isPasswordResetRequired(ctx)) {
+      return fail(PASSWORD_RESET_REQUIRED_MESSAGE);
+    }
     const parsed = workspaceSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -281,6 +428,9 @@ export async function switchWorkspace(
   try {
     const ctx = await getAuthContext();
     if (!ctx) return fail("Oturum bulunamadı.");
+    if (isPasswordResetRequired(ctx)) {
+      return fail(PASSWORD_RESET_REQUIRED_MESSAGE);
+    }
 
     const membership = await prisma.workspaceUser.findUnique({
       where: {

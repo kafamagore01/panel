@@ -245,6 +245,7 @@ export type ProductOrderByWithRelationInput = {
 
 export type ProductWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  workspace_id_id?: Prisma.ProductWorkspace_idIdCompoundUniqueInput
   workspace_id_code?: Prisma.ProductWorkspace_idCodeCompoundUniqueInput
   AND?: Prisma.ProductWhereInput | Prisma.ProductWhereInput[]
   OR?: Prisma.ProductWhereInput[]
@@ -261,7 +262,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.CustomerWhereInput> | null
   projects?: Prisma.ProjectListRelationFilter
-}, "id" | "workspace_id_code">
+}, "id" | "workspace_id_id" | "workspace_id_code">
 
 export type ProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -396,6 +397,11 @@ export type ProductListRelationFilter = {
 
 export type ProductOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type ProductWorkspace_idIdCompoundUniqueInput = {
+  workspace_id: string
+  id: string
 }
 
 export type ProductWorkspace_idCodeCompoundUniqueInput = {

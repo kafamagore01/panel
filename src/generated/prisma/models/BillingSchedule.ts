@@ -378,6 +378,7 @@ export type BillingScheduleOrderByWithRelationInput = {
 
 export type BillingScheduleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  workspace_id_id?: Prisma.BillingScheduleWorkspace_idIdCompoundUniqueInput
   AND?: Prisma.BillingScheduleWhereInput | Prisma.BillingScheduleWhereInput[]
   OR?: Prisma.BillingScheduleWhereInput[]
   NOT?: Prisma.BillingScheduleWhereInput | Prisma.BillingScheduleWhereInput[]
@@ -403,7 +404,7 @@ export type BillingScheduleWhereUniqueInput = Prisma.AtLeast<{
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   invoices?: Prisma.InvoiceListRelationFilter
-}, "id">
+}, "id" | "workspace_id_id">
 
 export type BillingScheduleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -620,6 +621,11 @@ export type BillingScheduleListRelationFilter = {
 
 export type BillingScheduleOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type BillingScheduleWorkspace_idIdCompoundUniqueInput = {
+  workspace_id: string
+  id: string
 }
 
 export type BillingScheduleCountOrderByAggregateInput = {

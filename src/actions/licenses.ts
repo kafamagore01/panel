@@ -1,9 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import type { LicenseStatus } from "@/generated/prisma/client";
+import { z } from "zod";
+import type {
+  LicenseStatus,
+  Prisma,
+} from "@/generated/prisma/client";
 import { requirePermission, PermissionError } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
+import { prisma } from "@/lib/db/prisma";
 import { writeAudit } from "@/lib/audit";
 import { encryptSecret, decryptSecret } from "@/lib/crypto/encryption";
 import {
@@ -18,11 +23,15 @@ import {
   domainStatusSchema,
 } from "@/lib/validation/license";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
-import { enqueueLicenseWebhook } from "@/lib/queue/webhook-dispatch";
+import {
+  createLicenseWebhookDelivery,
+  publishWebhookDelivery,
+} from "@/lib/queue/webhook-dispatch";
 
 /** Aynı lisansın bu süre içinde ikinci kez yenilenmesi engellenir. */
 const RENEWAL_LOCK_MS = 15_000;
 const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+const licenseIdSchema = z.uuid("Lisans kimliği geçersiz.");
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
@@ -45,6 +54,26 @@ function keyPrefixOf(licenseKey: string): string {
   return `${parts[0]}-${parts[1]}`;
 }
 
+async function lockTenantLicense(
+  tx: Prisma.TransactionClient,
+  workspaceId: string,
+  licenseId: string
+) {
+  const rows = await tx.$queryRaw<Array<{ id: string }>>`
+    SELECT id
+    FROM licenses
+    WHERE id = ${licenseId}::uuid
+      AND workspace_id = ${workspaceId}::uuid
+    FOR UPDATE
+  `;
+  if (rows.length === 0) return null;
+  return tx.license.findUnique({ where: { id: licenseId } });
+}
+
+async function publishOutbox(deliveryId: string | null): Promise<void> {
+  if (deliveryId) await publishWebhookDelivery(deliveryId);
+}
+
 /** Yeni lisans üretir. Düz anahtar yalnızca yanıtta tek kez döner. */
 export async function createLicense(
   input: unknown
@@ -55,10 +84,6 @@ export async function createLicense(
     if (!parsed.success) return zodFail(parsed.error);
     const data = parsed.data;
 
-    const db = await getTenantDb();
-    const project = await db.project.findUnique({ where: { id: data.project_id } });
-    if (!project) return fail("Seçilen proje bulunamadı.");
-
     const licenseKey = generateLicenseKey();
     const expiresAt = data.expires_at ? new Date(data.expires_at) : null;
     const graceEndsAt =
@@ -66,34 +91,61 @@ export async function createLicense(
         ? new Date(expiresAt.getTime() + data.grace_days * 24 * 60 * 60 * 1000)
         : null;
 
-    const created = await db.license.create({
-      data: {
-        workspace_id: ctx.workspaceId,
-        project_id: data.project_id,
-        product_name: data.product_name,
-        key_prefix: keyPrefixOf(licenseKey),
-        key_hash: hashLicenseKey(licenseKey),
-        key_secret: encryptSecret(licenseKey),
-        status: "active",
-        starts_at: data.starts_at ? new Date(data.starts_at) : new Date(),
-        expires_at: expiresAt,
-        grace_ends_at: graceEndsAt,
-        activation_limit: data.activation_limit,
-        auto_suspend: data.auto_suspend,
-        features: data.features
-          ? data.features.split(",").map((s) => s.trim()).filter(Boolean)
-          : [],
-      },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      const project = await tx.project.findFirst({
+        where: {
+          id: data.project_id,
+          workspace_id: ctx.workspaceId,
+          deleted_at: null,
+        },
+        select: { id: true },
+      });
+      if (!project) return null;
 
-    await db.licenseEvent.create({
-      data: {
-        license_id: created.id,
-        actor_user_id: ctx.user.id,
-        type: "issued",
-        new_status: "active",
-      },
+      const created = await tx.license.create({
+        data: {
+          workspace_id: ctx.workspaceId,
+          project_id: data.project_id,
+          product_name: data.product_name,
+          key_prefix: keyPrefixOf(licenseKey),
+          key_hash: hashLicenseKey(licenseKey),
+          key_secret: encryptSecret(licenseKey),
+          status: "active",
+          starts_at: data.starts_at ? new Date(data.starts_at) : new Date(),
+          expires_at: expiresAt,
+          grace_ends_at: graceEndsAt,
+          activation_limit: data.activation_limit,
+          auto_suspend: data.auto_suspend,
+          features: data.features
+            ? data.features.split(",").map((s) => s.trim()).filter(Boolean)
+            : [],
+        },
+      });
+      await tx.licenseEvent.create({
+        data: {
+          license_id: created.id,
+          actor_user_id: ctx.user.id,
+          type: "issued",
+          new_status: "active",
+        },
+      });
+      const deliveryId = await createLicenseWebhookDelivery(
+        tx,
+        ctx.workspaceId,
+        data.project_id,
+        created.id,
+        "license.issued",
+        {
+          license_id: created.id,
+          product: created.product_name,
+          status: created.status,
+          expires_at: created.expires_at?.toISOString() ?? null,
+        }
+      );
+      return { created, deliveryId };
     });
+    if (!result) return fail("Seçilen proje bulunamadı.");
+    const { created, deliveryId } = result;
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -104,12 +156,7 @@ export async function createLicense(
       after_data: created,
     });
 
-    await enqueueLicenseWebhook(data.project_id, created.id, "license.issued", {
-      license_id: created.id,
-      product: created.product_name,
-      status: created.status,
-      expires_at: created.expires_at?.toISOString() ?? null,
-    });
+    await publishOutbox(deliveryId);
 
     revalidatePath("/lisanslar");
     return ok(
@@ -130,43 +177,78 @@ export async function changeLicenseStatus(
     if (!parsed.success) return zodFail(parsed.error);
     const { license_id, status, reason } = parsed.data;
 
-    const db = await getTenantDb();
-    const license = await db.license.findUnique({ where: { id: license_id } });
-    if (!license) return fail("Lisans bulunamadı.");
-    if (license.status === status) return fail("Lisans zaten bu durumda.");
+    type StatusResult =
+      | { kind: "error"; message: string }
+      | {
+          kind: "ok";
+          previous: LicenseStatus;
+          deliveryId: string | null;
+        };
+    const result = await prisma.$transaction(
+      async (tx): Promise<StatusResult> => {
+        const license = await lockTenantLicense(
+          tx,
+          ctx.workspaceId,
+          license_id
+        );
+        if (!license) return { kind: "error", message: "Lisans bulunamadı." };
+        if (license.status === status) {
+          return { kind: "error", message: "Lisans zaten bu durumda." };
+        }
 
-    // Cron'un anında geri alacağı ya da anlamsız olan geçişleri baştan engelle:
-    // durum ile tarih alanları tutarsız kalırsa lisans "aktif" görünüp doğrulamada
-    // reddedilir.
-    const now = new Date();
-    const expired = Boolean(license.expires_at && license.expires_at < now);
+        const now = new Date();
+        const expired = Boolean(license.expires_at && license.expires_at < now);
+        if (status === "active" && expired) {
+          return {
+            kind: "error",
+            message:
+              "Süresi dolmuş lisans doğrudan aktife alınamaz. Önce lisansı yenileyin.",
+          };
+        }
+        if (
+          status === "grace" &&
+          !(license.grace_ends_at && license.grace_ends_at >= now)
+        ) {
+          return {
+            kind: "error",
+            message:
+              "Ek süre penceresi tanımlı değil veya dolmuş. Önce lisansı yenileyin.",
+          };
+        }
 
-    if (status === "active" && expired) {
-      return fail(
-        "Süresi dolmuş lisans doğrudan aktife alınamaz. Önce lisansı yenileyin."
-      );
-    }
-    if (
-      status === "grace" &&
-      !(license.grace_ends_at && license.grace_ends_at >= now)
-    ) {
-      return fail(
-        "Ek süre penceresi tanımlı değil veya dolmuş. Önce lisansı yenileyin."
-      );
-    }
-
-    const previous = license.status;
-    await db.license.update({ where: { id: license_id }, data: { status } });
-    await db.licenseEvent.create({
-      data: {
-        license_id,
-        actor_user_id: ctx.user.id,
-        type: "status_changed",
-        previous_status: previous,
-        new_status: status,
-        reason: reason ?? null,
+        const previous = license.status;
+        await tx.license.update({
+          where: { id: license_id },
+          data: { status },
+        });
+        await tx.licenseEvent.create({
+          data: {
+            license_id,
+            actor_user_id: ctx.user.id,
+            type: "status_changed",
+            previous_status: previous,
+            new_status: status,
+            reason: reason ?? null,
+          },
+        });
+        const deliveryId = await createLicenseWebhookDelivery(
+          tx,
+          ctx.workspaceId,
+          license.project_id,
+          license_id,
+          "license.status_changed",
+          {
+            license_id,
+            previous_status: previous,
+            new_status: status,
+          }
+        );
+        return { kind: "ok", previous, deliveryId };
       },
-    });
+      { maxWait: 5_000, timeout: 15_000 }
+    );
+    if (result.kind === "error") return fail(result.message);
+    const { previous, deliveryId } = result;
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -178,11 +260,7 @@ export async function changeLicenseStatus(
       after_data: { status, reason },
     });
 
-    await enqueueLicenseWebhook(license.project_id, license_id, "license.status_changed", {
-      license_id,
-      previous_status: previous,
-      new_status: status,
-    });
+    await publishOutbox(deliveryId);
 
     revalidatePath("/lisanslar");
     return ok(null, "Lisans durumu güncellendi.");
@@ -197,59 +275,123 @@ export async function renewLicense(
 ): Promise<ActionResponse<null>> {
   try {
     const ctx = await requirePermission("record.manage");
-    const db = await getTenantDb();
-
-    const license = await db.license.findUnique({ where: { id: licenseId } });
-    if (!license) return fail("Lisans bulunamadı.");
-
-    // Mükerrer işlem engeli: kilit penceresinde yenileme var mı?
-    const recent = await db.licenseEvent.findFirst({
-      where: {
-        license_id: licenseId,
-        type: "renewed",
-        occurred_at: { gt: new Date(Date.now() - RENEWAL_LOCK_MS) },
-      },
-      select: { id: true },
-    });
-    if (recent) {
-      return fail("Bu lisans az önce yenilendi. Lütfen birkaç saniye bekleyin.");
+    if (!licenseIdSchema.safeParse(licenseId).success) {
+      return fail("Lisans kimliği geçersiz.");
     }
 
-    const now = Date.now();
-    const currentExpiry = license.expires_at?.getTime() ?? 0;
-    const base = currentExpiry > now ? currentExpiry : now;
-    const newExpiry = new Date(base + YEAR_MS);
+    type RenewResult =
+      | { kind: "error"; message: string }
+      | {
+          kind: "ok";
+          previousExpiry: Date | null;
+          previousStatus: LicenseStatus;
+          newExpiry: Date;
+          newGrace: Date | null;
+          newStatus: LicenseStatus;
+          deliveryId: string | null;
+        };
+    const result = await prisma.$transaction(
+      async (tx): Promise<RenewResult> => {
+        const license = await lockTenantLicense(
+          tx,
+          ctx.workspaceId,
+          licenseId
+        );
+        if (!license) return { kind: "error", message: "Lisans bulunamadı." };
 
-    // Ek süre penceresini koru
-    let newGrace: Date | null = null;
-    if (license.grace_ends_at && license.expires_at) {
-      const graceSpan = license.grace_ends_at.getTime() - license.expires_at.getTime();
-      if (graceSpan > 0) newGrace = new Date(newExpiry.getTime() + graceSpan);
-    }
+        const recent = await tx.licenseEvent.findFirst({
+          where: {
+            license_id: licenseId,
+            type: "renewed",
+            occurred_at: { gt: new Date(Date.now() - RENEWAL_LOCK_MS) },
+          },
+          select: { id: true },
+        });
+        if (recent) {
+          return {
+            kind: "error",
+            message:
+              "Bu lisans az önce yenilendi. Lütfen birkaç saniye bekleyin.",
+          };
+        }
 
-    const previousStatus = license.status;
-    // Süre dolduğu için düşülen durumlar yenilemeyle geri açılır. auto_suspend ile
-    // otomatik askıya alınmış lisanslar da buraya girer; elle askıya alınmış
-    // (auto_suspend kapalı) lisanslar askıda kalır — bunlar iş kararıdır.
-    const reactivatable =
-      previousStatus === "expired" ||
-      previousStatus === "grace" ||
-      (previousStatus === "suspended" && license.auto_suspend && currentExpiry > 0 && currentExpiry < now);
-    const newStatus: LicenseStatus = reactivatable ? "active" : previousStatus;
+        const now = Date.now();
+        const currentExpiry = license.expires_at?.getTime() ?? 0;
+        const base = currentExpiry > now ? currentExpiry : now;
+        const newExpiry = new Date(base + YEAR_MS);
 
-    await db.license.update({
-      where: { id: licenseId },
-      data: { expires_at: newExpiry, grace_ends_at: newGrace, status: newStatus },
-    });
-    await db.licenseEvent.create({
-      data: {
-        license_id: licenseId,
-        actor_user_id: ctx.user.id,
-        type: "renewed",
-        previous_status: previousStatus,
-        new_status: newStatus,
+        let newGrace: Date | null = null;
+        if (license.grace_ends_at && license.expires_at) {
+          const graceSpan =
+            license.grace_ends_at.getTime() - license.expires_at.getTime();
+          if (graceSpan > 0) {
+            newGrace = new Date(newExpiry.getTime() + graceSpan);
+          }
+        }
+
+        const previousStatus = license.status;
+        const reactivatable =
+          previousStatus === "expired" ||
+          previousStatus === "grace" ||
+          (previousStatus === "suspended" &&
+            license.auto_suspend &&
+            currentExpiry > 0 &&
+            currentExpiry < now);
+        const newStatus: LicenseStatus = reactivatable
+          ? "active"
+          : previousStatus;
+
+        await tx.license.update({
+          where: { id: licenseId },
+          data: {
+            expires_at: newExpiry,
+            grace_ends_at: newGrace,
+            status: newStatus,
+          },
+        });
+        await tx.licenseEvent.create({
+          data: {
+            license_id: licenseId,
+            actor_user_id: ctx.user.id,
+            type: "renewed",
+            previous_status: previousStatus,
+            new_status: newStatus,
+          },
+        });
+        const deliveryId = await createLicenseWebhookDelivery(
+          tx,
+          ctx.workspaceId,
+          license.project_id,
+          licenseId,
+          "license.renewed",
+          {
+            license_id: licenseId,
+            expires_at: newExpiry.toISOString(),
+            grace_ends_at: newGrace?.toISOString() ?? null,
+            previous_status: previousStatus,
+            new_status: newStatus,
+          }
+        );
+        return {
+          kind: "ok",
+          previousExpiry: license.expires_at,
+          previousStatus,
+          newExpiry,
+          newGrace,
+          newStatus,
+          deliveryId,
+        };
       },
-    });
+      { maxWait: 5_000, timeout: 15_000 }
+    );
+    if (result.kind === "error") return fail(result.message);
+    const {
+      previousExpiry,
+      previousStatus,
+      newExpiry,
+      newStatus,
+      deliveryId,
+    } = result;
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -257,17 +399,11 @@ export async function renewLicense(
       action: "RENEW",
       auditable_type: "license",
       auditable_id: licenseId,
-      before_data: { expires_at: license.expires_at, status: previousStatus },
+      before_data: { expires_at: previousExpiry, status: previousStatus },
       after_data: { expires_at: newExpiry, status: newStatus },
     });
 
-    await enqueueLicenseWebhook(license.project_id, licenseId, "license.renewed", {
-      license_id: licenseId,
-      expires_at: newExpiry.toISOString(),
-      grace_ends_at: newGrace?.toISOString() ?? null,
-      previous_status: previousStatus,
-      new_status: newStatus,
-    });
+    await publishOutbox(deliveryId);
 
     revalidatePath("/lisanslar");
     return ok(null, `Lisans yenilendi. Yeni bitiş: ${newExpiry.toLocaleDateString("tr-TR")}`);
@@ -308,22 +444,45 @@ export async function resetActivations(
 ): Promise<ActionResponse<null>> {
   try {
     const ctx = await requirePermission("record.manage");
-    const db = await getTenantDb();
-    const license = await db.license.findUnique({ where: { id: licenseId } });
-    if (!license) return fail("Lisans bulunamadı.");
+    if (!licenseIdSchema.safeParse(licenseId).success) {
+      return fail("Lisans kimliği geçersiz.");
+    }
 
-    const reset = await db.licenseActivation.updateMany({
-      where: { license_id: licenseId, status: "active" },
-      data: { status: "deactivated" },
-    });
-    await db.licenseEvent.create({
-      data: {
-        license_id: licenseId,
-        actor_user_id: ctx.user.id,
-        type: "activations_reset",
-        reason: `${reset.count} aktivasyon sıfırlandı.`,
+    const result = await prisma.$transaction(
+      async (tx) => {
+        const license = await lockTenantLicense(
+          tx,
+          ctx.workspaceId,
+          licenseId
+        );
+        if (!license) return null;
+
+        const reset = await tx.licenseActivation.updateMany({
+          where: { license_id: licenseId, status: "active" },
+          data: { status: "deactivated" },
+        });
+        await tx.licenseEvent.create({
+          data: {
+            license_id: licenseId,
+            actor_user_id: ctx.user.id,
+            type: "activations_reset",
+            reason: `${reset.count} aktivasyon sıfırlandı.`,
+          },
+        });
+        const deliveryId = await createLicenseWebhookDelivery(
+          tx,
+          ctx.workspaceId,
+          license.project_id,
+          licenseId,
+          "license.activations_reset",
+          { license_id: licenseId, reset_count: reset.count }
+        );
+        return { resetCount: reset.count, deliveryId };
       },
-    });
+      { maxWait: 5_000, timeout: 15_000 }
+    );
+    if (!result) return fail("Lisans bulunamadı.");
+    const { resetCount, deliveryId } = result;
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -331,18 +490,13 @@ export async function resetActivations(
       action: "RESET_ACTIVATIONS",
       auditable_type: "license",
       auditable_id: licenseId,
-      after_data: { reset_count: reset.count },
+      after_data: { reset_count: resetCount },
     });
 
-    await enqueueLicenseWebhook(
-      license.project_id,
-      licenseId,
-      "license.activations_reset",
-      { license_id: licenseId, reset_count: reset.count }
-    );
+    await publishOutbox(deliveryId);
 
     revalidatePath("/lisanslar");
-    return ok(null, `${reset.count} aktivasyon sıfırlandı.`);
+    return ok(null, `${resetCount} aktivasyon sıfırlandı.`);
   } catch (error) {
     return handleError(error);
   }
@@ -354,32 +508,52 @@ export async function rotateLicenseKey(
 ): Promise<ActionResponse<{ licenseKey: string }>> {
   try {
     const ctx = await requirePermission("license.rotate");
-    const db = await getTenantDb();
-    const license = await db.license.findUnique({ where: { id: licenseId } });
-    if (!license) return fail("Lisans bulunamadı.");
+    if (!licenseIdSchema.safeParse(licenseId).success) {
+      return fail("Lisans kimliği geçersiz.");
+    }
 
     const newKey = generateLicenseKey();
+    const deliveryId = await prisma.$transaction(
+      async (tx) => {
+        const license = await lockTenantLicense(
+          tx,
+          ctx.workspaceId,
+          licenseId
+        );
+        if (!license) return undefined;
 
-    await db.license.update({
-      where: { id: licenseId },
-      data: {
-        key_prefix: keyPrefixOf(newKey),
-        key_hash: hashLicenseKey(newKey),
-        key_secret: encryptSecret(newKey),
+        await tx.license.update({
+          where: { id: licenseId },
+          data: {
+            key_prefix: keyPrefixOf(newKey),
+            key_hash: hashLicenseKey(newKey),
+            key_secret: encryptSecret(newKey),
+          },
+        });
+        await tx.licenseActivation.updateMany({
+          where: { license_id: licenseId, status: "active" },
+          data: { status: "deactivated" },
+        });
+        await tx.licenseEvent.create({
+          data: {
+            license_id: licenseId,
+            actor_user_id: ctx.user.id,
+            type: "key_rotated",
+            reason: "Anahtar rotasyonu",
+          },
+        });
+        return createLicenseWebhookDelivery(
+          tx,
+          ctx.workspaceId,
+          license.project_id,
+          licenseId,
+          "license.key_rotated",
+          { license_id: licenseId }
+        );
       },
-    });
-    await db.licenseActivation.updateMany({
-      where: { license_id: licenseId, status: "active" },
-      data: { status: "deactivated" },
-    });
-    await db.licenseEvent.create({
-      data: {
-        license_id: licenseId,
-        actor_user_id: ctx.user.id,
-        type: "key_rotated",
-        reason: "Anahtar rotasyonu",
-      },
-    });
+      { maxWait: 5_000, timeout: 15_000 }
+    );
+    if (deliveryId === undefined) return fail("Lisans bulunamadı.");
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -389,9 +563,7 @@ export async function rotateLicenseKey(
       auditable_id: licenseId,
     });
 
-    await enqueueLicenseWebhook(license.project_id, licenseId, "license.key_rotated", {
-      license_id: licenseId,
-    });
+    await publishOutbox(deliveryId);
 
     revalidatePath("/lisanslar");
     return ok(

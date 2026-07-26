@@ -359,6 +359,7 @@ export type LicenseOrderByWithRelationInput = {
 export type LicenseWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   key_hash?: string
+  workspace_id_id?: Prisma.LicenseWorkspace_idIdCompoundUniqueInput
   AND?: Prisma.LicenseWhereInput | Prisma.LicenseWhereInput[]
   OR?: Prisma.LicenseWhereInput[]
   NOT?: Prisma.LicenseWhereInput | Prisma.LicenseWhereInput[]
@@ -385,7 +386,7 @@ export type LicenseWhereUniqueInput = Prisma.AtLeast<{
   activations?: Prisma.LicenseActivationListRelationFilter
   events?: Prisma.LicenseEventListRelationFilter
   webhook_deliveries?: Prisma.WebhookDeliveryListRelationFilter
-}, "id" | "key_hash">
+}, "id" | "key_hash" | "workspace_id_id">
 
 export type LicenseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -615,6 +616,11 @@ export type LicenseListRelationFilter = {
 
 export type LicenseOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type LicenseWorkspace_idIdCompoundUniqueInput = {
+  workspace_id: string
+  id: string
 }
 
 export type LicenseCountOrderByAggregateInput = {

@@ -1,16 +1,21 @@
 {
   "name": "panel",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test src/**/*.test.ts",
+    "test:security": "tsx --test src/lib/security/ssrf-guard.test.ts",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
+    "db:check:finance-guards": "tsx scripts/check-finance-migration.ts",
+    "db:check:tenant-guards": "tsx scripts/check-tenant-migration.ts",
+    "env:check": "tsx scripts/check-env.ts",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio"
   },

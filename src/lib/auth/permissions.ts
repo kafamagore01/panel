@@ -1,5 +1,10 @@
 import type { MembershipRole } from "@/generated/prisma/client";
-import { getAuthContext, type AuthContext } from "@/lib/auth/context";
+import {
+  getAuthContext,
+  isPasswordResetRequired,
+  PASSWORD_RESET_REQUIRED_MESSAGE,
+  type AuthContext,
+} from "@/lib/auth/context";
 import { writeAudit } from "@/lib/audit";
 
 /**
@@ -74,6 +79,9 @@ export async function requirePermission(
   const ctx = await getAuthContext();
   if (!ctx) {
     throw new PermissionError("Bu işlem için oturum açmanız gerekiyor.");
+  }
+  if (isPasswordResetRequired(ctx)) {
+    throw new PermissionError(PASSWORD_RESET_REQUIRED_MESSAGE);
   }
   if (!ctx.workspaceId || !ctx.role) {
     throw new PermissionError(

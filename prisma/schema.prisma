@@ -146,6 +146,7 @@ enum PaymentStatus {
 
 enum WebhookDeliveryStatus {
   pending
+  processing
   delivered
   failed
 }
@@ -216,13 +217,19 @@ model Session {
   id            String   @id @default(uuid(4)) @db.Uuid
   session_token String   @unique
   user_id       String   @db.Uuid
+  /// Hareketsizlik penceresi: her istekte ileri kaydırılır.
   expires       DateTime
+  /// Mutlak üst sınır: girişte belirlenir, bir daha uzatılmaz.
+  /// DB varsayılanı yalnızca dağıtım geçişi için emniyet ağıdır; uygulama her
+  /// zaman değeri açıkça yazar.
+  absolute_expires_at DateTime @default(dbgenerated("(CURRENT_TIMESTAMP + '7 days'::interval)"))
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
+  @@index([expires])
   @@map("sessions")
 }
 
@@ -292,6 +299,7 @@ model Customer {
   invoices          Invoice[]
   payments          Payment[]
 
+  @@unique([workspace_id, id])
   @@index([workspace_id])
   @@index([workspace_id, status])
   @@index([workspace_id, parent_customer_id])
@@ -314,6 +322,7 @@ model Product {
   customer  Customer? @relation(fields: [customer_id], references: [id])
   projects  Project[]
 
+  @@unique([workspace_id, id])
   @@unique([workspace_id, code])
   @@index([workspace_id])
   @@map("products")
@@ -365,6 +374,7 @@ model Project {
   invoices           Invoice[]
   webhook_deliveries WebhookDelivery[]
 
+  @@unique([workspace_id, id])
   @@unique([workspace_id, code])
   @@index([workspace_id])
   @@index([workspace_id, status])
@@ -404,6 +414,7 @@ model License {
   events             LicenseEvent[]
   webhook_deliveries WebhookDelivery[]
 
+  @@unique([workspace_id, id])
   @@index([workspace_id])
   @@index([workspace_id, status])
   @@index([project_id])
@@ -593,6 +604,7 @@ model BillingSchedule {
   project   Project?  @relation(fields: [project_id], references: [id])
   invoices  Invoice[]
 
+  @@unique([workspace_id, id])
   @@index([workspace_id])
   @@index([workspace_id, status, next_issue_on])
   @@map("billing_schedules")
@@ -630,7 +642,9 @@ model Invoice {
   billing_schedule BillingSchedule? @relation(fields: [billing_schedule_id], references: [id])
   payments         Payment[]
 
+  @@unique([workspace_id, id])
   @@unique([workspace_id, invoice_no])
+  @@unique([billing_schedule_id, period_start])
   @@index([workspace_id])
   @@index([workspace_id, status, due_on])
   @@index([customer_id])
@@ -702,6 +716,10 @@ model WebhookDelivery {
   status           WebhookDeliveryStatus @default(pending)
   http_status      Int?
   attempt_count    Int                   @default(0)
+  publish_attempt_count Int               @default(0)
+  queued_at        DateTime?
+  next_publish_at  DateTime?              @default(now())
+  processing_started_at DateTime?
   delivered_at     DateTime?
   response_excerpt String?
   last_error       String?
@@ -713,6 +731,7 @@ model WebhookDelivery {
   license   License?  @relation(fields: [license_id], references: [id], onDelete: SetNull)
 
   @@index([workspace_id, status])
+  @@index([status, next_publish_at])
   @@map("webhook_deliveries")
 }
 

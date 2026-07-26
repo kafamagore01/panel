@@ -416,7 +416,9 @@ export type InvoiceOrderByWithRelationInput = {
 
 export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  workspace_id_id?: Prisma.InvoiceWorkspace_idIdCompoundUniqueInput
   workspace_id_invoice_no?: Prisma.InvoiceWorkspace_idInvoice_noCompoundUniqueInput
+  billing_schedule_id_period_start?: Prisma.InvoiceBilling_schedule_idPeriod_startCompoundUniqueInput
   AND?: Prisma.InvoiceWhereInput | Prisma.InvoiceWhereInput[]
   OR?: Prisma.InvoiceWhereInput[]
   NOT?: Prisma.InvoiceWhereInput | Prisma.InvoiceWhereInput[]
@@ -447,7 +449,7 @@ export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   billing_schedule?: Prisma.XOR<Prisma.BillingScheduleNullableScalarRelationFilter, Prisma.BillingScheduleWhereInput> | null
   payments?: Prisma.PaymentListRelationFilter
-}, "id" | "workspace_id_invoice_no">
+}, "id" | "workspace_id_id" | "workspace_id_invoice_no" | "billing_schedule_id_period_start">
 
 export type InvoiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -701,9 +703,19 @@ export type InvoiceOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type InvoiceWorkspace_idIdCompoundUniqueInput = {
+  workspace_id: string
+  id: string
+}
+
 export type InvoiceWorkspace_idInvoice_noCompoundUniqueInput = {
   workspace_id: string
   invoice_no: string
+}
+
+export type InvoiceBilling_schedule_idPeriod_startCompoundUniqueInput = {
+  billing_schedule_id: string
+  period_start: Date | string
 }
 
 export type InvoiceCountOrderByAggregateInput = {

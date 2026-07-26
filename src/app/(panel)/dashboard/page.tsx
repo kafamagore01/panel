@@ -13,10 +13,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatMoney, formatDate, toNumber } from "@/lib/format";
+import { getAuthContext } from "@/lib/auth/context";
+import { hasPermission } from "@/lib/auth/permissions";
 
 export const metadata = { title: "Genel Bakış · Operasyon Merkezi" };
 
 export default async function DashboardPage() {
+  const ctx = await getAuthContext();
+  const canViewFinance = hasPermission(ctx?.role ?? null, "finance.manage");
   const db = await getTenantDb();
   const now = new Date();
   const in30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -32,22 +36,26 @@ export default async function DashboardPage() {
     db.customer.count({ where: { status: { not: "archived" } } }),
     db.project.count({ where: { status: { in: ["development", "testing", "live", "maintenance"] } } }),
     db.license.count({ where: { status: "active" } }),
-    db.invoice.aggregate({
-      _sum: { balance_due: true },
-      where: { status: { in: ["issued", "partial", "overdue"] } },
-    }),
+    canViewFinance
+      ? db.invoice.aggregate({
+          _sum: { balance_due: true },
+          where: { status: { in: ["issued", "partial", "overdue"] } },
+        })
+      : Promise.resolve({ _sum: { balance_due: null } }),
     db.license.findMany({
       where: { status: { in: ["active", "grace"] }, expires_at: { gte: now, lte: in30 } },
       orderBy: { expires_at: "asc" },
       take: 6,
       include: { project: { select: { code: true } } },
     }),
-    db.invoice.findMany({
-      where: { status: "overdue" },
-      orderBy: { due_on: "asc" },
-      take: 6,
-      include: { customer: { select: { legal_name: true } } },
-    }),
+    canViewFinance
+      ? db.invoice.findMany({
+          where: { status: "overdue" },
+          orderBy: { due_on: "asc" },
+          take: 6,
+          include: { customer: { select: { legal_name: true } } },
+        })
+      : Promise.resolve([]),
   ]);
 
   return (
@@ -58,10 +66,12 @@ export default async function DashboardPage() {
         <KpiCard title="Aktif Müşteri" value={customerCount} icon="Users" tone="primary" />
         <KpiCard title="Aktif Proje" value={activeProjectCount} icon="FolderKanban" tone="default" />
         <KpiCard title="Aktif Lisans" value={activeLicenseCount} icon="KeyRound" tone="success" />
-        <KpiCard title="Açık Bakiye" value={formatMoney(toNumber(outstanding._sum.balance_due), "TRY")} icon="Wallet" tone="danger" />
+        {canViewFinance ? (
+          <KpiCard title="Açık Bakiye" value={formatMoney(toNumber(outstanding._sum.balance_due), "TRY")} icon="Wallet" tone="danger" />
+        ) : null}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className={canViewFinance ? "grid gap-6 lg:grid-cols-2" : "grid gap-6"}>
         <div className="rounded-[22px] border border-slate-200/80 bg-white shadow-sm">
           <div className="flex items-center justify-between p-5">
             <h2 className="font-extrabold text-[#141821]">Süresi Yaklaşan Lisanslar</h2>
@@ -98,7 +108,8 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-[22px] border border-slate-200/80 bg-white shadow-sm">
+        {canViewFinance ? (
+          <div className="rounded-[22px] border border-slate-200/80 bg-white shadow-sm">
           <div className="flex items-center justify-between p-5">
             <h2 className="font-extrabold text-[#141821]">Vadesi Geçmiş Faturalar</h2>
             <Link href="/finans" className="text-sm font-medium text-[#5267ff] hover:underline">
@@ -134,7 +145,8 @@ export default async function DashboardPage() {
               </TableBody>
             </Table>
           )}
-        </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

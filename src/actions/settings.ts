@@ -4,7 +4,11 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
-import { getAuthContext } from "@/lib/auth/context";
+import {
+  getAuthContext,
+  isPasswordResetRequired,
+  PASSWORD_RESET_REQUIRED_MESSAGE,
+} from "@/lib/auth/context";
 import { prisma } from "@/lib/db/prisma";
 import { writeAudit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email";
@@ -41,6 +45,9 @@ export async function updateProfile(
 ): Promise<ActionResponse<null>> {
   const ctx = await getAuthContext();
   if (!ctx) return fail("Oturum bulunamadı.");
+  if (isPasswordResetRequired(ctx)) {
+    return fail(PASSWORD_RESET_REQUIRED_MESSAGE);
+  }
   const parsed = profileSchema.safeParse(input);
   if (!parsed.success) return zodFail(parsed.error);
 
@@ -130,6 +137,9 @@ export async function request2FAChange(
 ): Promise<ActionResponse<null>> {
   const ctx = await getAuthContext();
   if (!ctx) return fail("Oturum bulunamadı.");
+  if (isPasswordResetRequired(ctx)) {
+    return fail(PASSWORD_RESET_REQUIRED_MESSAGE);
+  }
 
   if (enable && ctx.user.two_factor_enabled) {
     return fail("İki adımlı doğrulama zaten açık.");
@@ -168,6 +178,9 @@ export async function confirm2FAChange(
 ): Promise<ActionResponse<{ enabled: boolean }>> {
   const ctx = await getAuthContext();
   if (!ctx) return fail("Oturum bulunamadı.");
+  if (isPasswordResetRequired(ctx)) {
+    return fail(PASSWORD_RESET_REQUIRED_MESSAGE);
+  }
   const parsed = confirm2FASchema.safeParse(input);
   if (!parsed.success) return zodFail(parsed.error);
 

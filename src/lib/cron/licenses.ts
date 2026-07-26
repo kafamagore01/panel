@@ -1,6 +1,9 @@
 import type { LicenseStatus, Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
-import { enqueueLicenseWebhook } from "@/lib/queue/webhook-dispatch";
+import {
+  enqueueLicenseWebhook,
+  reconcileWebhookDeliveries,
+} from "@/lib/queue/webhook-dispatch";
 
 /**
  * Lisans durum senkronizasyonu:
@@ -102,6 +105,7 @@ export async function runLicenseCron(): Promise<{
   toSuspended: number;
   staleActivations: number;
   overdueInvoices: number;
+  webhookOutbox: { found: number; published: number };
 }> {
   const now = new Date();
 
@@ -158,6 +162,7 @@ export async function runLicenseCron(): Promise<{
     },
     data: { status: "overdue" },
   });
+  const webhookOutbox = await reconcileWebhookDeliveries();
 
   return {
     toGrace,
@@ -165,5 +170,6 @@ export async function runLicenseCron(): Promise<{
     toSuspended,
     staleActivations: stale.count,
     overdueInvoices: overdue.count,
+    webhookOutbox,
   };
 }

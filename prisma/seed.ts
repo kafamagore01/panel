@@ -4,13 +4,35 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { buildPgConfig } from "../src/lib/db/pg-config";
 import bcrypt from "bcryptjs";
 
+function requiredSeedValue(name: "SEED_OWNER_EMAIL" | "SEED_OWNER_PASSWORD") {
+  const candidate = process.env[name]?.trim();
+  if (!candidate) {
+    throw new Error(`${name} seed çalıştırılmadan önce tanımlanmalıdır.`);
+  }
+  return candidate;
+}
+
+const OWNER_EMAIL = requiredSeedValue("SEED_OWNER_EMAIL").toLowerCase();
+const OWNER_PASSWORD = requiredSeedValue("SEED_OWNER_PASSWORD");
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(OWNER_EMAIL)) {
+  throw new Error("SEED_OWNER_EMAIL geçerli bir e-posta adresi olmalıdır.");
+}
+if (
+  OWNER_PASSWORD.length < 16 ||
+  !/[a-z]/.test(OWNER_PASSWORD) ||
+  !/[A-Z]/.test(OWNER_PASSWORD) ||
+  !/\d/.test(OWNER_PASSWORD) ||
+  !/[^A-Za-z0-9]/.test(OWNER_PASSWORD)
+) {
+  throw new Error(
+    "SEED_OWNER_PASSWORD en az 16 karakter ve büyük/küçük harf, sayı, sembol içermelidir."
+  );
+}
+
 const adapter = new PrismaPg(
   buildPgConfig(process.env.DIRECT_URL ?? process.env.DATABASE_URL ?? "")
 );
 const prisma = new PrismaClient({ adapter });
-
-const OWNER_EMAIL = process.env.SEED_OWNER_EMAIL ?? "owner@panel.local";
-const OWNER_PASSWORD = process.env.SEED_OWNER_PASSWORD ?? "Owner123!";
 
 async function main() {
   const password_hash = await bcrypt.hash(OWNER_PASSWORD, 12);
@@ -33,6 +55,7 @@ async function main() {
       name: "Sistem Sahibi",
       email: OWNER_EMAIL,
       password_hash,
+      force_password_reset: true,
       email_verified_at: new Date(),
       current_workspace_id: workspace.id,
     },
@@ -53,8 +76,8 @@ async function main() {
 
   console.log("Seed tamamlandı:");
   console.log(`  Workspace : ${workspace.name} (${workspace.id})`);
-  console.log(`  Owner     : ${OWNER_EMAIL} / ${OWNER_PASSWORD}`);
-  console.log("  Giriş sonrası parolayı mutlaka değiştirin.");
+  console.log(`  Owner     : ${OWNER_EMAIL}`);
+  console.log("  Owner parolası loglanmadı; ilk girişte değiştirilmesi zorunludur.");
 }
 
 main()
