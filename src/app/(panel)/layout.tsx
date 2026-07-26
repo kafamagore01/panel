@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
-import { prisma } from "@/lib/db/prisma";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { roleLabel } from "@/lib/roles";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
@@ -44,15 +43,9 @@ export default async function PanelLayout({
     (item) => !item.requires || hasPermission(ctx.role, item.requires)
   );
 
-  // Üst bardaki seçici için kullanıcının geçiş yapabileceği aktif üyelikler
-  const memberships = await prisma.workspaceUser.findMany({
-    where: { user_id: ctx.user.id, status: "active" },
-    include: { workspace: { select: { id: true, name: true, deleted_at: true } } },
-    orderBy: { created_at: "asc" },
-  });
-  const workspaces: WorkspaceOption[] = memberships
-    .filter((m) => !m.workspace.deleted_at)
-    .map((m) => ({ id: m.workspace.id, name: m.workspace.name, role: m.role }));
+  // Üst bardaki seçici için geçiş yapılabilir üyelikler: getAuthContext ile
+  // aynı sorguda geldiği için burada ek round trip yok.
+  const workspaces: WorkspaceOption[] = ctx.workspaces;
 
   return (
     <div className="flex min-h-screen bg-[#f4f5f7]">

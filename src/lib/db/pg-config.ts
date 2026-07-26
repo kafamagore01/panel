@@ -31,8 +31,11 @@ function poolLimits() {
     Number.isFinite(configured) && configured > 0 ? Math.floor(configured) : DEFAULT_POOL_MAX;
   return {
     max,
-    // Boşta kalan bağlantı hızla bırakılsın: sunucusuz örnekler kısa ömürlüdür.
-    idleTimeoutMillis: 10_000,
+    // Bağlantı kurmak TCP + TLS + Postgres kimlik doğrulaması demek: birkaç
+    // gidiş-dönüş. Fluid compute'ta fonksiyon örneği istekler arasında yaşadığı
+    // için havuzu erken boşaltmak yerine sıcak tutmak sayfa başına bu maliyeti
+    // ortadan kaldırır.
+    idleTimeoutMillis: 60_000,
     // Havuz doluysa süresiz beklemek yerine hata ver.
     connectionTimeoutMillis: 10_000,
   };

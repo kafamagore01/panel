@@ -21,27 +21,49 @@ export function getRedis(): Redis | null {
 
 export type LimitResult = { success: boolean; remaining: number; reset: number };
 
-let validateLimiter: Ratelimit | null | undefined;
+const limiters = new Map<string, Ratelimit | null>();
 
-/** Lisans doğrulama API'si: IP başına dakikada 60 istek. */
-export async function limitValidateApi(ip: string): Promise<LimitResult> {
-  if (validateLimiter === undefined) {
+/** Prefix başına tek Ratelimit örneği; Redis yoksa null (sınırlama kapalı). */
+function limiterFor(prefix: string, tokens: number): Ratelimit | null {
+  if (!limiters.has(prefix)) {
     const redis = getRedis();
-    validateLimiter = redis
-      ? new Ratelimit({
-          redis,
-          limiter: Ratelimit.slidingWindow(60, "1 m"),
-          prefix: "rl:validate",
-        })
-      : null;
+    limiters.set(
+      prefix,
+      redis
+        ? new Ratelimit({
+            redis,
+            limiter: Ratelimit.slidingWindow(tokens, "1 m"),
+            prefix,
+          })
+        : null
+    );
   }
-  if (!validateLimiter) {
-    return { success: true, remaining: 60, reset: Date.now() + 60_000 };
+  return limiters.get(prefix) ?? null;
+}
+
+async function limit(
+  prefix: string,
+  tokens: number,
+  identifier: string
+): Promise<LimitResult> {
+  const limiter = limiterFor(prefix, tokens);
+  if (!limiter) {
+    return { success: true, remaining: tokens, reset: Date.now() + 60_000 };
   }
-  const result = await validateLimiter.limit(ip);
+  const result = await limiter.limit(identifier);
   return {
     success: result.success,
     remaining: result.remaining,
     reset: result.reset,
   };
+}
+
+/** Lisans doğrulama API'si: IP başına dakikada 60 istek. */
+export function limitValidateApi(ip: string): Promise<LimitResult> {
+  return limit("rl:validate", 60, ip);
+}
+
+/** Aktivasyon bırakma API'si: IP başına dakikada 20 istek. */
+export function limitDeactivateApi(ip: string): Promise<LimitResult> {
+  return limit("rl:deactivate", 20, ip);
 }

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Trash2, Plus, Loader2 } from "lucide-react";
+import { Trash2, Plus, Loader2, Power, PowerOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,7 +14,11 @@ import {
 } from "@/components/ui/select";
 import { StatusBadge } from "@/components/status-badge";
 import { FormDrawer } from "@/components/form-drawer";
-import { addLicenseDomain, removeLicenseDomain } from "@/actions/licenses";
+import {
+  addLicenseDomain,
+  removeLicenseDomain,
+  setLicenseDomainStatus,
+} from "@/actions/licenses";
 import { useRouter } from "next/navigation";
 
 export type DomainItem = {
@@ -67,6 +71,22 @@ export function DomainManager({
     });
   }
 
+  function toggleStatus(domainId: string, current: string) {
+    startTransition(async () => {
+      const res = await setLicenseDomainStatus({
+        license_id: licenseId,
+        domain_id: domainId,
+        status: current === "active" ? "inactive" : "active",
+      });
+      if (res.success) {
+        toast.success(res.message ?? "Güncellendi.");
+        router.refresh();
+      } else {
+        toast.error(res.error);
+      }
+    });
+  }
+
   return (
     <FormDrawer
       open={open}
@@ -102,15 +122,38 @@ export function DomainManager({
             domains.map((d) => (
               <div key={d.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-3">
                 <div>
-                  <p className="font-mono text-sm font-semibold">{d.normalized_domain}</p>
+                  <p
+                    className={`font-mono text-sm font-semibold ${
+                      d.status === "active" ? "" : "text-slate-400 line-through"
+                    }`}
+                  >
+                    {d.normalized_domain}
+                  </p>
                   <div className="mt-1 flex items-center gap-2">
                     <StatusBadge status={d.environment} />
+                    {d.status !== "active" && <StatusBadge status={d.status} />}
                     {d.is_primary && <span className="text-xs text-[#5267ff]">Birincil</span>}
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => remove(d.id)} disabled={isPending} className="text-rose-600">
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => toggleStatus(d.id, d.status)}
+                    disabled={isPending}
+                    title={d.status === "active" ? "Pasife al" : "Etkinleştir"}
+                    className={d.status === "active" ? "text-slate-500" : "text-emerald-600"}
+                  >
+                    {d.status === "active" ? (
+                      <PowerOff className="h-4 w-4" />
+                    ) : (
+                      <Power className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => remove(d.id)} disabled={isPending} className="text-rose-600">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             ))
           )}

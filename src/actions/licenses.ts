@@ -15,10 +15,12 @@ import {
   createLicenseSchema,
   changeStatusSchema,
   licenseDomainSchema,
+  domainStatusSchema,
 } from "@/lib/validation/license";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
 import { enqueueLicenseWebhook } from "@/lib/queue/webhook-dispatch";
 
+/** Aynı lisansın bu süre içinde ikinci kez yenilenmesi engellenir. */
 const RENEWAL_LOCK_MS = 15_000;
 const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
@@ -26,6 +28,15 @@ function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
   console.error(error);
   return fail("İşlem sırasında beklenmeyen bir hata oluştu.");
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code: unknown }).code === "P2002"
+  );
 }
 
 function keyPrefixOf(licenseKey: string): string {
@@ -75,10 +86,14 @@ export async function createLicense(
       },
     });
 
-    await db.$queryRaw`
-      INSERT INTO license_events (id, license_id, actor_user_id, type, new_status, occurred_at)
-      VALUES (gen_random_uuid(), ${created.id}::uuid, ${ctx.user.id}::uuid, 'issued', 'active', now())
-    `;
+    await db.licenseEvent.create({
+      data: {
+        license_id: created.id,
+        actor_user_id: ctx.user.id,
+        type: "issued",
+        new_status: "active",
+      },
+    });
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -87,6 +102,13 @@ export async function createLicense(
       auditable_type: "license",
       auditable_id: created.id,
       after_data: created,
+    });
+
+    await enqueueLicenseWebhook(data.project_id, created.id, "license.issued", {
+      license_id: created.id,
+      product: created.product_name,
+      status: created.status,
+      expires_at: created.expires_at?.toISOString() ?? null,
     });
 
     revalidatePath("/lisanslar");
@@ -113,12 +135,38 @@ export async function changeLicenseStatus(
     if (!license) return fail("Lisans bulunamadı.");
     if (license.status === status) return fail("Lisans zaten bu durumda.");
 
+    // Cron'un anında geri alacağı ya da anlamsız olan geçişleri baştan engelle:
+    // durum ile tarih alanları tutarsız kalırsa lisans "aktif" görünüp doğrulamada
+    // reddedilir.
+    const now = new Date();
+    const expired = Boolean(license.expires_at && license.expires_at < now);
+
+    if (status === "active" && expired) {
+      return fail(
+        "Süresi dolmuş lisans doğrudan aktife alınamaz. Önce lisansı yenileyin."
+      );
+    }
+    if (
+      status === "grace" &&
+      !(license.grace_ends_at && license.grace_ends_at >= now)
+    ) {
+      return fail(
+        "Ek süre penceresi tanımlı değil veya dolmuş. Önce lisansı yenileyin."
+      );
+    }
+
     const previous = license.status;
     await db.license.update({ where: { id: license_id }, data: { status } });
-    await db.$queryRaw`
-      INSERT INTO license_events (id, license_id, actor_user_id, type, previous_status, new_status, reason, occurred_at)
-      VALUES (gen_random_uuid(), ${license_id}::uuid, ${ctx.user.id}::uuid, 'status_changed', ${previous}::"LicenseStatus", ${status}::"LicenseStatus", ${reason ?? null}, now())
-    `;
+    await db.licenseEvent.create({
+      data: {
+        license_id,
+        actor_user_id: ctx.user.id,
+        type: "status_changed",
+        previous_status: previous,
+        new_status: status,
+        reason: reason ?? null,
+      },
+    });
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -154,17 +202,18 @@ export async function renewLicense(
     const license = await db.license.findUnique({ where: { id: licenseId } });
     if (!license) return fail("Lisans bulunamadı.");
 
-    // Mükerrer işlem engeli: son 15 saniyede yenileme var mı?
-    const recent = await db.$queryRaw<Array<{ occurred_at: Date }>>`
-      SELECT occurred_at FROM license_events
-      WHERE license_id = ${licenseId}::uuid AND type = 'renewed'
-        AND occurred_at > now() - interval '15 seconds'
-      LIMIT 1
-    `;
-    if (recent.length > 0) {
+    // Mükerrer işlem engeli: kilit penceresinde yenileme var mı?
+    const recent = await db.licenseEvent.findFirst({
+      where: {
+        license_id: licenseId,
+        type: "renewed",
+        occurred_at: { gt: new Date(Date.now() - RENEWAL_LOCK_MS) },
+      },
+      select: { id: true },
+    });
+    if (recent) {
       return fail("Bu lisans az önce yenilendi. Lütfen birkaç saniye bekleyin.");
     }
-    void RENEWAL_LOCK_MS;
 
     const now = Date.now();
     const currentExpiry = license.expires_at?.getTime() ?? 0;
@@ -179,19 +228,28 @@ export async function renewLicense(
     }
 
     const previousStatus = license.status;
-    const newStatus: LicenseStatus =
-      license.status === "expired" || license.status === "grace"
-        ? "active"
-        : license.status;
+    // Süre dolduğu için düşülen durumlar yenilemeyle geri açılır. auto_suspend ile
+    // otomatik askıya alınmış lisanslar da buraya girer; elle askıya alınmış
+    // (auto_suspend kapalı) lisanslar askıda kalır — bunlar iş kararıdır.
+    const reactivatable =
+      previousStatus === "expired" ||
+      previousStatus === "grace" ||
+      (previousStatus === "suspended" && license.auto_suspend && currentExpiry > 0 && currentExpiry < now);
+    const newStatus: LicenseStatus = reactivatable ? "active" : previousStatus;
 
     await db.license.update({
       where: { id: licenseId },
       data: { expires_at: newExpiry, grace_ends_at: newGrace, status: newStatus },
     });
-    await db.$queryRaw`
-      INSERT INTO license_events (id, license_id, actor_user_id, type, previous_status, new_status, occurred_at)
-      VALUES (gen_random_uuid(), ${licenseId}::uuid, ${ctx.user.id}::uuid, 'renewed', ${previousStatus}::"LicenseStatus", ${newStatus}::"LicenseStatus", now())
-    `;
+    await db.licenseEvent.create({
+      data: {
+        license_id: licenseId,
+        actor_user_id: ctx.user.id,
+        type: "renewed",
+        previous_status: previousStatus,
+        new_status: newStatus,
+      },
+    });
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -199,13 +257,16 @@ export async function renewLicense(
       action: "RENEW",
       auditable_type: "license",
       auditable_id: licenseId,
-      before_data: { expires_at: license.expires_at },
-      after_data: { expires_at: newExpiry },
+      before_data: { expires_at: license.expires_at, status: previousStatus },
+      after_data: { expires_at: newExpiry, status: newStatus },
     });
 
     await enqueueLicenseWebhook(license.project_id, licenseId, "license.renewed", {
       license_id: licenseId,
       expires_at: newExpiry.toISOString(),
+      grace_ends_at: newGrace?.toISOString() ?? null,
+      previous_status: previousStatus,
+      new_status: newStatus,
     });
 
     revalidatePath("/lisanslar");
@@ -251,14 +312,18 @@ export async function resetActivations(
     const license = await db.license.findUnique({ where: { id: licenseId } });
     if (!license) return fail("Lisans bulunamadı.");
 
-    await db.$queryRaw`
-      UPDATE license_activations SET status = 'deactivated', updated_at = now()
-      WHERE license_id = ${licenseId}::uuid AND status = 'active'
-    `;
-    await db.$queryRaw`
-      INSERT INTO license_events (id, license_id, actor_user_id, type, occurred_at)
-      VALUES (gen_random_uuid(), ${licenseId}::uuid, ${ctx.user.id}::uuid, 'activations_reset', now())
-    `;
+    const reset = await db.licenseActivation.updateMany({
+      where: { license_id: licenseId, status: "active" },
+      data: { status: "deactivated" },
+    });
+    await db.licenseEvent.create({
+      data: {
+        license_id: licenseId,
+        actor_user_id: ctx.user.id,
+        type: "activations_reset",
+        reason: `${reset.count} aktivasyon sıfırlandı.`,
+      },
+    });
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -266,10 +331,18 @@ export async function resetActivations(
       action: "RESET_ACTIVATIONS",
       auditable_type: "license",
       auditable_id: licenseId,
+      after_data: { reset_count: reset.count },
     });
 
+    await enqueueLicenseWebhook(
+      license.project_id,
+      licenseId,
+      "license.activations_reset",
+      { license_id: licenseId, reset_count: reset.count }
+    );
+
     revalidatePath("/lisanslar");
-    return ok(null, "Tüm aktivasyonlar sıfırlandı.");
+    return ok(null, `${reset.count} aktivasyon sıfırlandı.`);
   } catch (error) {
     return handleError(error);
   }
@@ -295,14 +368,18 @@ export async function rotateLicenseKey(
         key_secret: encryptSecret(newKey),
       },
     });
-    await db.$queryRaw`
-      UPDATE license_activations SET status = 'deactivated', updated_at = now()
-      WHERE license_id = ${licenseId}::uuid AND status = 'active'
-    `;
-    await db.$queryRaw`
-      INSERT INTO license_events (id, license_id, actor_user_id, type, reason, occurred_at)
-      VALUES (gen_random_uuid(), ${licenseId}::uuid, ${ctx.user.id}::uuid, 'key_rotated', 'Anahtar rotasyonu', now())
-    `;
+    await db.licenseActivation.updateMany({
+      where: { license_id: licenseId, status: "active" },
+      data: { status: "deactivated" },
+    });
+    await db.licenseEvent.create({
+      data: {
+        license_id: licenseId,
+        actor_user_id: ctx.user.id,
+        type: "key_rotated",
+        reason: "Anahtar rotasyonu",
+      },
+    });
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -342,13 +419,34 @@ export async function addLicenseDomain(
     const license = await db.license.findUnique({ where: { id: license_id } });
     if (!license) return fail("Lisans bulunamadı.");
 
+    // İlk domain her zaman birincil olur; birincil seçimi tekilleştirilir.
+    const existingCount = await db.licenseDomain.count({ where: { license_id } });
+    const makePrimary = is_primary || existingCount === 0;
+
     try {
-      await db.$queryRaw`
-        INSERT INTO license_domains (id, license_id, domain, normalized_domain, environment, is_primary, status, created_at, updated_at)
-        VALUES (gen_random_uuid(), ${license_id}::uuid, ${domain}, ${normalized}, ${environment}::"DomainEnvironment", ${is_primary}, 'active', now(), now())
-      `;
-    } catch {
-      return fail("Bu domain bu ortam için zaten kayıtlı.");
+      await db.$transaction(async (tx) => {
+        if (makePrimary) {
+          await tx.licenseDomain.updateMany({
+            where: { license_id, is_primary: true },
+            data: { is_primary: false },
+          });
+        }
+        await tx.licenseDomain.create({
+          data: {
+            license_id,
+            domain,
+            normalized_domain: normalized,
+            environment,
+            is_primary: makePrimary,
+            status: "active",
+          },
+        });
+      });
+    } catch (error) {
+      if (isUniqueViolation(error)) {
+        return fail("Bu domain bu ortam için zaten kayıtlı.");
+      }
+      throw error;
     }
 
     await writeAudit({
@@ -357,11 +455,50 @@ export async function addLicenseDomain(
       action: "ADD_DOMAIN",
       auditable_type: "license",
       auditable_id: license_id,
-      after_data: { domain: normalized, environment },
+      after_data: { domain: normalized, environment, is_primary: makePrimary },
     });
 
     revalidatePath("/lisanslar");
     return ok(null, "Domain eklendi.");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+/** Domaini silmeden doğrulama dışı bırakır (aktivasyon geçmişi korunur). */
+export async function setLicenseDomainStatus(
+  input: unknown
+): Promise<ActionResponse<null>> {
+  try {
+    const ctx = await requirePermission("record.manage");
+    const parsed = domainStatusSchema.safeParse(input);
+    if (!parsed.success) return zodFail(parsed.error);
+    const { license_id, domain_id, status } = parsed.data;
+
+    const db = await getTenantDb();
+    const license = await db.license.findUnique({ where: { id: license_id } });
+    if (!license) return fail("Lisans bulunamadı.");
+
+    const updated = await db.licenseDomain.updateMany({
+      where: { id: domain_id, license_id },
+      data: { status },
+    });
+    if (updated.count === 0) return fail("Domain bulunamadı.");
+
+    await writeAudit({
+      workspace_id: ctx.workspaceId,
+      actor_user_id: ctx.user.id,
+      action: "UPDATE_DOMAIN_STATUS",
+      auditable_type: "license",
+      auditable_id: license_id,
+      after_data: { domain_id, status },
+    });
+
+    revalidatePath("/lisanslar");
+    return ok(
+      null,
+      status === "active" ? "Domain yeniden etkinleştirildi." : "Domain pasife alındı."
+    );
   } catch (error) {
     return handleError(error);
   }
@@ -377,9 +514,28 @@ export async function removeLicenseDomain(
     const license = await db.license.findUnique({ where: { id: licenseId } });
     if (!license) return fail("Lisans bulunamadı.");
 
-    await db.$queryRaw`
-      DELETE FROM license_domains WHERE id = ${domainId}::uuid AND license_id = ${licenseId}::uuid
-    `;
+    const target = await db.licenseDomain.findFirst({
+      where: { id: domainId, license_id: licenseId },
+      select: { id: true, normalized_domain: true, is_primary: true },
+    });
+    if (!target) return fail("Domain bulunamadı.");
+
+    await db.licenseDomain.delete({ where: { id: target.id } });
+
+    // Birincil domain silindiyse en eski kayıt birincil olur.
+    if (target.is_primary) {
+      const next = await db.licenseDomain.findFirst({
+        where: { license_id: licenseId },
+        orderBy: { created_at: "asc" },
+        select: { id: true },
+      });
+      if (next) {
+        await db.licenseDomain.update({
+          where: { id: next.id },
+          data: { is_primary: true },
+        });
+      }
+    }
 
     await writeAudit({
       workspace_id: ctx.workspaceId,
@@ -387,6 +543,7 @@ export async function removeLicenseDomain(
       action: "REMOVE_DOMAIN",
       auditable_type: "license",
       auditable_id: licenseId,
+      before_data: { domain: target.normalized_domain, is_primary: target.is_primary },
     });
 
     revalidatePath("/lisanslar");

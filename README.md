@@ -126,9 +126,31 @@ Content-Type: application/json
   "instance_id": "abc-123", "app_version": "1.0.0" }
 ```
 
-IP başına dakikada 60 istek; DB transaction + row lock ile çalışır. Yanıt kodları:
-`200` geçerli, `403` domain_mismatch/suspended/revoked/not_started/expired/activation_limit_exceeded,
-`404` not_found, `422` invalid_domain, `429` rate_limited.
+IP başına dakikada 60 istek; DB transaction + row lock ile çalışır. Yalnızca
+`active` ve `grace` durumundaki lisanslar ve **aktif** domain kayıtları geçerli
+sayılır; tarih kontrolleri (başlangıç / bitiş / ek süre) ayrıca uygulanır.
+Yanıt kodları: `200` geçerli, `403`
+domain_mismatch/pending/suspended/revoked/not_started/expired/activation_limit_exceeded,
+`404` not_found, `422` invalid_body/invalid_key_format/invalid_domain, `429` rate_limited.
+
+Anahtar doğru olduğu hâlde reddedilen istekler `license_events` tablosuna
+`validation_failed` olarak yazılır (aynı sebep için 60 saniyede bir kayıt).
+
+**Aktivasyon bırakma**
+
+```
+POST /api/v1/licenses/deactivate
+{ "license_key": "PT-XXXXX-XXXXX-XXXXX-XXXXX", "instance_id": "abc-123" }
+```
+
+Kurulumu kaldıran istemci koltuğunu iade eder (idempotent, IP başına dakikada 20
+istek). 90 gündür doğrulama yapmayan aktivasyonlar cron tarafından da otomatik
+serbest bırakılır.
+
+**Webhook olayları** (proje kaydında `license_webhook_url` tanımlıysa): `license.issued`,
+`license.status_changed`, `license.renewed`, `license.key_rotated`,
+`license.activations_reset`, `license.grace_started`, `license.expired`,
+`license.suspended`.
 
 ## Zamanlanmış Görevler (QStash Schedules)
 
@@ -136,7 +158,9 @@ IP başına dakikada 60 istek; DB transaction + row lock ile çalışır. Yanıt
 ile günlük tetikleyin:
 
 - `POST /api/cron/billing` — vadesi gelen planlardan otomatik fatura üretimi
-- `POST /api/cron/licenses` — lisans durum senkronizasyonu + gecikmiş fatura işaretleme
+- `POST /api/cron/licenses` — lisans durum senkronizasyonu (koşum başına en çok 500
+  lisans; her geçiş `license_events`'e yazılır ve webhook tetikler), bayat
+  aktivasyonların serbest bırakılması ve gecikmiş fatura işaretleme
 
 ## Komutlar
 

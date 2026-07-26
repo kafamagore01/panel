@@ -3,6 +3,13 @@ import type { MembershipRole } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth";
 
+/** Kullanıcının geçiş yapabileceği aktif çalışma alanı. */
+export type WorkspaceMembership = {
+  id: string;
+  name: string;
+  role: MembershipRole;
+};
+
 export type AuthContext = {
   user: {
     id: string;
@@ -16,12 +23,18 @@ export type AuthContext = {
   workspaceId: string | null;
   workspaceName: string | null;
   role: MembershipRole | null;
+  /** Üst bardaki seçici için: silinmemiş workspace'lerdeki aktif üyelikler */
+  workspaces: WorkspaceMembership[];
 };
 
 /**
  * Oturumdaki kullanıcıyı ve aktif workspace bağlamını döndürür.
  * Üyelik pasifse workspace bağlamı null olur (erişim reddedilir).
- * React cache() ile istek başına tek DB sorgusu yapılır.
+ * React cache() ile istek başına tek kez çalışır.
+ *
+ * Performans: kullanıcı, aktif üyelik ve geçiş yapılabilir workspace listesi
+ * tek sorguda çekilir. Ayrı sorgular sunucusuz ortamda sıralı round trip'e
+ * dönüşüp her sayfa render'ına veritabanı gecikmesi kadar süre ekliyordu.
  */
 export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
   const session = await auth();
@@ -38,34 +51,30 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
       force_password_reset: true,
       two_factor_enabled_at: true,
       current_workspace_id: true,
+      memberships: {
+        where: { status: "active", workspace: { deleted_at: null } },
+        select: {
+          workspace_id: true,
+          role: true,
+          workspace: { select: { name: true } },
+        },
+        orderBy: { created_at: "asc" },
+      },
     },
   });
   if (!user) return null;
 
-  let workspaceId: string | null = null;
-  let workspaceName: string | null = null;
-  let role: MembershipRole | null = null;
+  const workspaces: WorkspaceMembership[] = user.memberships.map((m) => ({
+    id: m.workspace_id,
+    name: m.workspace.name,
+    role: m.role,
+  }));
 
-  if (user.current_workspace_id) {
-    const membership = await prisma.workspaceUser.findUnique({
-      where: {
-        workspace_id_user_id: {
-          workspace_id: user.current_workspace_id,
-          user_id: user.id,
-        },
-      },
-      include: { workspace: { select: { name: true, deleted_at: true } } },
-    });
-    if (
-      membership &&
-      membership.status === "active" &&
-      !membership.workspace.deleted_at
-    ) {
-      workspaceId = membership.workspace_id;
-      workspaceName = membership.workspace.name;
-      role = membership.role;
-    }
-  }
+  // Aktif workspace yalnızca listede varsa geçerlidir: üyelik pasifse veya
+  // workspace silinmişse where filtresi zaten dışarıda bırakır.
+  const active = user.current_workspace_id
+    ? (workspaces.find((w) => w.id === user.current_workspace_id) ?? null)
+    : null;
 
   return {
     user: {
@@ -76,8 +85,9 @@ export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
       force_password_reset: user.force_password_reset,
       two_factor_enabled: Boolean(user.two_factor_enabled_at),
     },
-    workspaceId,
-    workspaceName,
-    role,
+    workspaceId: active?.id ?? null,
+    workspaceName: active?.name ?? null,
+    role: active?.role ?? null,
+    workspaces,
   };
 });
