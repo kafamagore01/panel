@@ -15,6 +15,8 @@ import {
 import { formatMoney, formatDate, toNumber } from "@/lib/format";
 import { getAuthContext } from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
+import { getExchangeRates } from "@/lib/exchange-rate";
+import { BASE_CURRENCY, sumInBaseCurrency } from "@/lib/currency";
 
 export const metadata = { title: "Genel Bakış · Operasyon Merkezi" };
 
@@ -32,16 +34,21 @@ export default async function DashboardPage() {
     outstanding,
     expiringLicenses,
     overdueInvoices,
+    rates,
   ] = await Promise.all([
     db.customer.count({ where: { status: { not: "archived" } } }),
     db.project.count({ where: { status: { in: ["development", "testing", "live", "maintenance"] } } }),
     db.license.count({ where: { status: "active" } }),
+    // Para birimi + manuel kur bazında gruplanır; TL toplamı sumInBaseCurrency
+    // ile hesaplanır (/finans ile aynı yol). Tek bir _sum, dövizli tutarları TL
+    // gibi toplayarak yanlış bakiye üretirdi.
     canViewFinance
-      ? db.invoice.aggregate({
+      ? db.invoice.groupBy({
+          by: ["currency", "manual_fx_rate"],
           _sum: { balance_due: true },
           where: { status: { in: ["issued", "partial", "overdue"] } },
         })
-      : Promise.resolve({ _sum: { balance_due: null } }),
+      : Promise.resolve([]),
     db.license.findMany({
       where: { status: { in: ["active", "grace"] }, expires_at: { gte: now, lte: in30 } },
       orderBy: { expires_at: "asc" },
@@ -56,7 +63,19 @@ export default async function DashboardPage() {
           include: { customer: { select: { legal_name: true } } },
         })
       : Promise.resolve([]),
+    // Dövizli tutarların TL karşılığı için TCMB günlük kuru (erişilemezse null)
+    canViewFinance ? getExchangeRates() : Promise.resolve(null),
   ]);
+
+  const outstandingInBaseCurrency = sumInBaseCurrency(
+    outstanding.map((group) => ({
+      amount: toNumber(group._sum.balance_due),
+      currency: group.currency,
+      manualRate:
+        group.manual_fx_rate === null ? null : toNumber(group.manual_fx_rate),
+    })),
+    rates
+  );
 
   return (
     <div className="space-y-6">
@@ -67,7 +86,21 @@ export default async function DashboardPage() {
         <KpiCard title="Aktif Proje" value={activeProjectCount} icon="FolderKanban" tone="default" />
         <KpiCard title="Aktif Lisans" value={activeLicenseCount} icon="KeyRound" tone="success" />
         {canViewFinance ? (
-          <KpiCard title="Açık Bakiye" value={formatMoney(toNumber(outstanding._sum.balance_due), "TRY")} icon="Wallet" tone="danger" />
+          <KpiCard
+            title="Açık Bakiye"
+            value={
+              outstandingInBaseCurrency === null
+                ? "Kur gerekli"
+                : formatMoney(outstandingInBaseCurrency, BASE_CURRENCY)
+            }
+            hint={
+              outstandingInBaseCurrency === null
+                ? "Dövizli bakiyenin TL toplamı için kur girin."
+                : "Dövizli bakiyeler TL karşılığıyla dahildir."
+            }
+            icon="Wallet"
+            tone="danger"
+          />
         ) : null}
       </div>
 
