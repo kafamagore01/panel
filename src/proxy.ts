@@ -16,11 +16,40 @@ const PUBLIC_PREFIXES = [
   "/api/cron",
 ];
 
+const SESSION_COOKIES = [
+  "authjs.session-token",
+  "__Secure-authjs.session-token",
+] as const;
+
+/**
+ * Sunucu tarafı oturumu geçersiz bulduğunda /giris'e eklenen işaret
+ * (bkz. src/app/(panel)/layout.tsx).
+ */
+const SESSION_ENDED_PARAM = "durum";
+const SESSION_ENDED_VALUE = "oturum-sonlandi";
+
 function hasSessionCookie(request: NextRequest): boolean {
-  return (
-    request.cookies.has("authjs.session-token") ||
-    request.cookies.has("__Secure-authjs.session-token")
-  );
+  return SESSION_COOKIES.some((name) => request.cookies.has(name));
+}
+
+/**
+ * Kalıntı oturum çerezlerini siler. delete() Secure bayrağını koymadığı için
+ * `__Secure-` önekli çerez tarayıcıca reddedilirdi; bu yüzden açıkça yazılır.
+ */
+function clearSessionCookies(response: NextResponse): NextResponse {
+  for (const name of SESSION_COOKIES) {
+    response.cookies.set({
+      name,
+      value: "",
+      path: "/",
+      expires: new Date(0),
+      maxAge: 0,
+      httpOnly: true,
+      sameSite: "lax",
+      secure: name.startsWith("__Secure-"),
+    });
+  }
+  return response;
 }
 
 function applySecurityHeaders(
@@ -87,19 +116,30 @@ export function proxy(request: NextRequest) {
     );
   }
 
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-request-id", requestId);
+  const passThrough = () =>
+    applySecurityHeaders(
+      NextResponse.next({ request: { headers: requestHeaders } }),
+      requestId
+    );
+
   if (pathname === "/giris" && authed) {
+    // Çerez var ama sunucu oturumu geçersiz bulduysa /dashboard'a geri atmak
+    // /giris ↔ /dashboard sonsuz döngüsü üretir: çerezi silip girişi göster.
+    if (
+      request.nextUrl.searchParams.get(SESSION_ENDED_PARAM) ===
+      SESSION_ENDED_VALUE
+    ) {
+      return clearSessionCookies(passThrough());
+    }
     return applySecurityHeaders(
       NextResponse.redirect(new URL("/dashboard", request.url)),
       requestId
     );
   }
 
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-request-id", requestId);
-  return applySecurityHeaders(
-    NextResponse.next({ request: { headers: requestHeaders } }),
-    requestId
-  );
+  return passThrough();
 }
 
 export const config = {

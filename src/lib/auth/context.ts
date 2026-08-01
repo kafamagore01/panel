@@ -1,7 +1,9 @@
 import { cache } from "react";
+import { cookies } from "next/headers";
 import type { MembershipRole } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth";
+import { logError } from "@/lib/logger";
 
 /** Kullanıcının geçiş yapabileceği aktif çalışma alanı. */
 export type WorkspaceMembership = {
@@ -30,6 +32,40 @@ export type AuthContext = {
 export const PASSWORD_RESET_REQUIRED_MESSAGE =
   "Güvenliğiniz için önce parolanızı değiştirmeniz gerekiyor.";
 
+/**
+ * Oturum doğrulanamadı ama sebebi kullanıcı değil: oturum deposuna (veritabanı)
+ * ulaşılamıyor. "Oturum yok" ile karıştırılmamalıdır — çıkış yaptırmak yerine
+ * geçici hata gösterilir, aksi hâlde kesinti tüm kullanıcıları dışarı atar.
+ */
+export class SessionUnavailableError extends Error {}
+
+/** Auth.js oturum çerezinin üretim ve geliştirme adları. */
+export const SESSION_COOKIE_NAMES = [
+  "authjs.session-token",
+  "__Secure-authjs.session-token",
+] as const;
+
+/**
+ * auth() veritabanı hatalarını yutar (JWTSessionError) ve oturumu boş döndürür;
+ * dönüş değerine bakarak "çerez geçersiz" ile "veritabanı erişilemiyor" ayırt
+ * edilemez. Çerez varken oturum çözülemediyse depo tek bir ucuz sorguyla
+ * yoklanır: yalnızca bu hata yolunda çalışır, normal akışa maliyeti yoktur.
+ */
+async function assertSessionStoreReachable(): Promise<void> {
+  const store = await cookies();
+  const hasSessionCookie = SESSION_COOKIE_NAMES.some((name) => store.has(name));
+  if (!hasSessionCookie) return;
+
+  try {
+    await prisma.$queryRaw`select 1`;
+  } catch (error) {
+    logError("auth.session_store_unreachable", error);
+    throw new SessionUnavailableError(
+      "Oturum bilgisi doğrulanamıyor: veritabanına ulaşılamıyor."
+    );
+  }
+}
+
 export function isPasswordResetRequired(
   ctx: AuthContext | null | undefined
 ): boolean {
@@ -41,6 +77,10 @@ export function isPasswordResetRequired(
  * Üyelik pasifse workspace bağlamı null olur (erişim reddedilir).
  * React cache() ile istek başına tek kez çalışır.
  *
+ * null = oturum yok/geçersiz. Oturum deposuna ulaşılamıyorsa null yerine
+ * SessionUnavailableError fırlatılır; çağıranlar bunu çıkışa değil geçici
+ * hataya çevirmelidir.
+ *
  * Performans: kullanıcı, aktif üyelik ve geçiş yapılabilir workspace listesi
  * tek sorguda çekilir. Ayrı sorgular sunucusuz ortamda sıralı round trip'e
  * dönüşüp her sayfa render'ına veritabanı gecikmesi kadar süre ekliyordu.
@@ -48,7 +88,10 @@ export function isPasswordResetRequired(
 export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return null;
+  if (!userId) {
+    await assertSessionStoreReachable();
+    return null;
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: userId },

@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation";
-import { getAuthContext } from "@/lib/auth/context";
+import {
+  getAuthContext,
+  SessionUnavailableError,
+  type AuthContext,
+} from "@/lib/auth/context";
 import { hasPermission } from "@/lib/auth/permissions";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { roleLabel } from "@/lib/roles";
@@ -12,28 +16,51 @@ import {
   type WorkspaceOption,
 } from "@/components/layout/workspace-badge";
 
+/** Panel dışına atmadan gösterilen tam sayfa bilgi kartı. */
+function NoticeCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#f4f5f7] p-6">
+      <div className="max-w-md rounded-[22px] border border-slate-200/80 bg-white p-8 text-center shadow-sm">
+        <h1 className="text-xl font-extrabold text-[#141821]">{title}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{body}</p>
+      </div>
+    </div>
+  );
+}
+
 export default async function PanelLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const ctx = await getAuthContext();
-  if (!ctx) redirect("/giris");
+  let ctx: AuthContext | null;
+  try {
+    ctx = await getAuthContext();
+  } catch (error) {
+    // Veritabanı erişilemiyorsa çıkış yaptırmak yerine geçici hata gösterilir;
+    // /giris'e atmak çerez hâlâ durduğu için sonsuz yönlendirmeye dönerdi.
+    if (error instanceof SessionUnavailableError) {
+      return (
+        <NoticeCard
+          title="Servis Geçici Olarak Kullanılamıyor"
+          body="Oturumunuz doğrulanamadı çünkü veritabanına şu anda ulaşılamıyor. Birkaç dakika içinde tekrar deneyin; oturumunuz kapatılmadı."
+        />
+      );
+    }
+    throw error;
+  }
+
+  // Oturum gerçekten yok: çerez kalıntısı proxy tarafından /dashboard'a geri
+  // yönlendirilmesin diye işaretli adrese gidilir (bkz. src/proxy.ts).
+  if (!ctx) redirect("/giris?durum=oturum-sonlandi");
 
   // Aktif workspace yoksa ekip sayfasına yönlendir (workspace oluştur/seç)
   if (!ctx.workspaceId || !ctx.role) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f4f5f7] p-6">
-        <div className="max-w-md rounded-[22px] border border-slate-200/80 bg-white p-8 text-center shadow-sm">
-          <h1 className="text-xl font-extrabold text-[#141821]">
-            Çalışma Alanı Bulunamadı
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Aktif bir çalışma alanınız yok veya üyeliğiniz pasif durumda.
-            Lütfen bir yöneticiyle iletişime geçin.
-          </p>
-        </div>
-      </div>
+      <NoticeCard
+        title="Çalışma Alanı Bulunamadı"
+        body="Aktif bir çalışma alanınız yok veya üyeliğiniz pasif durumda. Lütfen bir yöneticiyle iletişime geçin."
+      />
     );
   }
 
