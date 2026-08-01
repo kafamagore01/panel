@@ -116,3 +116,31 @@ export function convertWithRate(amount: number, rate: number | null): number | n
   if (rate === null || !Number.isFinite(amount)) return null;
   return Math.round(amount * rate * 100) / 100;
 }
+
+export type CurrencyAmount = {
+  amount: number;
+  currency: string;
+  manualRate?: number | null;
+};
+
+/**
+ * Farklı para birimlerindeki tutarları TL'ye çevirerek toplar.
+ * Herhangi bir döviz için kur çözülemiyorsa hatalı/kısmi bir toplam göstermek
+ * yerine null döner.
+ */
+export function sumInBaseCurrency(
+  amounts: CurrencyAmount[],
+  snapshot: ExchangeRates | null | undefined
+): number | null {
+  let totalInCents = 0;
+
+  for (const amount of amounts) {
+    const rate = resolveRate(amount.currency, amount.manualRate, snapshot);
+    const converted = convertWithRate(amount.amount, rate?.value ?? null);
+    if (converted === null) return null;
+
+    totalInCents += Math.round(converted * 100);
+  }
+
+  return totalInCents / 100;
+}

@@ -12,6 +12,7 @@ import {
 import { formatMoney, toNumber } from "@/lib/format";
 import { getExchangeRates } from "@/lib/exchange-rate";
 import { FORM_OPTION_LIMIT } from "@/lib/pagination";
+import { BASE_CURRENCY, sumInBaseCurrency } from "@/lib/currency";
 
 export const metadata = { title: "Finans · Operasyon Merkezi" };
 
@@ -68,7 +69,8 @@ export default async function FinancePage() {
           customer: { select: { legal_name: true } },
         },
       }),
-      db.invoice.aggregate({
+      db.invoice.groupBy({
+        by: ["currency", "manual_fx_rate"],
         _sum: { balance_due: true },
         where: { status: { in: ["issued", "partial", "overdue"] } },
       }),
@@ -128,12 +130,36 @@ export default async function FinancePage() {
     currency: p.currency,
   }));
 
+  const outstandingInBaseCurrency = sumInBaseCurrency(
+    outstanding.map((group) => ({
+      amount: toNumber(group._sum.balance_due),
+      currency: group.currency,
+      manualRate:
+        group.manual_fx_rate === null ? null : toNumber(group.manual_fx_rate),
+    })),
+    rates
+  );
+
   return (
     <div className="space-y-6">
       <PageHeader title="Finans Merkezi" description="Faturaları, ödemeleri ve yinelenen planları yönetin." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <KpiCard title="Açık Bakiye" value={formatMoney(toNumber(outstanding._sum.balance_due), "TRY")} icon="Wallet" tone="primary" />
+        <KpiCard
+          title="Açık Bakiye"
+          value={
+            outstandingInBaseCurrency === null
+              ? "Kur gerekli"
+              : formatMoney(outstandingInBaseCurrency, BASE_CURRENCY)
+          }
+          hint={
+            outstandingInBaseCurrency === null
+              ? "Dövizli bakiyenin TL toplamı için kur girin."
+              : "Dövizli bakiyeler TL karşılığıyla dahildir."
+          }
+          icon="Wallet"
+          tone="primary"
+        />
         <KpiCard title="Gecikmiş Fatura" value={overdueCount} icon="CircleAlert" tone="danger" />
         <KpiCard title="Toplam Fatura" value={totalInvoiceCount} icon="FileText" />
       </div>
