@@ -10,7 +10,7 @@ async function main() {
 
   const { rows } = await client.query(
     `select currency, manual_fx_rate, sum(balance_due) as balance
-       from "Invoice"
+       from invoices
       where status in ('issued','partial','overdue')
       group by currency, manual_fx_rate`
   );
