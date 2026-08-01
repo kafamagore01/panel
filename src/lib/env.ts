@@ -87,17 +87,20 @@ export function validateEnvironment(
       );
     }
 
+    // E-posta opsiyoneldir: sürücü seçilene kadar doğrulanmaz. Seçildiğinde
+    // yarım yapılandırmayla canlıya çıkılmaması için tüm alanları zorunludur.
     const driver = value(env, "EMAIL_DRIVER");
-    if (driver !== "smtp" && driver !== "resend") {
-      issues.push("EMAIL_DRIVER üretimde smtp veya resend olmalıdır.");
-    }
-    required("EMAIL_FROM");
-    if (driver === "smtp") {
-      required("SMTP_HOST");
-      required("SMTP_USER");
-      required("SMTP_PASS");
-    } else if (driver === "resend") {
-      required("RESEND_API_KEY");
+    if (driver && driver !== "smtp" && driver !== "resend") {
+      issues.push("EMAIL_DRIVER smtp veya resend olmalıdır.");
+    } else if (driver) {
+      required("EMAIL_FROM");
+      if (driver === "smtp") {
+        required("SMTP_HOST");
+        required("SMTP_USER");
+        required("SMTP_PASS");
+      } else {
+        required("RESEND_API_KEY");
+      }
     }
   }
 

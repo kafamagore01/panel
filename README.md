@@ -49,8 +49,16 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-İsteğe bağlı (üretim): `UPSTASH_REDIS_*`, `QSTASH_*`, `EMAIL_DRIVER` + SMTP/Resend,
-`CRON_SECRET`, `APP_URL`, `GITHUB_CLIENT_ID` + `GITHUB_CLIENT_SECRET`.
+Üretimde zorunlu: `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`,
+`QSTASH_TOKEN` + `QSTASH_CURRENT_SIGNING_KEY` + `QSTASH_NEXT_SIGNING_KEY`,
+`CRON_SECRET`, `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` ve HTTPS `APP_URL`/`NEXTAUTH_URL`.
+
+İsteğe bağlı: `EMAIL_DRIVER` + SMTP/Resend değişkenleri, `GITHUB_CLIENT_ID` +
+`GITHUB_CLIENT_SECRET`, `APP_GITHUB_TOKEN`. E-posta sürücüsü tanımlanmazsa
+gönderim devre dışıdır: 2FA kodları ve ekip davetleri gönderilemez, ilgili akışlar
+kullanıcıya hata döndürür. Sürücü tanımlandığında ilgili alanların tamamı zorunlu olur.
+
+Yapılandırmayı dağıtımdan önce doğrulamak için: `npx tsx scripts/check-env.ts`
 
 ### 3. Veritabanı
 

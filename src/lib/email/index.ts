@@ -13,7 +13,15 @@ export type SendEmailOptions = {
 };
 
 export async function sendEmail(options: SendEmailOptions): Promise<void> {
-  const driver = process.env.EMAIL_DRIVER ?? "smtp";
+  // Sürücü seçilmemişse e-posta yapılandırılmamıştır; çağıran akışlar bu hatayı
+  // yakalayıp kullanıcıya anlamlı mesaj döndürür (bkz. actions/auth, actions/team).
+  const driver =
+    process.env.EMAIL_DRIVER ?? (process.env.SMTP_HOST ? "smtp" : null);
+  if (!driver) {
+    throw new Error(
+      "E-posta gönderimi yapılandırılmamış: EMAIL_DRIVER (smtp | resend) tanımlayın."
+    );
+  }
   if (driver === "resend") {
     await sendWithResend(options);
   } else {

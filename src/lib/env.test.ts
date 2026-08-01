@@ -46,6 +46,34 @@ test("kritik üretim sırları ve dağıtık servisler eksikse reddeder", () => 
   assert.ok(issues.some((issue) => issue.includes("HTTPS")));
 });
 
+test("e-posta sürücüsü seçilmemişse üretim ortamını kabul eder", () => {
+  const withoutEmail: Record<string, string> = { ...validProductionEnv };
+  delete withoutEmail.EMAIL_DRIVER;
+  delete withoutEmail.EMAIL_FROM;
+  delete withoutEmail.RESEND_API_KEY;
+  assert.deepEqual(validateEnvironment(withoutEmail, true), []);
+});
+
+test("e-posta sürücüsü seçildiyse eksik yapılandırmayı reddeder", () => {
+  const issues = validateEnvironment(
+    { ...validProductionEnv, RESEND_API_KEY: "" },
+    true
+  );
+  assert.ok(issues.some((issue) => issue.includes("RESEND_API_KEY")));
+
+  const smtpIssues = validateEnvironment(
+    { ...validProductionEnv, EMAIL_DRIVER: "smtp", RESEND_API_KEY: "" },
+    true
+  );
+  assert.ok(smtpIssues.some((issue) => issue.includes("SMTP_HOST")));
+
+  const badDriver = validateEnvironment(
+    { ...validProductionEnv, EMAIL_DRIVER: "sendgrid" },
+    true
+  );
+  assert.ok(badDriver.some((issue) => issue.includes("EMAIL_DRIVER")));
+});
+
 test("taban URL'yi normalize eder ve üretimde HTTP'yi reddeder", () => {
   assert.equal(
     applicationBaseUrl({ APP_URL: "http://localhost:3000/" }),
