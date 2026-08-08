@@ -13,8 +13,8 @@ export async function nextInvoiceNumber(
   const prefix = `FT-${year}-`;
   const lockKey = `invoice-number:${workspaceId}:${year}`;
 
-  await tx.$queryRaw`
-    SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))
+  await tx.$queryRaw<Array<{ locked: string }>>`
+    SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))::text AS locked
   `;
 
   const rows = await tx.$queryRaw<Array<{ sequence: bigint | number | string }>>`
