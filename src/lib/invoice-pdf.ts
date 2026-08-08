@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import * as fontkit from "@pdf-lib/fontkit";
+import fontkit from "@pdf-lib/fontkit";
 import {
   PDFDocument,
   rgb,
