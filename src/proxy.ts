@@ -118,6 +118,10 @@ export function proxy(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-request-id", requestId);
+  // Layout'lar searchParams alamaz; hangi sayfanın istendiğini ayırt edebilmesi
+  // için pathname aktarılır (bkz. src/app/(panel)/layout.tsx). set() istemciden
+  // gelen aynı adlı başlığın üzerine yazdığı için taklit edilemez.
+  requestHeaders.set("x-pathname", pathname);
   const passThrough = () =>
     applySecurityHeaders(
       NextResponse.next({ request: { headers: requestHeaders } }),

@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import {
   getAuthContext,
@@ -15,6 +16,9 @@ import {
   WorkspaceBadge,
   type WorkspaceOption,
 } from "@/components/layout/workspace-badge";
+
+/** Zorunlu parola değişiminin yapıldığı, yönlendirmeden muaf tek sayfa. */
+const PASSWORD_RESET_PATH = "/profil";
 
 /** Panel dışına atmadan gösterilen tam sayfa bilgi kartı. */
 function NoticeCard({ title, body }: { title: string; body: string }) {
@@ -64,7 +68,16 @@ export default async function PanelLayout({
     );
   }
 
-  if (ctx.user.force_password_reset) redirect("/profil?parola=zorunlu");
+  // Parola değişimi zorunluyken panelin geri kalanı /profil'e yönlendirilir.
+  // /profil de bu layout'u kullandığı için muaf tutulmazsa kendi kendine
+  // yönlendirip sonsuz döngüye girer; hedef sayfa proxy'nin geçirdiği
+  // pathname ile ayırt edilir.
+  if (ctx.user.force_password_reset) {
+    const pathname = (await headers()).get("x-pathname");
+    if (pathname !== PASSWORD_RESET_PATH) {
+      redirect(`${PASSWORD_RESET_PATH}?parola=zorunlu`);
+    }
+  }
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => !item.requires || hasPermission(ctx.role, item.requires)
