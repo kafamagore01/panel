@@ -28,7 +28,7 @@ test("geçerli üretim ortamını kabul eder", () => {
   assert.deepEqual(validateEnvironment(validProductionEnv, true), []);
 });
 
-test("kritik üretim sırları ve dağıtık servisler eksikse reddeder", () => {
+test("kritik üretim sırları eksikse reddeder", () => {
   const issues = validateEnvironment(
     {
       NODE_ENV: "production",
@@ -41,9 +41,39 @@ test("kritik üretim sırları ve dağıtık servisler eksikse reddeder", () => 
     true
   );
   assert.ok(issues.some((issue) => issue.includes("NEXTAUTH_SECRET")));
-  assert.ok(issues.some((issue) => issue.includes("UPSTASH_REDIS_REST_URL")));
+  assert.ok(issues.some((issue) => issue.includes("CRON_SECRET")));
   assert.ok(issues.some((issue) => issue.includes("NEXT_SERVER_ACTIONS")));
   assert.ok(issues.some((issue) => issue.includes("HTTPS")));
+});
+
+test("Upstash ve QStash tanımsızken üretim ortamını kabul eder", () => {
+  const withoutQueues: Record<string, string> = { ...validProductionEnv };
+  for (const key of [
+    "UPSTASH_REDIS_REST_URL",
+    "UPSTASH_REDIS_REST_TOKEN",
+    "QSTASH_TOKEN",
+    "QSTASH_CURRENT_SIGNING_KEY",
+    "QSTASH_NEXT_SIGNING_KEY",
+  ]) {
+    delete withoutQueues[key];
+  }
+  assert.deepEqual(validateEnvironment(withoutQueues, true), []);
+});
+
+test("yarım Upstash ve imzasız QStash yapılandırmasını reddeder", () => {
+  const halfRedis = validateEnvironment(
+    { ...validProductionEnv, UPSTASH_REDIS_REST_TOKEN: "" },
+    true
+  );
+  assert.ok(halfRedis.some((issue) => issue.includes("birlikte tanımlanmalı")));
+
+  const unsignedQStash = validateEnvironment(
+    { ...validProductionEnv, QSTASH_CURRENT_SIGNING_KEY: "" },
+    true
+  );
+  assert.ok(
+    unsignedQStash.some((issue) => issue.includes("QSTASH_CURRENT_SIGNING_KEY"))
+  );
 });
 
 test("e-posta sürücüsü seçilmemişse üretim ortamını kabul eder", () => {

@@ -46,9 +46,6 @@ export async function isLoginLocked(
 ): Promise<boolean> {
   const redis = getRedis();
   const keys = keysFor(email, ip);
-  if (!redis && process.env.NODE_ENV === "production") {
-    return true;
-  }
   if (redis) {
     const counts = await Promise.all(keys.map((k) => redis.get<number>(k)));
     return counts.some((c) => (c ?? 0) >= MAX_FAILURES);
@@ -62,7 +59,6 @@ export async function registerLoginFailure(
 ): Promise<void> {
   const redis = getRedis();
   const keys = keysFor(email, ip);
-  if (!redis && process.env.NODE_ENV === "production") return;
   if (redis) {
     await Promise.all(
       keys.map(async (k) => {
@@ -87,7 +83,6 @@ export async function clearLoginFailures(
 ): Promise<void> {
   const redis = getRedis();
   const keys = keysFor(email, null);
-  if (!redis && process.env.NODE_ENV === "production") return;
   if (redis) {
     await Promise.all(keys.map((k) => redis.del(k)));
     return;

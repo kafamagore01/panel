@@ -2,8 +2,9 @@ import { Client } from "@upstash/qstash";
 import { applicationBaseUrl } from "@/lib/env";
 
 /**
- * QStash istemcisi. Token tanımlı değilse null döner ve kuyruk kayıtları
- * "pending" durumunda bekler (yerel geliştirme). Üretimde token zorunludur.
+ * QStash istemcisi. Token tanımlı değilse null döner: webhook outbox kayıtları
+ * "pending" durumunda bekler ve reconciliation cron'u yeniden yayınlamayı
+ * dener. Webhook teslimi isteniyorsa token tanımlanmalıdır.
  */
 
 let client: Client | null | undefined;
@@ -11,9 +12,6 @@ let client: Client | null | undefined;
 export function getQStash(): Client | null {
   if (client === undefined) {
     const token = process.env.QSTASH_TOKEN;
-    if (!token && process.env.NODE_ENV === "production") {
-      throw new Error("Üretimde QSTASH_TOKEN zorunludur.");
-    }
     client = token
       ? new Client({
           token,

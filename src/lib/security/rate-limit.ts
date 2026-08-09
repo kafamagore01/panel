@@ -3,8 +3,9 @@ import { Redis } from "@upstash/redis";
 
 /**
  * Upstash Redis tabanlı oran sınırlama.
- * Yerel geliştirmede bounded process-memory fallback kullanılır. Üretimde
- * dağıtık Redis yapılandırması yoksa istekler fail-closed reddedilir.
+ * Redis yapılandırılmamışsa bounded process-memory fallback kullanılır: sayaç
+ * instance başına tutulduğu için çok instance'lı dağıtımda etkin limit instance
+ * sayısıyla çarpılır. Dağıtık garanti isteniyorsa Upstash tanımlanmalıdır.
  */
 
 const hasUpstash = Boolean(
@@ -95,12 +96,7 @@ async function limit(
   identifier: string
 ): Promise<LimitResult> {
   const limiter = limiterFor(prefix, tokens);
-  if (!limiter) {
-    if (process.env.NODE_ENV === "production") {
-      return { success: false, remaining: 0, reset: Date.now() + 60_000 };
-    }
-    return memoryLimit(prefix, tokens, identifier);
-  }
+  if (!limiter) return memoryLimit(prefix, tokens, identifier);
   const result = await limiter.limit(identifier);
   return {
     success: result.success,

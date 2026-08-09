@@ -73,12 +73,27 @@ export function validateEnvironment(
   }
 
   if (production) {
-    required("UPSTASH_REDIS_REST_URL");
-    required("UPSTASH_REDIS_REST_TOKEN");
-    required("QSTASH_TOKEN");
-    required("QSTASH_CURRENT_SIGNING_KEY");
-    required("QSTASH_NEXT_SIGNING_KEY");
     required("CRON_SECRET", 32);
+
+    // Upstash Redis opsiyoneldir: tanımsızsa oran sınırlama ve giriş kilidi
+    // süreç içi belleğe düşer (tek instance dağıtım için yeterli, çok
+    // instance'lı dağıtımda sayaçlar instance başına ayrışır). Yarım
+    // yapılandırma sessizce belleğe düşmesin diye ikisi birlikte istenir.
+    const redisUrl = value(env, "UPSTASH_REDIS_REST_URL");
+    const redisToken = value(env, "UPSTASH_REDIS_REST_TOKEN");
+    if (Boolean(redisUrl) !== Boolean(redisToken)) {
+      issues.push(
+        "UPSTASH_REDIS_REST_URL ve UPSTASH_REDIS_REST_TOKEN birlikte tanımlanmalıdır."
+      );
+    }
+
+    // QStash opsiyoneldir: tanımsızsa webhook'lar outbox'ta bekler ve cron
+    // yeniden yayınlamayı dener. Tanımlıysa QStash imzalı istek gönderdiği
+    // için imza anahtarları olmadan cron uçları isteği doğrulayamaz.
+    if (value(env, "QSTASH_TOKEN")) {
+      required("QSTASH_CURRENT_SIGNING_KEY");
+      required("QSTASH_NEXT_SIGNING_KEY");
+    }
 
     const actionsKey = required("NEXT_SERVER_ACTIONS_ENCRYPTION_KEY");
     if (actionsKey && !isValidServerActionsKey(actionsKey)) {
