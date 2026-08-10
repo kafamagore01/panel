@@ -104,6 +104,42 @@ test("e-posta sürücüsü seçildiyse eksik yapılandırmayı reddeder", () => 
   assert.ok(badDriver.some((issue) => issue.includes("EMAIL_DRIVER")));
 });
 
+test("DATABASE_URL Supabase session mode portuna bakıyorsa reddeder", () => {
+  const sessionMode = validateEnvironment(
+    {
+      ...validProductionEnv,
+      DATABASE_URL:
+        "postgresql://user:pw@aws-1-eu-west-1.pooler.supabase.com:5432/postgres",
+    },
+    true
+  );
+  assert.ok(sessionMode.some((issue) => issue.includes("session mode")));
+
+  // Doğrudan veritabanı host'u da sunucusuz runtime için uygun değil.
+  const directHost = validateEnvironment(
+    {
+      ...validProductionEnv,
+      DATABASE_URL: "postgresql://user:pw@db.abcdefgh.supabase.co:5432/postgres",
+    },
+    true
+  );
+  assert.ok(directHost.some((issue) => issue.includes("session mode")));
+});
+
+test("DATABASE_URL transaction mode portunu kullanıyorsa kabul eder", () => {
+  assert.deepEqual(
+    validateEnvironment(
+      {
+        ...validProductionEnv,
+        DATABASE_URL:
+          "postgresql://user:pw@aws-1-eu-west-1.pooler.supabase.com:6543/postgres",
+      },
+      true
+    ),
+    []
+  );
+});
+
 test("taban URL'yi normalize eder ve üretimde HTTP'yi reddeder", () => {
   assert.equal(
     applicationBaseUrl({ APP_URL: "http://localhost:3000/" }),

@@ -16,6 +16,24 @@ function isUrl(raw: string, protocols?: readonly string[]): boolean {
   }
 }
 
+/**
+ * Supabase pooler'ının session mode portunu (5432) tanır. Transaction mode
+ * (6543) ile karıştırılması sunucusuz dağıtımda EMAXCONNSESSION'a yol açar.
+ * Doğrudan veritabanı host'u (db.<ref>.supabase.co) da 5432 kullanır ve
+ * sunucusuz runtime için aynı şekilde uygun değildir.
+ */
+function isSessionModePooler(raw: string): boolean {
+  try {
+    const url = new URL(raw);
+    const port = url.port || "5432";
+    if (port !== "5432") return false;
+    return /(^|\.)pooler\.supabase\.com$/.test(url.hostname) ||
+      /(^|\.)supabase\.co$/.test(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 function isValidServerActionsKey(raw: string): boolean {
   if (!/^[A-Za-z0-9+/]+={0,2}$/.test(raw)) return false;
   try {
@@ -48,6 +66,17 @@ export function validateEnvironment(
     !isUrl(databaseUrl, ["postgres:", "postgresql:"])
   ) {
     issues.push("DATABASE_URL geçerli bir PostgreSQL URL'si olmalıdır.");
+  } else if (databaseUrl && isSessionModePooler(databaseUrl)) {
+    // Supabase pooler'ının 5432 portu session mode'dur: eşzamanlı istemci
+    // sayısı pool_size (varsayılan 15) ile sınırlıdır ve sunucusuz dağıtımda
+    // her fonksiyon örneği kendi havuzunu açtığı için sınır hızla dolup
+    // EMAXCONNSESSION (P2039) verir. Runtime bağlantısı transaction mode
+    // (6543) olmalıdır; 5432 yalnız migration/seed için DIRECT_URL'de kullanılır.
+    issues.push(
+      "DATABASE_URL Supabase session mode portuna (5432) işaret ediyor; " +
+        "sunucusuz ortamda transaction mode portu (6543) kullanılmalıdır. " +
+        "5432 yalnızca DIRECT_URL için geçerlidir."
+    );
   }
 
   const authSecret = required("NEXTAUTH_SECRET", 32);
