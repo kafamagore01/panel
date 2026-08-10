@@ -130,10 +130,12 @@ export async function createProject(
 
     const created = await prisma.$transaction(
       async (tx) => {
-        await tx.$queryRaw`
+        // pg_advisory_xact_lock void döner; Prisma void kolonunu deserialize
+        // edemediği için ::text'e çevrilir (bkz. nextInvoiceNumber).
+        await tx.$queryRaw<Array<{ locked: string }>>`
           SELECT pg_advisory_xact_lock(
             hashtextextended(${`project-code:${ctx.workspaceId}`}, 0)
-          )
+          )::text AS locked
         `;
         const code = await generateProjectCode(
           tx,
