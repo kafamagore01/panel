@@ -58,6 +58,7 @@ export function DomainManager({
       if (res.success) {
         toast.success(res.message ?? "Eklendi.");
         setDomain("");
+        onOpenChange(false);
         router.refresh();
       } else {
         toast.error(res.error);
@@ -70,6 +71,7 @@ export function DomainManager({
       const res = await removeLicenseDomain(licenseId, domainId);
       if (res.success) {
         toast.success(res.message ?? "Kaldırıldı.");
+        onOpenChange(false);
         router.refresh();
       } else {
         toast.error(res.error);
@@ -86,6 +88,7 @@ export function DomainManager({
       });
       if (res.success) {
         toast.success(res.message ?? "Güncellendi.");
+        onOpenChange(false);
         router.refresh();
       } else {
         toast.error(res.error);

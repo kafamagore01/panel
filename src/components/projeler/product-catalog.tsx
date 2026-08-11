@@ -53,6 +53,7 @@ export function ProductCatalog({
         setName("");
         setRepo("");
         setEditingId(null);
+        onOpenChange(false);
         router.refresh();
       } else {
         if (res.fieldErrors) setErrors(res.fieldErrors);
@@ -82,6 +83,7 @@ export function ProductCatalog({
       const res = await deleteProduct(id);
       if (res.success) {
         toast.success(res.message ?? "Silindi.");
+        onOpenChange(false);
         router.refresh();
       } else {
         toast.error(res.error);

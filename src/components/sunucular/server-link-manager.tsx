@@ -87,6 +87,7 @@ export function ServerLinkManager({
       const res = await unlinkProjectServer(serverId, pid);
       if (res.success) {
         toast.success(res.message ?? "Kaldırıldı.");
+        onOpenChange(false);
         router.refresh();
       } else {
         toast.error(res.error);
