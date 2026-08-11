@@ -595,26 +595,44 @@ export async function deleteWorkspace(
       return fail("Yalnızca aktif çalışma alanı silinebilir.");
     }
 
-    const actorFallback = await prisma.workspaceUser.findFirst({
-      where: {
-        user_id: ctx.user.id,
-        workspace_id: { not: workspaceId },
-        status: "active",
-        workspace: { deleted_at: null },
-      },
-      orderBy: { created_at: "asc" },
-      select: { workspace_id: true },
-    });
-    if (!actorFallback) {
-      return fail("Son erişilebilir çalışma alanınızı silemezsiniz.");
-    }
-
     const result = await prisma.$transaction(async (tx) => {
+      // Yeni alan oluşturma ile silme aynı anda çalışırsa son alan kontrolünü
+      // kullanıcının güncel üyelikleri üzerinden seri hale getir.
+      await tx.$queryRaw`
+        SELECT id
+        FROM users
+        WHERE id = ${ctx.user.id}::uuid
+        FOR UPDATE
+      `;
+
+      const actorFallback = await tx.workspaceUser.findFirst({
+        where: {
+          user_id: ctx.user.id,
+          workspace_id: { not: workspaceId },
+          status: "active",
+          workspace: { deleted_at: null },
+        },
+        orderBy: { created_at: "asc" },
+        select: { workspace_id: true },
+      });
+      if (!actorFallback) {
+        return {
+          kind: "error" as const,
+          message:
+            "Son aktif çalışma alanınızı silemezsiniz. Önce yeni bir çalışma alanı oluşturun.",
+        };
+      }
+
       const workspace = await tx.workspace.findFirst({
         where: { id: workspaceId, deleted_at: null },
         select: { id: true, name: true },
       });
-      if (!workspace) return null;
+      if (!workspace) {
+        return {
+          kind: "error" as const,
+          message: "Çalışma alanı bulunamadı veya daha önce silinmiş.",
+        };
+      }
 
       const affectedUsers = await tx.user.findMany({
         where: { current_workspace_id: workspaceId },
@@ -641,9 +659,9 @@ export async function deleteWorkspace(
         where: { id: workspaceId },
         data: { deleted_at: new Date() },
       });
-      return workspace;
+      return { kind: "ok" as const, workspace };
     });
-    if (!result) return fail("Çalışma alanı bulunamadı veya daha önce silinmiş.");
+    if (result.kind === "error") return fail(result.message);
 
     await writeAudit({
       workspace_id: workspaceId,
@@ -651,7 +669,7 @@ export async function deleteWorkspace(
       action: "DELETE_WORKSPACE",
       auditable_type: "workspace",
       auditable_id: workspaceId,
-      before_data: { name: result.name, deleted_at: null },
+      before_data: { name: result.workspace.name, deleted_at: null },
       after_data: { deleted_at: new Date().toISOString() },
     });
 

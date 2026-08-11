@@ -375,9 +375,7 @@ bir issue içinde paylaşmayın. Hassas bir bulgu için depo sahibiyle
 
 ## Lisans
 
-Bu depo şu anda bir `LICENSE` dosyası içermiyor. Kaynak kodunun herkese açık olması,
-yeniden kullanım veya dağıtım izni verildiği anlamına gelmez. Bir lisans eklenene kadar
-tüm hakları saklıdır.
+Bu proje [MIT Lisansı](LICENSE) altında yayımlanmaktadır.
 
 ---
 

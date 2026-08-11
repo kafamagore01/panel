@@ -88,6 +88,8 @@ export function TeamView({
   const [inviteOpen, setInviteOpen] = useState(false);
   const [wsOpen, setWsOpen] = useState(false);
   const [, startTransition] = useTransition();
+  const activeWorkspaceCount = workspaces.filter((workspace) => workspace.active).length;
+  const hasWorkspaceFallback = activeWorkspaceCount > 1;
 
   function onSwitch(id: string) {
     startTransition(async () => {
@@ -156,23 +158,46 @@ export function TeamView({
               <div className="ml-2 flex items-center gap-1">
                 {ws.id === currentWorkspaceId && <Check className="h-4 w-4 text-[#5267ff]" />}
                 {canDeleteWorkspace && ws.id === currentWorkspaceId && (
-                  <ConfirmDialog
-                    trigger={
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    }
-                    title="Çalışma alanını sil"
-                    description={`${ws.name} çalışma alanı silinecek. Bu işlem alanı tüm kullanıcılar için kapatır.`}
-                    confirmLabel="Alanı Sil"
-                    destructive
-                    action={() => deleteWorkspace(ws.id)}
-                  />
+                  hasWorkspaceFallback ? (
+                    <ConfirmDialog
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-rose-600"
+                          aria-label={`${ws.name} çalışma alanını sil`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      }
+                      title="Çalışma alanını sil"
+                      description={`${ws.name} çalışma alanı silinecek. Bu işlem alanı tüm kullanıcılar için kapatır.`}
+                      confirmLabel="Alanı Sil"
+                      destructive
+                      action={() => deleteWorkspace(ws.id)}
+                    />
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground"
+                      disabled
+                      aria-label="Son aktif çalışma alanı silinemez"
+                      title="Son aktif çalışma alanı silinemez. Önce yeni bir alan oluşturun."
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )
                 )}
               </div>
             </div>
           ))}
         </div>
+        {canDeleteWorkspace && !hasWorkspaceFallback && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Son aktif çalışma alanı silinemez. Silmek için önce yeni bir alan oluşturun.
+          </p>
+        )}
       </div>}
 
       {canViewMembers && <div className="rounded-[18px] border border-slate-200/80 bg-white shadow-sm">
