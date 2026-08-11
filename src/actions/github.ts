@@ -27,10 +27,9 @@ import {
  * GitHub entegrasyonu server action'ları.
  *
  * Yetki ayrımı:
- *  - Bağlantı kurma/kaldırma → `system.manage` (yalnızca Owner); token tüm
+ *  - Bağlantı kurma/kaldırma → `settings.update`; token tüm
  *    çalışma alanı adına repo erişimi verdiği için en dar yetkiye bağlanır.
- *  - Repo listeleme → `record.manage` (proje oluşturan roller).
- *  - Repo durumu okuma → `module.view` (tüm aktif üyeler).
+ *  - Repo listeleme ve durum okuma → `projects.view`.
  */
 
 function handleError(error: unknown): ActionResponse<never> {

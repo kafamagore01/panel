@@ -102,15 +102,17 @@ export function DomainsView({
   licenseDomains,
   customers,
   projects,
-  canManage,
-  canArchive,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: {
   domains: DomainRow[];
   licenseDomains: LicenseDomainRow[];
   customers: Option[];
   projects: Option[];
-  canManage: boolean;
-  canArchive: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }) {
   const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -144,7 +146,7 @@ export function DomainsView({
       </TabsList>
 
       <TabsContent value="inventory" className="space-y-4">
-        {canManage && (
+        {canCreate && (
           <div className="flex justify-end">
             <Button
               onClick={() => { setEditing(undefined); setDrawerOpen(true); }}
@@ -210,7 +212,7 @@ export function DomainsView({
                     </TableCell>
                     <TableCell><StatusBadge status={d.status} /></TableCell>
                     <TableCell>
-                      {canManage && (
+                      {(canUpdate || canDelete) && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -218,10 +220,10 @@ export function DomainsView({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => { setEditing(d.raw); setDrawerOpen(true); }}>
+                            {canUpdate && <DropdownMenuItem onClick={() => { setEditing(d.raw); setDrawerOpen(true); }}>
                               <Pencil className="mr-2 h-4 w-4" />
                               Düzenle
-                            </DropdownMenuItem>
+                            </DropdownMenuItem>}
                             {d.registrar_url && (
                               <DropdownMenuItem asChild>
                                 <a href={d.registrar_url} target="_blank" rel="noopener noreferrer">
@@ -230,7 +232,7 @@ export function DomainsView({
                                 </a>
                               </DropdownMenuItem>
                             )}
-                            {canArchive && (
+                            {canDelete && (
                               <ConfirmDialog
                                 trigger={
                                   <DropdownMenuItem
@@ -291,7 +293,7 @@ export function DomainsView({
                     <TableCell>
                       {ld.in_inventory ? (
                         <span className="text-xs font-semibold text-emerald-600">Takipte</span>
-                      ) : canManage ? (
+                      ) : canCreate ? (
                         <Button
                           variant="outline"
                           size="sm"

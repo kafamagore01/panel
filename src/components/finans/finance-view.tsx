@@ -72,7 +72,9 @@ export function FinanceView({
   customers,
   projects,
   rates,
-  canManage,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: {
   invoices: InvoiceRow[];
   schedules: ScheduleRow[];
@@ -80,7 +82,9 @@ export function FinanceView({
   projects: InvoiceProjectOption[];
   /** TCMB günlük kur bülteni; dövizli tutarların TL karşılığı için. */
   rates: ExchangeRates | null;
-  canManage: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }) {
   const [invoiceDrawer, setInvoiceDrawer] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<InvoiceRow | null>(null);
@@ -95,7 +99,7 @@ export function FinanceView({
       </TabsList>
 
       <TabsContent value="invoices" className="space-y-4">
-        {canManage && (
+        {canCreate && (
           <div className="flex justify-end">
             <Button onClick={() => setInvoiceDrawer(true)} className="bg-[#5267ff] hover:bg-[#4254e1]">
               <Plus className="mr-1 h-4 w-4" />
@@ -142,7 +146,7 @@ export function FinanceView({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {canManage &&
+                          {canUpdate &&
                             ["issued", "overdue"].includes(i.status) &&
                             i.paid_total === 0 && (
                               <DropdownMenuItem onClick={() => setEditingInvoice(i)}>
@@ -150,7 +154,7 @@ export function FinanceView({
                                 Faturayı Düzenle
                               </DropdownMenuItem>
                             )}
-                          {canManage && i.status !== "paid" && i.status !== "void" && (
+                          {canCreate && i.status !== "paid" && i.status !== "void" && (
                             <DropdownMenuItem onClick={() => setPaymentTarget(i)}>
                               <CreditCard className="mr-2 h-4 w-4" />
                               Ödeme Kaydet
@@ -162,7 +166,7 @@ export function FinanceView({
                               PDF İndir
                             </a>
                           </DropdownMenuItem>
-                          {canManage &&
+                          {canDelete &&
                             ["issued", "overdue"].includes(i.status) &&
                             i.paid_total === 0 && (
                               <>
@@ -197,7 +201,7 @@ export function FinanceView({
       </TabsContent>
 
       <TabsContent value="schedules" className="space-y-4">
-        {canManage && (
+        {canCreate && (
           <div className="flex justify-end">
             <Button onClick={() => setScheduleDrawer(true)} className="bg-[#5267ff] hover:bg-[#4254e1]">
               <Plus className="mr-1 h-4 w-4" />
@@ -232,7 +236,7 @@ export function FinanceView({
                     <TableCell className="text-sm">{formatDate(s.next_issue_on)}</TableCell>
                     <TableCell><StatusBadge status={s.status} /></TableCell>
                     <TableCell>
-                      {canManage && s.status !== "completed" && (
+                      {canUpdate && s.status !== "completed" && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">

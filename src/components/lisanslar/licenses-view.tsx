@@ -10,7 +10,8 @@ import {
   RotateCcw,
   KeyRound,
   Globe,
-  SlidersHorizontal,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,8 +34,8 @@ import { FormDrawer } from "@/components/form-drawer";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { LicenseForm } from "./license-form";
+import { LicenseEditForm, type EditableLicense } from "./license-edit-form";
 import { LicenseKeyDialog } from "./license-key-dialog";
-import { StatusChangeDialog } from "./status-change-dialog";
 import { DomainManager, type DomainItem } from "./domain-manager";
 import type { LicenseProjectOption } from "@/lib/licenses/domain-candidates";
 import {
@@ -42,37 +43,34 @@ import {
   revealLicenseKey,
   resetActivations,
   rotateLicenseKey,
+  deleteLicense,
 } from "@/actions/licenses";
 import { formatDate } from "@/lib/format";
 import { useRouter } from "next/navigation";
 
-export type LicenseRow = {
-  id: string;
+export type LicenseRow = EditableLicense & {
   key_prefix: string;
-  product_name: string;
-  project_code: string;
-  status: string;
   expires_at: string | null;
-  active_activations: number;
-  activation_limit: number;
   domains: DomainItem[];
 };
 
 export function LicensesView({
   licenses,
   projects,
-  canManage,
-  canRotate,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: {
   licenses: LicenseRow[];
   projects: LicenseProjectOption[];
-  canManage: boolean;
-  canRotate: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }) {
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [keyToShow, setKeyToShow] = useState<string | null>(null);
-  const [statusTarget, setStatusTarget] = useState<LicenseRow | null>(null);
+  const [editTarget, setEditTarget] = useState<LicenseRow | null>(null);
   const [domainTarget, setDomainTarget] = useState<LicenseRow | null>(null);
   const [, startTransition] = useTransition();
 
@@ -86,7 +84,7 @@ export function LicensesView({
 
   return (
     <>
-      {canManage && (
+      {canCreate && (
         <div className="flex justify-end">
           <Button onClick={() => setCreateOpen(true)} className="bg-[#5267ff] hover:bg-[#4254e1]">
             <Plus className="mr-1 h-4 w-4" />
@@ -104,6 +102,7 @@ export function LicensesView({
               <TableRow className="hover:bg-transparent">
                 <TableHead>Anahtar</TableHead>
                 <TableHead>Ürün / Proje</TableHead>
+                <TableHead>Müşteri</TableHead>
                 <TableHead>Domain</TableHead>
                 <TableHead>Aktivasyon</TableHead>
                 <TableHead>Bitiş</TableHead>
@@ -119,6 +118,7 @@ export function LicensesView({
                     <div className="font-semibold text-[#141821]">{l.product_name}</div>
                     <div className="text-xs text-muted-foreground">{l.project_code}</div>
                   </TableCell>
+                  <TableCell className="text-sm">{l.customer_name}</TableCell>
                   <TableCell>
                     {l.domains.length > 0 ? (
                       <>
@@ -144,7 +144,7 @@ export function LicensesView({
                   <TableCell className="text-sm">{formatDate(l.expires_at)}</TableCell>
                   <TableCell><StatusBadge status={l.status} /></TableCell>
                   <TableCell>
-                    {canManage && (
+                    {(canUpdate || canCreate || canDelete) && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -152,11 +152,13 @@ export function LicensesView({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-52">
-                          <DropdownMenuItem onClick={() => setStatusTarget(l)}>
-                            <SlidersHorizontal className="mr-2 h-4 w-4" />
-                            Durum Değiştir
-                          </DropdownMenuItem>
-                          <ConfirmDialog
+                          {canUpdate && (
+                            <DropdownMenuItem onClick={() => setEditTarget(l)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Düzenle
+                            </DropdownMenuItem>
+                          )}
+                          {canUpdate && <ConfirmDialog
                             trigger={
                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                 <RefreshCw className="mr-2 h-4 w-4" />
@@ -167,17 +169,17 @@ export function LicensesView({
                             description="Lisans süresine 1 yıl eklenecek. Onaylıyor musunuz?"
                             confirmLabel="Yenile"
                             action={() => renewLicense(l.id)}
-                          />
-                          <DropdownMenuItem onClick={() => reveal(l.id)}>
+                          />}
+                          {canUpdate && <DropdownMenuItem onClick={() => reveal(l.id)}>
                             <Eye className="mr-2 h-4 w-4" />
                             Anahtarı Göster
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDomainTarget(l)}>
+                          </DropdownMenuItem>}
+                          {(canCreate || canUpdate || canDelete) && <DropdownMenuItem onClick={() => setDomainTarget(l)}>
                             <Globe className="mr-2 h-4 w-4" />
                             Domainler ({l.domains.length})
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <ConfirmDialog
+                          </DropdownMenuItem>}
+                          {canUpdate && <DropdownMenuSeparator />}
+                          {canUpdate && <ConfirmDialog
                             trigger={
                               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                 <RotateCcw className="mr-2 h-4 w-4" />
@@ -189,8 +191,8 @@ export function LicensesView({
                             confirmLabel="Sıfırla"
                             destructive
                             action={() => resetActivations(l.id)}
-                          />
-                          {canRotate && (
+                          />}
+                          {canUpdate && (
                             <ConfirmDialog
                               trigger={
                                 <DropdownMenuItem
@@ -213,6 +215,25 @@ export function LicensesView({
                                 }
                                 return res;
                               }}
+                            />
+                          )}
+                          {canDelete && <DropdownMenuSeparator />}
+                          {canDelete && (
+                            <ConfirmDialog
+                              trigger={
+                                <DropdownMenuItem
+                                  onSelect={(event) => event.preventDefault()}
+                                  className="text-rose-600 focus:text-rose-600"
+                                >
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Sil
+                                </DropdownMenuItem>
+                              }
+                              title="Lisansı Sil"
+                              description={`"${l.product_name}" lisansı kalıcı olarak silinecek. Bağlı domain, aktivasyon ve olay kayıtları da kaldırılacak.`}
+                              confirmLabel="Sil"
+                              destructive
+                              action={() => deleteLicense(l.id)}
                             />
                           )}
                         </DropdownMenuContent>
@@ -242,16 +263,21 @@ export function LicensesView({
         />
       </FormDrawer>
 
-      <LicenseKeyDialog licenseKey={keyToShow} onClose={() => setKeyToShow(null)} />
-
-      {statusTarget && (
-        <StatusChangeDialog
-          open={Boolean(statusTarget)}
-          onOpenChange={(o) => !o && setStatusTarget(null)}
-          licenseId={statusTarget.id}
-          currentStatus={statusTarget.status}
-        />
+      {editTarget && (
+        <FormDrawer
+          open={Boolean(editTarget)}
+          onOpenChange={(open) => !open && setEditTarget(null)}
+          title="Lisans Düzenle"
+          description="Müşteri, süre, limit ve durum bilgilerini güncelleyin."
+        >
+          <LicenseEditForm
+            license={editTarget}
+            onDone={() => setEditTarget(null)}
+          />
+        </FormDrawer>
       )}
+
+      <LicenseKeyDialog licenseKey={keyToShow} onClose={() => setKeyToShow(null)} />
 
       {domainTarget && (
         <DomainManager
@@ -259,6 +285,9 @@ export function LicensesView({
           onOpenChange={(o) => !o && setDomainTarget(null)}
           licenseId={domainTarget.id}
           domains={domainTarget.domains}
+          canCreate={canCreate}
+          canUpdate={canUpdate}
+          canDelete={canDelete}
         />
       )}
     </>

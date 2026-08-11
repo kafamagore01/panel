@@ -216,6 +216,7 @@ export type WorkspaceWhereInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryListRelationFilter
   audit_logs?: Prisma.AuditLogListRelationFilter
   github_connection?: Prisma.XOR<Prisma.GithubConnectionNullableScalarRelationFilter, Prisma.GithubConnectionWhereInput> | null
+  role_permissions?: Prisma.WorkspaceRolePermissionListRelationFilter
 }
 
 export type WorkspaceOrderByWithRelationInput = {
@@ -241,6 +242,7 @@ export type WorkspaceOrderByWithRelationInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryOrderByRelationAggregateInput
   audit_logs?: Prisma.AuditLogOrderByRelationAggregateInput
   github_connection?: Prisma.GithubConnectionOrderByWithRelationInput
+  role_permissions?: Prisma.WorkspaceRolePermissionOrderByRelationAggregateInput
 }
 
 export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -269,6 +271,7 @@ export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
   webhook_deliveries?: Prisma.WebhookDeliveryListRelationFilter
   audit_logs?: Prisma.AuditLogListRelationFilter
   github_connection?: Prisma.XOR<Prisma.GithubConnectionNullableScalarRelationFilter, Prisma.GithubConnectionWhereInput> | null
+  role_permissions?: Prisma.WorkspaceRolePermissionListRelationFilter
 }, "id">
 
 export type WorkspaceOrderByWithAggregationInput = {
@@ -322,6 +325,7 @@ export type WorkspaceCreateInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateInput = {
@@ -347,6 +351,7 @@ export type WorkspaceUncheckedCreateInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUpdateInput = {
@@ -372,6 +377,7 @@ export type WorkspaceUpdateInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateInput = {
@@ -397,6 +403,7 @@ export type WorkspaceUncheckedUpdateInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateManyInput = {
@@ -513,6 +520,20 @@ export type WorkspaceUpdateOneRequiredWithoutMembersNestedInput = {
   upsert?: Prisma.WorkspaceUpsertWithoutMembersInput
   connect?: Prisma.WorkspaceWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutMembersInput, Prisma.WorkspaceUpdateWithoutMembersInput>, Prisma.WorkspaceUncheckedUpdateWithoutMembersInput>
+}
+
+export type WorkspaceCreateNestedOneWithoutRole_permissionsInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutRole_permissionsInput, Prisma.WorkspaceUncheckedCreateWithoutRole_permissionsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutRole_permissionsInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneRequiredWithoutRole_permissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutRole_permissionsInput, Prisma.WorkspaceUncheckedCreateWithoutRole_permissionsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutRole_permissionsInput
+  upsert?: Prisma.WorkspaceUpsertWithoutRole_permissionsInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutRole_permissionsInput, Prisma.WorkspaceUpdateWithoutRole_permissionsInput>, Prisma.WorkspaceUncheckedUpdateWithoutRole_permissionsInput>
 }
 
 export type WorkspaceCreateNestedOneWithoutCustomersInput = {
@@ -707,6 +728,7 @@ export type WorkspaceCreateWithoutCurrent_usersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutCurrent_usersInput = {
@@ -731,6 +753,7 @@ export type WorkspaceUncheckedCreateWithoutCurrent_usersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutCurrent_usersInput = {
@@ -771,6 +794,7 @@ export type WorkspaceUpdateWithoutCurrent_usersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutCurrent_usersInput = {
@@ -795,6 +819,7 @@ export type WorkspaceUncheckedUpdateWithoutCurrent_usersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutMembersInput = {
@@ -819,6 +844,7 @@ export type WorkspaceCreateWithoutMembersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutMembersInput = {
@@ -843,6 +869,7 @@ export type WorkspaceUncheckedCreateWithoutMembersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutMembersInput = {
@@ -883,6 +910,7 @@ export type WorkspaceUpdateWithoutMembersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutMembersInput = {
@@ -894,6 +922,123 @@ export type WorkspaceUncheckedUpdateWithoutMembersInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  current_users?: Prisma.UserUncheckedUpdateManyWithoutCurrent_workspaceNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutWorkspaceNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutWorkspaceNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutWorkspaceNestedInput
+  licenses?: Prisma.LicenseUncheckedUpdateManyWithoutWorkspaceNestedInput
+  servers?: Prisma.ServerUncheckedUpdateManyWithoutWorkspaceNestedInput
+  domains?: Prisma.DomainUncheckedUpdateManyWithoutWorkspaceNestedInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
+  audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
+  github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutRole_permissionsInput = {
+  id?: string
+  name: string
+  timezone?: string
+  default_currency?: string
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  members?: Prisma.WorkspaceUserCreateNestedManyWithoutWorkspaceInput
+  current_users?: Prisma.UserCreateNestedManyWithoutCurrent_workspaceInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutWorkspaceInput
+  products?: Prisma.ProductCreateNestedManyWithoutWorkspaceInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutWorkspaceInput
+  licenses?: Prisma.LicenseCreateNestedManyWithoutWorkspaceInput
+  servers?: Prisma.ServerCreateNestedManyWithoutWorkspaceInput
+  domains?: Prisma.DomainCreateNestedManyWithoutWorkspaceInput
+  billing_schedules?: Prisma.BillingScheduleCreateNestedManyWithoutWorkspaceInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
+  webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
+  audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
+  github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutRole_permissionsInput = {
+  id?: string
+  name: string
+  timezone?: string
+  default_currency?: string
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Date | string
+  updated_at?: Date | string
+  deleted_at?: Date | string | null
+  members?: Prisma.WorkspaceUserUncheckedCreateNestedManyWithoutWorkspaceInput
+  current_users?: Prisma.UserUncheckedCreateNestedManyWithoutCurrent_workspaceInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutWorkspaceInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutWorkspaceInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutWorkspaceInput
+  licenses?: Prisma.LicenseUncheckedCreateNestedManyWithoutWorkspaceInput
+  servers?: Prisma.ServerUncheckedCreateNestedManyWithoutWorkspaceInput
+  domains?: Prisma.DomainUncheckedCreateNestedManyWithoutWorkspaceInput
+  billing_schedules?: Prisma.BillingScheduleUncheckedCreateNestedManyWithoutWorkspaceInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
+  audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
+  github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutRole_permissionsInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutRole_permissionsInput, Prisma.WorkspaceUncheckedCreateWithoutRole_permissionsInput>
+}
+
+export type WorkspaceUpsertWithoutRole_permissionsInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutRole_permissionsInput, Prisma.WorkspaceUncheckedUpdateWithoutRole_permissionsInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutRole_permissionsInput, Prisma.WorkspaceUncheckedCreateWithoutRole_permissionsInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutRole_permissionsInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutRole_permissionsInput, Prisma.WorkspaceUncheckedUpdateWithoutRole_permissionsInput>
+}
+
+export type WorkspaceUpdateWithoutRole_permissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  default_currency?: Prisma.StringFieldUpdateOperationsInput | string
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.WorkspaceUserUpdateManyWithoutWorkspaceNestedInput
+  current_users?: Prisma.UserUpdateManyWithoutCurrent_workspaceNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutWorkspaceNestedInput
+  products?: Prisma.ProductUpdateManyWithoutWorkspaceNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutWorkspaceNestedInput
+  licenses?: Prisma.LicenseUpdateManyWithoutWorkspaceNestedInput
+  servers?: Prisma.ServerUpdateManyWithoutWorkspaceNestedInput
+  domains?: Prisma.DomainUpdateManyWithoutWorkspaceNestedInput
+  billing_schedules?: Prisma.BillingScheduleUpdateManyWithoutWorkspaceNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
+  webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
+  audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
+  github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutRole_permissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  default_currency?: Prisma.StringFieldUpdateOperationsInput | string
+  settings?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deleted_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  members?: Prisma.WorkspaceUserUncheckedUpdateManyWithoutWorkspaceNestedInput
   current_users?: Prisma.UserUncheckedUpdateManyWithoutCurrent_workspaceNestedInput
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutWorkspaceNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -931,6 +1076,7 @@ export type WorkspaceCreateWithoutCustomersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutCustomersInput = {
@@ -955,6 +1101,7 @@ export type WorkspaceUncheckedCreateWithoutCustomersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutCustomersInput = {
@@ -995,6 +1142,7 @@ export type WorkspaceUpdateWithoutCustomersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutCustomersInput = {
@@ -1019,6 +1167,7 @@ export type WorkspaceUncheckedUpdateWithoutCustomersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutProductsInput = {
@@ -1043,6 +1192,7 @@ export type WorkspaceCreateWithoutProductsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutProductsInput = {
@@ -1067,6 +1217,7 @@ export type WorkspaceUncheckedCreateWithoutProductsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutProductsInput = {
@@ -1107,6 +1258,7 @@ export type WorkspaceUpdateWithoutProductsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutProductsInput = {
@@ -1131,6 +1283,7 @@ export type WorkspaceUncheckedUpdateWithoutProductsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutProjectsInput = {
@@ -1155,6 +1308,7 @@ export type WorkspaceCreateWithoutProjectsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutProjectsInput = {
@@ -1179,6 +1333,7 @@ export type WorkspaceUncheckedCreateWithoutProjectsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutProjectsInput = {
@@ -1219,6 +1374,7 @@ export type WorkspaceUpdateWithoutProjectsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutProjectsInput = {
@@ -1243,6 +1399,7 @@ export type WorkspaceUncheckedUpdateWithoutProjectsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutLicensesInput = {
@@ -1267,6 +1424,7 @@ export type WorkspaceCreateWithoutLicensesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutLicensesInput = {
@@ -1291,6 +1449,7 @@ export type WorkspaceUncheckedCreateWithoutLicensesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutLicensesInput = {
@@ -1331,6 +1490,7 @@ export type WorkspaceUpdateWithoutLicensesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutLicensesInput = {
@@ -1355,6 +1515,7 @@ export type WorkspaceUncheckedUpdateWithoutLicensesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutServersInput = {
@@ -1379,6 +1540,7 @@ export type WorkspaceCreateWithoutServersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutServersInput = {
@@ -1403,6 +1565,7 @@ export type WorkspaceUncheckedCreateWithoutServersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutServersInput = {
@@ -1443,6 +1606,7 @@ export type WorkspaceUpdateWithoutServersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutServersInput = {
@@ -1467,6 +1631,7 @@ export type WorkspaceUncheckedUpdateWithoutServersInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutDomainsInput = {
@@ -1491,6 +1656,7 @@ export type WorkspaceCreateWithoutDomainsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutDomainsInput = {
@@ -1515,6 +1681,7 @@ export type WorkspaceUncheckedCreateWithoutDomainsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutDomainsInput = {
@@ -1555,6 +1722,7 @@ export type WorkspaceUpdateWithoutDomainsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutDomainsInput = {
@@ -1579,6 +1747,7 @@ export type WorkspaceUncheckedUpdateWithoutDomainsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutBilling_schedulesInput = {
@@ -1603,6 +1772,7 @@ export type WorkspaceCreateWithoutBilling_schedulesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutBilling_schedulesInput = {
@@ -1627,6 +1797,7 @@ export type WorkspaceUncheckedCreateWithoutBilling_schedulesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutBilling_schedulesInput = {
@@ -1667,6 +1838,7 @@ export type WorkspaceUpdateWithoutBilling_schedulesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutBilling_schedulesInput = {
@@ -1691,6 +1863,7 @@ export type WorkspaceUncheckedUpdateWithoutBilling_schedulesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutInvoicesInput = {
@@ -1715,6 +1888,7 @@ export type WorkspaceCreateWithoutInvoicesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutInvoicesInput = {
@@ -1739,6 +1913,7 @@ export type WorkspaceUncheckedCreateWithoutInvoicesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutInvoicesInput = {
@@ -1779,6 +1954,7 @@ export type WorkspaceUpdateWithoutInvoicesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutInvoicesInput = {
@@ -1803,6 +1979,7 @@ export type WorkspaceUncheckedUpdateWithoutInvoicesInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutPaymentsInput = {
@@ -1827,6 +2004,7 @@ export type WorkspaceCreateWithoutPaymentsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutPaymentsInput = {
@@ -1851,6 +2029,7 @@ export type WorkspaceUncheckedCreateWithoutPaymentsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutPaymentsInput = {
@@ -1891,6 +2070,7 @@ export type WorkspaceUpdateWithoutPaymentsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutPaymentsInput = {
@@ -1915,6 +2095,7 @@ export type WorkspaceUncheckedUpdateWithoutPaymentsInput = {
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutGithub_connectionInput = {
@@ -1939,6 +2120,7 @@ export type WorkspaceCreateWithoutGithub_connectionInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutGithub_connectionInput = {
@@ -1963,6 +2145,7 @@ export type WorkspaceUncheckedCreateWithoutGithub_connectionInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutGithub_connectionInput = {
@@ -2003,6 +2186,7 @@ export type WorkspaceUpdateWithoutGithub_connectionInput = {
   payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutGithub_connectionInput = {
@@ -2027,6 +2211,7 @@ export type WorkspaceUncheckedUpdateWithoutGithub_connectionInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutWebhook_deliveriesInput = {
@@ -2051,6 +2236,7 @@ export type WorkspaceCreateWithoutWebhook_deliveriesInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutWebhook_deliveriesInput = {
@@ -2075,6 +2261,7 @@ export type WorkspaceUncheckedCreateWithoutWebhook_deliveriesInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutWebhook_deliveriesInput = {
@@ -2115,6 +2302,7 @@ export type WorkspaceUpdateWithoutWebhook_deliveriesInput = {
   payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutWebhook_deliveriesInput = {
@@ -2139,6 +2327,7 @@ export type WorkspaceUncheckedUpdateWithoutWebhook_deliveriesInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutAudit_logsInput = {
@@ -2163,6 +2352,7 @@ export type WorkspaceCreateWithoutAudit_logsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
   webhook_deliveries?: Prisma.WebhookDeliveryCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutAudit_logsInput = {
@@ -2187,6 +2377,7 @@ export type WorkspaceUncheckedCreateWithoutAudit_logsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedCreateNestedManyWithoutWorkspaceInput
   github_connection?: Prisma.GithubConnectionUncheckedCreateNestedOneWithoutWorkspaceInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutAudit_logsInput = {
@@ -2227,6 +2418,7 @@ export type WorkspaceUpdateWithoutAudit_logsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutAudit_logsInput = {
@@ -2251,6 +2443,7 @@ export type WorkspaceUncheckedUpdateWithoutAudit_logsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
   webhook_deliveries?: Prisma.WebhookDeliveryUncheckedUpdateManyWithoutWorkspaceNestedInput
   github_connection?: Prisma.GithubConnectionUncheckedUpdateOneWithoutWorkspaceNestedInput
+  role_permissions?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 
@@ -2272,6 +2465,7 @@ export type WorkspaceCountOutputType = {
   payments: number
   webhook_deliveries: number
   audit_logs: number
+  role_permissions: number
 }
 
 export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2288,6 +2482,7 @@ export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensi
   payments?: boolean | WorkspaceCountOutputTypeCountPaymentsArgs
   webhook_deliveries?: boolean | WorkspaceCountOutputTypeCountWebhook_deliveriesArgs
   audit_logs?: boolean | WorkspaceCountOutputTypeCountAudit_logsArgs
+  role_permissions?: boolean | WorkspaceCountOutputTypeCountRole_permissionsArgs
 }
 
 /**
@@ -2391,6 +2586,13 @@ export type WorkspaceCountOutputTypeCountAudit_logsArgs<ExtArgs extends runtime.
   where?: Prisma.AuditLogWhereInput
 }
 
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountRole_permissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkspaceRolePermissionWhereInput
+}
+
 
 export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2415,6 +2617,7 @@ export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   webhook_deliveries?: boolean | Prisma.Workspace$webhook_deliveriesArgs<ExtArgs>
   audit_logs?: boolean | Prisma.Workspace$audit_logsArgs<ExtArgs>
   github_connection?: boolean | Prisma.Workspace$github_connectionArgs<ExtArgs>
+  role_permissions?: boolean | Prisma.Workspace$role_permissionsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workspace"]>
 
@@ -2467,6 +2670,7 @@ export type WorkspaceInclude<ExtArgs extends runtime.Types.Extensions.InternalAr
   webhook_deliveries?: boolean | Prisma.Workspace$webhook_deliveriesArgs<ExtArgs>
   audit_logs?: boolean | Prisma.Workspace$audit_logsArgs<ExtArgs>
   github_connection?: boolean | Prisma.Workspace$github_connectionArgs<ExtArgs>
+  role_permissions?: boolean | Prisma.Workspace$role_permissionsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2489,6 +2693,7 @@ export type $WorkspacePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     webhook_deliveries: Prisma.$WebhookDeliveryPayload<ExtArgs>[]
     audit_logs: Prisma.$AuditLogPayload<ExtArgs>[]
     github_connection: Prisma.$GithubConnectionPayload<ExtArgs> | null
+    role_permissions: Prisma.$WorkspaceRolePermissionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2907,6 +3112,7 @@ export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtim
   webhook_deliveries<T extends Prisma.Workspace$webhook_deliveriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$webhook_deliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebhookDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   audit_logs<T extends Prisma.Workspace$audit_logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$audit_logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   github_connection<T extends Prisma.Workspace$github_connectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$github_connectionArgs<ExtArgs>>): Prisma.Prisma__GithubConnectionClient<runtime.Types.Result.GetResult<Prisma.$GithubConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  role_permissions<T extends Prisma.Workspace$role_permissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$role_permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceRolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3665,6 +3871,30 @@ export type Workspace$github_connectionArgs<ExtArgs extends runtime.Types.Extens
    */
   include?: Prisma.GithubConnectionInclude<ExtArgs> | null
   where?: Prisma.GithubConnectionWhereInput
+}
+
+/**
+ * Workspace.role_permissions
+ */
+export type Workspace$role_permissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkspaceRolePermission
+   */
+  select?: Prisma.WorkspaceRolePermissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkspaceRolePermission
+   */
+  omit?: Prisma.WorkspaceRolePermissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkspaceRolePermissionInclude<ExtArgs> | null
+  where?: Prisma.WorkspaceRolePermissionWhereInput
+  orderBy?: Prisma.WorkspaceRolePermissionOrderByWithRelationInput | Prisma.WorkspaceRolePermissionOrderByWithRelationInput[]
+  cursor?: Prisma.WorkspaceRolePermissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkspaceRolePermissionScalarFieldEnum | Prisma.WorkspaceRolePermissionScalarFieldEnum[]
 }
 
 /**

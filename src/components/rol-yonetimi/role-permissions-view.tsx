@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { LockKeyhole, RotateCcw, Save, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   PERMISSION_MODULES,
+  DEFAULT_ROLE_PERMISSIONS,
   type BuiltinRole,
   type PermissionAction,
   type PermissionOperation,
@@ -36,20 +37,22 @@ export function RolePermissionsView({
 }) {
   const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<BuiltinRole>("technical");
-  const [permissions, setPermissions] = useState<PermissionAction[]>([]);
+  const [drafts, setDrafts] = useState<Record<BuiltinRole, PermissionAction[]>>(() =>
+    Object.fromEntries(
+      profiles.map((profile) => [profile.role, profile.permissions])
+    ) as Record<BuiltinRole, PermissionAction[]>
+  );
   const [isPending, startTransition] = useTransition();
   const selected = useMemo(
     () => profiles.find((profile) => profile.role === selectedRole) ?? profiles[0],
     [profiles, selectedRole]
   );
-
-  useEffect(() => {
-    setPermissions(selected?.permissions ?? []);
-  }, [selected]);
+  const permissions = drafts[selectedRole] ?? selected?.permissions ?? [];
 
   function togglePermission(action: PermissionAction, checked: boolean) {
     const [moduleKey, operation] = action.split(".") as [string, PermissionOperation];
-    setPermissions((current) => {
+    setDrafts((currentDrafts) => {
+      const current = currentDrafts[selectedRole] ?? [];
       const next = new Set(current);
       if (checked) {
         next.add(action);
@@ -64,7 +67,7 @@ export function RolePermissionsView({
           }
         }
       }
-      return [...next];
+      return { ...currentDrafts, [selectedRole]: [...next] };
     });
   }
 
@@ -87,6 +90,10 @@ export function RolePermissionsView({
       const result = await resetRolePermissions(selected.role);
       if (result.success) {
         toast.success(result.message);
+        setDrafts((current) => ({
+          ...current,
+          [selected.role]: [...DEFAULT_ROLE_PERMISSIONS[selected.role]],
+        }));
         router.refresh();
       } else {
         toast.error(result.error);

@@ -246,6 +246,7 @@ export type UserWhereInput = {
   license_events?: Prisma.LicenseEventListRelationFilter
   audit_logs?: Prisma.AuditLogListRelationFilter
   github_connections?: Prisma.GithubConnectionListRelationFilter
+  role_permission_updates?: Prisma.WorkspaceRolePermissionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -269,6 +270,7 @@ export type UserOrderByWithRelationInput = {
   license_events?: Prisma.LicenseEventOrderByRelationAggregateInput
   audit_logs?: Prisma.AuditLogOrderByRelationAggregateInput
   github_connections?: Prisma.GithubConnectionOrderByRelationAggregateInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -295,6 +297,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   license_events?: Prisma.LicenseEventListRelationFilter
   audit_logs?: Prisma.AuditLogListRelationFilter
   github_connections?: Prisma.GithubConnectionListRelationFilter
+  role_permission_updates?: Prisma.WorkspaceRolePermissionListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -353,6 +356,7 @@ export type UserCreateInput = {
   license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -375,6 +379,7 @@ export type UserUncheckedCreateInput = {
   license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUpdateInput = {
@@ -397,6 +402,7 @@ export type UserUpdateInput = {
   license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -419,6 +425,7 @@ export type UserUncheckedUpdateInput = {
   license_events?: Prisma.LicenseEventUncheckedUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUncheckedUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -608,6 +615,22 @@ export type UserUpdateOneRequiredWithoutMembershipsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMembershipsInput, Prisma.UserUpdateWithoutMembershipsInput>, Prisma.UserUncheckedUpdateWithoutMembershipsInput>
 }
 
+export type UserCreateNestedOneWithoutRole_permission_updatesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRole_permission_updatesInput, Prisma.UserUncheckedCreateWithoutRole_permission_updatesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRole_permission_updatesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutRole_permission_updatesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRole_permission_updatesInput, Prisma.UserUncheckedCreateWithoutRole_permission_updatesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRole_permission_updatesInput
+  upsert?: Prisma.UserUpsertWithoutRole_permission_updatesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRole_permission_updatesInput, Prisma.UserUpdateWithoutRole_permission_updatesInput>, Prisma.UserUncheckedUpdateWithoutRole_permission_updatesInput>
+}
+
 export type UserCreateNestedOneWithoutOtp_codesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutOtp_codesInput, Prisma.UserUncheckedCreateWithoutOtp_codesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutOtp_codesInput
@@ -705,6 +728,7 @@ export type UserCreateWithoutCurrent_workspaceInput = {
   license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateWithoutCurrent_workspaceInput = {
@@ -726,6 +750,7 @@ export type UserUncheckedCreateWithoutCurrent_workspaceInput = {
   license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserCreateOrConnectWithoutCurrent_workspaceInput = {
@@ -791,6 +816,7 @@ export type UserCreateWithoutSessionsInput = {
   license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -812,6 +838,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -849,6 +876,7 @@ export type UserUpdateWithoutSessionsInput = {
   license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -870,6 +898,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   license_events?: Prisma.LicenseEventUncheckedUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUncheckedUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -891,6 +920,7 @@ export type UserCreateWithoutMembershipsInput = {
   license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -912,6 +942,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -949,6 +980,7 @@ export type UserUpdateWithoutMembershipsInput = {
   license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -964,6 +996,111 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   current_workspace_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  otp_codes?: Prisma.OtpCodeUncheckedUpdateManyWithoutUserNestedInput
+  owned_projects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
+  license_events?: Prisma.LicenseEventUncheckedUpdateManyWithoutActorNestedInput
+  audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  github_connections?: Prisma.GithubConnectionUncheckedUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
+}
+
+export type UserCreateWithoutRole_permission_updatesInput = {
+  id?: string
+  name: string
+  email: string
+  avatar_url?: string | null
+  password_hash: string
+  email_verified_at?: Date | string | null
+  two_factor_enabled_at?: Date | string | null
+  two_factor_secret?: string | null
+  force_password_reset?: boolean
+  created_at?: Date | string
+  updated_at?: Date | string
+  current_workspace?: Prisma.WorkspaceCreateNestedOneWithoutCurrent_usersInput
+  memberships?: Prisma.WorkspaceUserCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  otp_codes?: Prisma.OtpCodeCreateNestedManyWithoutUserInput
+  owned_projects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
+  license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
+  audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+}
+
+export type UserUncheckedCreateWithoutRole_permission_updatesInput = {
+  id?: string
+  name: string
+  email: string
+  avatar_url?: string | null
+  password_hash: string
+  email_verified_at?: Date | string | null
+  two_factor_enabled_at?: Date | string | null
+  two_factor_secret?: string | null
+  force_password_reset?: boolean
+  current_workspace_id?: string | null
+  created_at?: Date | string
+  updated_at?: Date | string
+  memberships?: Prisma.WorkspaceUserUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  otp_codes?: Prisma.OtpCodeUncheckedCreateNestedManyWithoutUserInput
+  owned_projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
+  license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
+  audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+}
+
+export type UserCreateOrConnectWithoutRole_permission_updatesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRole_permission_updatesInput, Prisma.UserUncheckedCreateWithoutRole_permission_updatesInput>
+}
+
+export type UserUpsertWithoutRole_permission_updatesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRole_permission_updatesInput, Prisma.UserUncheckedUpdateWithoutRole_permission_updatesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRole_permission_updatesInput, Prisma.UserUncheckedCreateWithoutRole_permission_updatesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRole_permission_updatesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRole_permission_updatesInput, Prisma.UserUncheckedUpdateWithoutRole_permission_updatesInput>
+}
+
+export type UserUpdateWithoutRole_permission_updatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  email_verified_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  two_factor_enabled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  two_factor_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  force_password_reset?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  current_workspace?: Prisma.WorkspaceUpdateOneWithoutCurrent_usersNestedInput
+  memberships?: Prisma.WorkspaceUserUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  otp_codes?: Prisma.OtpCodeUpdateManyWithoutUserNestedInput
+  owned_projects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
+  license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
+  audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRole_permission_updatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  email_verified_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  two_factor_enabled_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  two_factor_secret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  force_password_reset?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  current_workspace_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updated_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.WorkspaceUserUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   otp_codes?: Prisma.OtpCodeUncheckedUpdateManyWithoutUserNestedInput
   owned_projects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
@@ -991,6 +1128,7 @@ export type UserCreateWithoutOtp_codesInput = {
   license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateWithoutOtp_codesInput = {
@@ -1012,6 +1150,7 @@ export type UserUncheckedCreateWithoutOtp_codesInput = {
   license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserCreateOrConnectWithoutOtp_codesInput = {
@@ -1049,6 +1188,7 @@ export type UserUpdateWithoutOtp_codesInput = {
   license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOtp_codesInput = {
@@ -1070,6 +1210,7 @@ export type UserUncheckedUpdateWithoutOtp_codesInput = {
   license_events?: Prisma.LicenseEventUncheckedUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUncheckedUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserCreateWithoutOwned_projectsInput = {
@@ -1091,6 +1232,7 @@ export type UserCreateWithoutOwned_projectsInput = {
   license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateWithoutOwned_projectsInput = {
@@ -1112,6 +1254,7 @@ export type UserUncheckedCreateWithoutOwned_projectsInput = {
   license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserCreateOrConnectWithoutOwned_projectsInput = {
@@ -1149,6 +1292,7 @@ export type UserUpdateWithoutOwned_projectsInput = {
   license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwned_projectsInput = {
@@ -1170,6 +1314,7 @@ export type UserUncheckedUpdateWithoutOwned_projectsInput = {
   license_events?: Prisma.LicenseEventUncheckedUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUncheckedUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserCreateWithoutLicense_eventsInput = {
@@ -1191,6 +1336,7 @@ export type UserCreateWithoutLicense_eventsInput = {
   owned_projects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateWithoutLicense_eventsInput = {
@@ -1212,6 +1358,7 @@ export type UserUncheckedCreateWithoutLicense_eventsInput = {
   owned_projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserCreateOrConnectWithoutLicense_eventsInput = {
@@ -1249,6 +1396,7 @@ export type UserUpdateWithoutLicense_eventsInput = {
   owned_projects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLicense_eventsInput = {
@@ -1270,6 +1418,7 @@ export type UserUncheckedUpdateWithoutLicense_eventsInput = {
   owned_projects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUncheckedUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserCreateWithoutGithub_connectionsInput = {
@@ -1291,6 +1440,7 @@ export type UserCreateWithoutGithub_connectionsInput = {
   owned_projects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
   license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogCreateNestedManyWithoutActorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateWithoutGithub_connectionsInput = {
@@ -1312,6 +1462,7 @@ export type UserUncheckedCreateWithoutGithub_connectionsInput = {
   owned_projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
   license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
   audit_logs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutActorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserCreateOrConnectWithoutGithub_connectionsInput = {
@@ -1349,6 +1500,7 @@ export type UserUpdateWithoutGithub_connectionsInput = {
   owned_projects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
   license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGithub_connectionsInput = {
@@ -1370,6 +1522,7 @@ export type UserUncheckedUpdateWithoutGithub_connectionsInput = {
   owned_projects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
   license_events?: Prisma.LicenseEventUncheckedUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserCreateWithoutAudit_logsInput = {
@@ -1391,6 +1544,7 @@ export type UserCreateWithoutAudit_logsInput = {
   owned_projects?: Prisma.ProjectCreateNestedManyWithoutOwnerInput
   license_events?: Prisma.LicenseEventCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserUncheckedCreateWithoutAudit_logsInput = {
@@ -1412,6 +1566,7 @@ export type UserUncheckedCreateWithoutAudit_logsInput = {
   owned_projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwnerInput
   license_events?: Prisma.LicenseEventUncheckedCreateNestedManyWithoutActorInput
   github_connections?: Prisma.GithubConnectionUncheckedCreateNestedManyWithoutAuthorInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedCreateNestedManyWithoutUpdated_byInput
 }
 
 export type UserCreateOrConnectWithoutAudit_logsInput = {
@@ -1449,6 +1604,7 @@ export type UserUpdateWithoutAudit_logsInput = {
   owned_projects?: Prisma.ProjectUpdateManyWithoutOwnerNestedInput
   license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAudit_logsInput = {
@@ -1470,6 +1626,7 @@ export type UserUncheckedUpdateWithoutAudit_logsInput = {
   owned_projects?: Prisma.ProjectUncheckedUpdateManyWithoutOwnerNestedInput
   license_events?: Prisma.LicenseEventUncheckedUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUncheckedUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserCreateManyCurrent_workspaceInput = {
@@ -1505,6 +1662,7 @@ export type UserUpdateWithoutCurrent_workspaceInput = {
   license_events?: Prisma.LicenseEventUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCurrent_workspaceInput = {
@@ -1526,6 +1684,7 @@ export type UserUncheckedUpdateWithoutCurrent_workspaceInput = {
   license_events?: Prisma.LicenseEventUncheckedUpdateManyWithoutActorNestedInput
   audit_logs?: Prisma.AuditLogUncheckedUpdateManyWithoutActorNestedInput
   github_connections?: Prisma.GithubConnectionUncheckedUpdateManyWithoutAuthorNestedInput
+  role_permission_updates?: Prisma.WorkspaceRolePermissionUncheckedUpdateManyWithoutUpdated_byNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCurrent_workspaceInput = {
@@ -1555,6 +1714,7 @@ export type UserCountOutputType = {
   license_events: number
   audit_logs: number
   github_connections: number
+  role_permission_updates: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1565,6 +1725,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   license_events?: boolean | UserCountOutputTypeCountLicense_eventsArgs
   audit_logs?: boolean | UserCountOutputTypeCountAudit_logsArgs
   github_connections?: boolean | UserCountOutputTypeCountGithub_connectionsArgs
+  role_permission_updates?: boolean | UserCountOutputTypeCountRole_permission_updatesArgs
 }
 
 /**
@@ -1626,6 +1787,13 @@ export type UserCountOutputTypeCountGithub_connectionsArgs<ExtArgs extends runti
   where?: Prisma.GithubConnectionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRole_permission_updatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkspaceRolePermissionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1648,6 +1816,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   license_events?: boolean | Prisma.User$license_eventsArgs<ExtArgs>
   audit_logs?: boolean | Prisma.User$audit_logsArgs<ExtArgs>
   github_connections?: boolean | Prisma.User$github_connectionsArgs<ExtArgs>
+  role_permission_updates?: boolean | Prisma.User$role_permission_updatesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1708,6 +1877,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   license_events?: boolean | Prisma.User$license_eventsArgs<ExtArgs>
   audit_logs?: boolean | Prisma.User$audit_logsArgs<ExtArgs>
   github_connections?: boolean | Prisma.User$github_connectionsArgs<ExtArgs>
+  role_permission_updates?: boolean | Prisma.User$role_permission_updatesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1728,6 +1898,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     license_events: Prisma.$LicenseEventPayload<ExtArgs>[]
     audit_logs: Prisma.$AuditLogPayload<ExtArgs>[]
     github_connections: Prisma.$GithubConnectionPayload<ExtArgs>[]
+    role_permission_updates: Prisma.$WorkspaceRolePermissionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2144,6 +2315,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   license_events<T extends Prisma.User$license_eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$license_eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LicenseEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   audit_logs<T extends Prisma.User$audit_logsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$audit_logsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   github_connections<T extends Prisma.User$github_connectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$github_connectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GithubConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  role_permission_updates<T extends Prisma.User$role_permission_updatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$role_permission_updatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkspaceRolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2770,6 +2942,30 @@ export type User$github_connectionsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.GithubConnectionScalarFieldEnum | Prisma.GithubConnectionScalarFieldEnum[]
+}
+
+/**
+ * User.role_permission_updates
+ */
+export type User$role_permission_updatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkspaceRolePermission
+   */
+  select?: Prisma.WorkspaceRolePermissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkspaceRolePermission
+   */
+  omit?: Prisma.WorkspaceRolePermissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkspaceRolePermissionInclude<ExtArgs> | null
+  where?: Prisma.WorkspaceRolePermissionWhereInput
+  orderBy?: Prisma.WorkspaceRolePermissionOrderByWithRelationInput | Prisma.WorkspaceRolePermissionOrderByWithRelationInput[]
+  cursor?: Prisma.WorkspaceRolePermissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkspaceRolePermissionScalarFieldEnum | Prisma.WorkspaceRolePermissionScalarFieldEnum[]
 }
 
 /**

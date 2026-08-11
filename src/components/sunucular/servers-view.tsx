@@ -73,14 +73,16 @@ export function ServersView({
   servers,
   projects,
   rates,
-  canManage,
-  canArchive,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: {
   servers: ServerRow[];
   projects: Option[];
   rates: ExchangeRates | null;
-  canManage: boolean;
-  canArchive: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editing, setEditing] = useState<ServerFormValues | undefined>();
@@ -88,7 +90,7 @@ export function ServersView({
 
   return (
     <>
-      {canManage && (
+      {canCreate && (
         <div className="flex justify-end">
           <Button onClick={() => { setEditing(undefined); setDrawerOpen(true); }} className="bg-[#5267ff] hover:bg-[#4254e1]">
             <Plus className="mr-1 h-4 w-4" />
@@ -126,7 +128,7 @@ export function ServersView({
                   <TableCell><CostCell raw={s.raw} rates={rates} /></TableCell>
                   <TableCell><StatusBadge status={s.status} /></TableCell>
                   <TableCell>
-                    {canManage && (
+                    {(canUpdate || canDelete) && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -134,15 +136,15 @@ export function ServersView({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => { setEditing(s.raw); setDrawerOpen(true); }}>
+                          {canUpdate && <DropdownMenuItem onClick={() => { setEditing(s.raw); setDrawerOpen(true); }}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Düzenle
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setLinkTarget(s)}>
+                          </DropdownMenuItem>}
+                          {canUpdate && <DropdownMenuItem onClick={() => setLinkTarget(s)}>
                             <Network className="mr-2 h-4 w-4" />
                             Proje Eşleştir ({s.project_count})
-                          </DropdownMenuItem>
-                          {canArchive && s.status !== "terminated" && (
+                          </DropdownMenuItem>}
+                          {canDelete && s.status !== "terminated" && (
                             <ConfirmDialog
                               trigger={
                                 <DropdownMenuItem

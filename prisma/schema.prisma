@@ -169,7 +169,7 @@ model Workspace {
   deleted_at       DateTime?
 
   members            WorkspaceUser[]
-  current_users      User[]            @relation("UserCurrentWorkspace")
+  current_users      User[]                    @relation("UserCurrentWorkspace")
   customers          Customer[]
   products           Product[]
   projects           Project[]
@@ -209,24 +209,24 @@ model User {
   license_events    LicenseEvent[]
   audit_logs        AuditLog[]
 
-  github_connections GithubConnection[] @relation("GithubConnectionAuthor")
+  github_connections      GithubConnection[]        @relation("GithubConnectionAuthor")
   role_permission_updates WorkspaceRolePermission[] @relation("RolePermissionUpdatedBy")
 
   @@map("users")
 }
 
 model Session {
-  id            String   @id @default(uuid(4)) @db.Uuid
-  session_token String   @unique
-  user_id       String   @db.Uuid
+  id                  String   @id @default(uuid(4)) @db.Uuid
+  session_token       String   @unique
+  user_id             String   @db.Uuid
   /// Hareketsizlik penceresi: her istekte ileri kaydırılır.
-  expires       DateTime
+  expires             DateTime
   /// Mutlak üst sınır: girişte belirlenir, bir daha uzatılmaz.
   /// DB varsayılanı yalnızca dağıtım geçişi için emniyet ağıdır; uygulama her
   /// zaman değeri açıkça yazar.
   absolute_expires_at DateTime @default(dbgenerated("(CURRENT_TIMESTAMP + '7 days'::interval)"))
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
@@ -503,33 +503,33 @@ model LicenseEvent {
 // ─── Sunucu Envanteri ────────────────────────────────────────────────────────
 
 model Server {
-  id               String       @id @default(uuid(4)) @db.Uuid
-  workspace_id     String       @db.Uuid
-  provider         String?
-  external_ref     String?
-  name             String
-  type             ServerType   @default(vps)
-  hostname         String?
-  primary_ip       String?
-  region           String?
-  operating_system String?
-  cpu_cores        Int?
-  ram_mb           Int?
-  disk_gb          Int?
-  management_url   String?
-  ssh_port         Int          @default(22)
-  ssh_user         String?
+  id                     String       @id @default(uuid(4)) @db.Uuid
+  workspace_id           String       @db.Uuid
+  provider               String?
+  external_ref           String?
+  name                   String
+  type                   ServerType   @default(vps)
+  hostname               String?
+  primary_ip             String?
+  region                 String?
+  operating_system       String?
+  cpu_cores              Int?
+  ram_mb                 Int?
+  disk_gb                Int?
+  management_url         String?
+  ssh_port               Int          @default(22)
+  ssh_user               String?
   ssh_password_encrypted String?
-  status           ServerStatus @default(active)
-  renewal_at       DateTime?
-  monthly_cost     Decimal?     @db.Decimal(14, 2)
-  cost_period      CostPeriod   @default(monthly)
-  currency         String       @default("TRY")
+  status                 ServerStatus @default(active)
+  renewal_at             DateTime?
+  monthly_cost           Decimal?     @db.Decimal(14, 2)
+  cost_period            CostPeriod   @default(monthly)
+  currency               String       @default("TRY")
   /// Elle girilen sabit kur; null ise güncel TCMB günlük kuru kullanılır.
-  manual_fx_rate   Decimal?     @db.Decimal(18, 6)
-  created_at       DateTime     @default(now())
-  updated_at       DateTime     @updatedAt
-  deleted_at       DateTime?
+  manual_fx_rate         Decimal?     @db.Decimal(18, 6)
+  created_at             DateTime     @default(now())
+  updated_at             DateTime     @updatedAt
+  deleted_at             DateTime?
 
   workspace     Workspace       @relation(fields: [workspace_id], references: [id])
   project_links ProjectServer[]
@@ -650,7 +650,7 @@ model Invoice {
   subtotal            Decimal       @db.Decimal(14, 2)
   tax_total           Decimal       @db.Decimal(14, 2)
   total               Decimal       @db.Decimal(14, 2)
-  paid_total          Decimal      @default(0) @db.Decimal(14, 2)
+  paid_total          Decimal       @default(0) @db.Decimal(14, 2)
   balance_due         Decimal       @db.Decimal(14, 2)
   description         String?
   customer_snapshot   Json
@@ -728,25 +728,25 @@ model GithubConnection {
 // ─── Webhook & Denetim ───────────────────────────────────────────────────────
 
 model WebhookDelivery {
-  id               String                @id @default(uuid(4)) @db.Uuid
-  workspace_id     String                @db.Uuid
-  project_id       String                @db.Uuid
-  license_id       String?               @db.Uuid
-  idempotency_key  String                @unique @db.Uuid
-  event_type       String
-  payload          Json
-  status           WebhookDeliveryStatus @default(pending)
-  http_status      Int?
-  attempt_count    Int                   @default(0)
-  publish_attempt_count Int               @default(0)
-  queued_at        DateTime?
-  next_publish_at  DateTime?              @default(now())
+  id                    String                @id @default(uuid(4)) @db.Uuid
+  workspace_id          String                @db.Uuid
+  project_id            String                @db.Uuid
+  license_id            String?               @db.Uuid
+  idempotency_key       String                @unique @db.Uuid
+  event_type            String
+  payload               Json
+  status                WebhookDeliveryStatus @default(pending)
+  http_status           Int?
+  attempt_count         Int                   @default(0)
+  publish_attempt_count Int                   @default(0)
+  queued_at             DateTime?
+  next_publish_at       DateTime?             @default(now())
   processing_started_at DateTime?
-  delivered_at     DateTime?
-  response_excerpt String?
-  last_error       String?
-  created_at       DateTime              @default(now())
-  updated_at       DateTime              @updatedAt
+  delivered_at          DateTime?
+  response_excerpt      String?
+  last_error            String?
+  created_at            DateTime              @default(now())
+  updated_at            DateTime              @updatedAt
 
   workspace Workspace @relation(fields: [workspace_id], references: [id])
   project   Project   @relation(fields: [project_id], references: [id])

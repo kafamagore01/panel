@@ -8,6 +8,7 @@ export type LicenseDomainCandidate = {
 export type LicenseProjectOption = {
   id: string;
   label: string;
+  customer_name: string;
   product_name: string;
   domain_candidates: LicenseDomainCandidate[];
 };

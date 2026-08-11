@@ -219,8 +219,17 @@ APP_GITHUB_REPOSITORY="tbsagdic/ops-center"
 
 ## Genel lisans API'si
 
-Ops Center, lisanslanan uygulamaların sunucu tarafından çağırabileceği bir doğrulama
-ve aktivasyon bırakma API'si sunar.
+Ops Center; backend, worker, CLI, masaüstü uygulaması, CMS eklentisi veya başka bir
+HTTP istemcisinden çağrılabilen doğrulama ve aktivasyon bırakma API’si sunar. API,
+lisans anahtarının bir yönetim ekranından girildiğini varsaymaz: anahtar kod, build
+değişkeni, env/config, veritabanı, secret manager, CLI ya da geliştiricinin kendi
+provider’ından gelebilir.
+
+Uçtan uca akış, farklı entegrasyon modelleri, çevrimdışı politika, özellik kontrolü,
+hata matrisi ve JavaScript/TypeScript, PHP, Python örnekleri için
+[`docs/license-integration.md`](docs/license-integration.md) rehberine bakın.
+Makine tarafından okunabilir sözleşme:
+[`docs/openapi-license-v1.yaml`](docs/openapi-license-v1.yaml).
 
 ### Lisans doğrulama
 
@@ -239,8 +248,8 @@ Content-Type: application/json
 }
 ```
 
-İlk başarılı doğrulama bir `activation_token` döndürür. Bu token yalnızca müşteri
-uygulamasının sunucu tarafında saklanmalı ve sonraki isteklere eklenmelidir:
+İlk başarılı doğrulama bir `activation_token` döndürür. Bu token uygulamanın seçtiği
+kalıcı özel depoda saklanmalı ve sonraki isteklere eklenmelidir:
 
 ```json
 {

@@ -73,7 +73,7 @@ export function assignableRolesFor(role: MembershipRole): MembershipRole[] {
   if (role === "admin") {
     return ["technical", "finance", "viewer"];
   }
-  return [];
+  return ["technical", "finance", "viewer"];
 }
 
 export type AuthorizedContext = AuthContext & {

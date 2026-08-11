@@ -3,7 +3,7 @@ import {
   getAuthContext,
   isPasswordResetRequired,
 } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { hasWorkspacePermission } from "@/lib/auth/permissions";
 import { writeAudit } from "@/lib/audit";
 import { GithubError } from "@/lib/github/client";
 import { saveConnection } from "@/lib/github/connection";
@@ -33,7 +33,11 @@ export async function GET(request: NextRequest) {
   if (isPasswordResetRequired(ctx)) {
     return done("password_reset_required");
   }
-  if (!ctx?.workspaceId || !hasPermission(ctx.role, "system.manage")) {
+  if (
+    !ctx?.workspaceId ||
+    !ctx.role ||
+    !(await hasWorkspacePermission(ctx.workspaceId, ctx.role, "settings.update"))
+  ) {
     return done("forbidden");
   }
   if (!isOAuthConfigured()) return done("oauth_disabled");

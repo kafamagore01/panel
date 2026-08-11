@@ -8,6 +8,7 @@ import {
   MoreHorizontal,
   Loader2,
   Check,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,11 +36,14 @@ import {
 import { StatusBadge } from "@/components/status-badge";
 import { FormDrawer } from "@/components/form-drawer";
 import { Field } from "@/components/form-field";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   inviteMember,
   changeMemberRole,
   changeMemberStatus,
+  removeMember,
   createWorkspace,
+  deleteWorkspace,
   switchWorkspace,
 } from "@/actions/team";
 import { useRouter } from "next/navigation";
@@ -60,13 +64,25 @@ export function TeamView({
   currentWorkspaceId,
   members,
   assignableRoles,
-  canManage,
+  canViewWorkspaces,
+  canCreateWorkspace,
+  canDeleteWorkspace,
+  canViewMembers,
+  canCreateMember,
+  canUpdateMember,
+  canDeleteMember,
 }: {
   workspaces: WorkspaceItem[];
   currentWorkspaceId: string;
   members: MemberItem[];
   assignableRoles: string[];
-  canManage: boolean;
+  canViewWorkspaces: boolean;
+  canCreateWorkspace: boolean;
+  canDeleteWorkspace: boolean;
+  canViewMembers: boolean;
+  canCreateMember: boolean;
+  canUpdateMember: boolean;
+  canDeleteMember: boolean;
 }) {
   const router = useRouter();
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -111,41 +127,58 @@ export function TeamView({
 
   return (
     <div className="space-y-6">
-      {/* Çalışma alanları */}
-      <div className="rounded-[18px] border border-slate-200/80 bg-white p-5 shadow-sm">
+      {canViewWorkspaces && <div className="rounded-[18px] border border-slate-200/80 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-extrabold text-[#141821]">Çalışma Alanları</h2>
-          <Button variant="outline" size="sm" onClick={() => setWsOpen(true)}>
+          {canCreateWorkspace && <Button variant="outline" size="sm" onClick={() => setWsOpen(true)}>
             <Plus className="mr-1 h-4 w-4" />
             Yeni Alan
-          </Button>
+          </Button>}
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {workspaces.map((ws) => (
-            <button
+            <div
               key={ws.id}
-              onClick={() => ws.id !== currentWorkspaceId && onSwitch(ws.id)}
               className={`flex items-center justify-between rounded-[12px] border p-3 text-left transition-colors ${
                 ws.id === currentWorkspaceId
                   ? "border-[#5267ff] bg-[#5267ff]/5"
                   : "border-slate-200 hover:border-[#5267ff]/40"
               }`}
             >
-              <div>
+              <button
+                type="button"
+                className="min-w-0 flex-1 text-left"
+                onClick={() => ws.id !== currentWorkspaceId && onSwitch(ws.id)}
+              >
                 <p className="text-sm font-semibold text-[#141821]">{ws.name}</p>
                 <p className="text-xs text-muted-foreground">{roleLabel(ws.role)}</p>
+              </button>
+              <div className="ml-2 flex items-center gap-1">
+                {ws.id === currentWorkspaceId && <Check className="h-4 w-4 text-[#5267ff]" />}
+                {canDeleteWorkspace && ws.id === currentWorkspaceId && (
+                  <ConfirmDialog
+                    trigger={
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    }
+                    title="Çalışma alanını sil"
+                    description={`${ws.name} çalışma alanı silinecek. Bu işlem alanı tüm kullanıcılar için kapatır.`}
+                    confirmLabel="Alanı Sil"
+                    destructive
+                    action={() => deleteWorkspace(ws.id)}
+                  />
+                )}
               </div>
-              {ws.id === currentWorkspaceId && <Check className="h-4 w-4 text-[#5267ff]" />}
-            </button>
+            </div>
           ))}
         </div>
-      </div>
+      </div>}
 
-      {/* Üyeler */}
-      <div className="rounded-[18px] border border-slate-200/80 bg-white shadow-sm">
+      {canViewMembers && <div className="rounded-[18px] border border-slate-200/80 bg-white shadow-sm">
         <div className="flex items-center justify-between p-5">
           <h2 className="font-extrabold text-[#141821]">Ekip Üyeleri</h2>
-          {canManage && (
+          {canCreateMember && (
             <Button onClick={() => setInviteOpen(true)} className="bg-[#5267ff] hover:bg-[#4254e1]">
               <UserPlus className="mr-1 h-4 w-4" />
               Üye Davet Et
@@ -173,7 +206,7 @@ export function TeamView({
                     <div className="text-xs text-muted-foreground">{m.email}</div>
                   </TableCell>
                   <TableCell>
-                    {canManage && assignableRoles.includes(m.role) ? (
+                    {canUpdateMember && assignableRoles.includes(m.role) ? (
                       <Select value={m.role} onValueChange={(v) => onRoleChange(m.membership_id, v)}>
                         <SelectTrigger className="h-8 w-36"><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -188,7 +221,7 @@ export function TeamView({
                   </TableCell>
                   <TableCell><StatusBadge status={m.status} /></TableCell>
                   <TableCell>
-                    {canManage && !m.is_self && (
+                    {(canUpdateMember || canDeleteMember) && !m.is_self && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -196,7 +229,7 @@ export function TeamView({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {m.status === "active" ? (
+                          {canUpdateMember && (m.status === "active" ? (
                             <DropdownMenuItem onClick={() => onStatusChange(m.membership_id, false)} className="text-rose-600">
                               Pasifleştir
                             </DropdownMenuItem>
@@ -204,6 +237,23 @@ export function TeamView({
                             <DropdownMenuItem onClick={() => onStatusChange(m.membership_id, true)}>
                               Aktifleştir
                             </DropdownMenuItem>
+                          ))}
+                          {canDeleteMember && (
+                            <ConfirmDialog
+                              trigger={
+                                <DropdownMenuItem
+                                  onSelect={(event) => event.preventDefault()}
+                                  className="text-rose-600"
+                                >
+                                  Kullanıcıyı Sil
+                                </DropdownMenuItem>
+                              }
+                              title="Kullanıcıyı çalışma alanından sil"
+                              description={`${m.name} (${m.email}) bu çalışma alanından kalıcı olarak kaldırılacak.`}
+                              confirmLabel="Kullanıcıyı Sil"
+                              destructive
+                              action={() => removeMember(m.membership_id)}
+                            />
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -214,10 +264,10 @@ export function TeamView({
             </TableBody>
           </Table>
         </div>
-      </div>
+      </div>}
 
-      <InviteDrawer open={inviteOpen} onOpenChange={setInviteOpen} assignableRoles={assignableRoles} />
-      <WorkspaceDrawer open={wsOpen} onOpenChange={setWsOpen} />
+      {canCreateMember && <InviteDrawer open={inviteOpen} onOpenChange={setInviteOpen} assignableRoles={assignableRoles} />}
+      {canCreateWorkspace && <WorkspaceDrawer open={wsOpen} onOpenChange={setWsOpen} />}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { getAuthContext } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { redirect } from "next/navigation";
+import { getEffectivePermissions, hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
 import { prisma } from "@/lib/db/prisma";
 import {
@@ -25,6 +26,9 @@ export default async function ProjectsPage({
   searchParams: Promise<SearchParams>;
 }) {
   const ctx = await getAuthContext();
+  if (!ctx?.workspaceId || !ctx.role) redirect("/yetkisiz");
+  const permissions = await getEffectivePermissions(ctx.workspaceId, ctx.role);
+  if (!hasPermission(ctx.role, "projects.view", permissions)) redirect("/yetkisiz");
   const { page, skip, take, search, status } = parseListParams(await searchParams);
   const db = await getTenantDb();
 
@@ -171,8 +175,9 @@ export default async function ProjectsPage({
       : "",
   }));
 
-  const canManage = hasPermission(ctx?.role ?? null, "record.manage");
-  const canArchive = hasPermission(ctx?.role ?? null, "record.archive");
+  const canCreate = hasPermission(ctx.role, "projects.create", permissions);
+  const canUpdate = hasPermission(ctx.role, "projects.update", permissions);
+  const canDelete = hasPermission(ctx.role, "projects.delete", permissions);
 
   return (
     <div className="space-y-6">
@@ -189,8 +194,9 @@ export default async function ProjectsPage({
         members={memberOptions}
         sourceProjects={sourceProjectOptions}
         rates={rates}
-        canManage={canManage}
-        canArchive={canArchive}
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
       <PaginationBar page={page} totalPages={pageCount(total)} totalItems={total} />
     </div>

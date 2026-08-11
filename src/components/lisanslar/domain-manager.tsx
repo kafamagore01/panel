@@ -35,11 +35,17 @@ export function DomainManager({
   onOpenChange,
   licenseId,
   domains,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   licenseId: string;
   domains: DomainItem[];
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }) {
   const router = useRouter();
   const [domain, setDomain] = useState("");
@@ -95,7 +101,7 @@ export function DomainManager({
       description="Lisansın geçerli olacağı domainleri tanımlayın."
     >
       <div className="space-y-4 pt-4">
-        <div className="flex gap-2">
+        {canCreate && <div className="flex gap-2">
           <Input
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
@@ -113,7 +119,7 @@ export function DomainManager({
           <Button onClick={add} disabled={isPending || !domain} className="bg-[#5267ff] hover:bg-[#4254e1]">
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
           </Button>
-        </div>
+        </div>}
 
         <div className="space-y-2">
           {domains.length === 0 ? (
@@ -136,7 +142,7 @@ export function DomainManager({
                   </div>
                 </div>
                 <div className="flex items-center">
-                  <Button
+                  {canUpdate && <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => toggleStatus(d.id, d.status)}
@@ -149,10 +155,10 @@ export function DomainManager({
                     ) : (
                       <Power className="h-4 w-4" />
                     )}
-                  </Button>
-                  <Button variant="ghost" size="icon" onClick={() => remove(d.id)} disabled={isPending} className="text-rose-600">
+                  </Button>}
+                  {canDelete && <Button variant="ghost" size="icon" onClick={() => remove(d.id)} disabled={isPending} className="text-rose-600">
                     <Trash2 className="h-4 w-4" />
-                  </Button>
+                  </Button>}
                 </div>
               </div>
             ))

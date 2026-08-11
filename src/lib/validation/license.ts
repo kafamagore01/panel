@@ -68,6 +68,53 @@ export const createLicenseSchema = z
 
 export type CreateLicenseInput = z.infer<typeof createLicenseSchema>;
 
+export const updateLicenseSchema = z
+  .object({
+    license_id: z.uuid("Lisans kimliği geçersiz."),
+    product_name: z.string().trim().min(2, "Ürün adı zorunludur.").max(150),
+    starts_at: optDate,
+    expires_at: optDate,
+    grace_days: z
+      .union([z.string(), z.number(), z.literal("")])
+      .optional()
+      .transform((v) => (v === "" || v === undefined ? 0 : Number(v)))
+      .refine((v) => Number.isFinite(v) && v >= 0 && v <= 365, {
+        message: "Ek süre 0-365 gün arasında olmalıdır.",
+      }),
+    activation_limit: z
+      .union([z.string(), z.number()])
+      .transform((v) => Number(v))
+      .refine((v) => Number.isInteger(v) && v >= 1 && v <= 10000, {
+        message: "Aktivasyon limiti 1-10000 arasında olmalıdır.",
+      }),
+    auto_suspend: z.boolean().optional().default(false),
+    features: z.string().trim().max(500).optional().transform((v) => (v ? v : undefined)),
+    status: z.enum(["pending", "active", "grace", "expired", "suspended", "revoked"]),
+    reason: z.string().trim().max(300).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.starts_at && data.expires_at) {
+      const starts = new Date(data.starts_at).getTime();
+      const expires = new Date(data.expires_at).getTime();
+      if (Number.isFinite(starts) && Number.isFinite(expires) && expires < starts) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["expires_at"],
+          message: "Bitiş tarihi başlangıç tarihinden sonra olmalıdır.",
+        });
+      }
+    }
+    if (!data.expires_at && data.grace_days > 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["grace_days"],
+        message: "Ek süre için bitiş tarihi girilmelidir.",
+      });
+    }
+  });
+
+export type UpdateLicenseInput = z.infer<typeof updateLicenseSchema>;
+
 export const changeStatusSchema = z.object({
   license_id: z.uuid(),
   status: z.enum(["pending", "active", "grace", "expired", "suspended", "revoked"]),

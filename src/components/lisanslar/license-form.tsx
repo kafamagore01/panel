@@ -39,7 +39,7 @@ export function LicenseForm({
   );
   const [startsAt, setStartsAt] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
-  const [graceDays, setGraceDays] = useState("14");
+  const [graceDays, setGraceDays] = useState("");
   const [activationLimit, setActivationLimit] = useState("1");
   const [autoSuspend, setAutoSuspend] = useState(false);
   const [features, setFeatures] = useState("");
@@ -79,6 +79,16 @@ export function LicenseForm({
     }
     setDomain(value);
     setManualDomain(false);
+  }
+
+  function onExpiresAtChange(value: string) {
+    setExpiresAt(value);
+    setErrors((current) => ({ ...current, expires_at: [], grace_days: [] }));
+    if (!value) {
+      setGraceDays("");
+    } else if (!graceDays) {
+      setGraceDays("14");
+    }
   }
 
   function onSubmit(event: React.FormEvent) {
@@ -124,6 +134,12 @@ export function LicenseForm({
           </SelectContent>
         </Select>
       </Field>
+
+      {selectedProject && (
+        <Field label="Müşteri">
+          <Input value={selectedProject.customer_name} readOnly />
+        </Field>
+      )}
 
       {selectedProject && (
         <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/70 p-3">
@@ -215,7 +231,7 @@ export function LicenseForm({
           <Input
             type="date"
             value={expiresAt}
-            onChange={(event) => setExpiresAt(event.target.value)}
+            onChange={(event) => onExpiresAtChange(event.target.value)}
           />
         </Field>
       </div>
@@ -225,9 +241,16 @@ export function LicenseForm({
           <Input
             type="number"
             min="0"
-            value={graceDays}
+            value={expiresAt ? graceDays : ""}
             onChange={(event) => setGraceDays(event.target.value)}
+            disabled={!expiresAt}
+            aria-describedby={!expiresAt ? "grace-days-hint" : undefined}
           />
+          {!expiresAt && (
+            <p id="grace-days-hint" className="text-xs text-muted-foreground">
+              Ek süre girmek için önce bitiş tarihini seçin.
+            </p>
+          )}
         </Field>
         <Field label="Aktivasyon Limiti" error={errors.activation_limit} required>
           <Input

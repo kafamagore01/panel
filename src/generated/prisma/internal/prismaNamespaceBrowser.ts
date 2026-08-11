@@ -55,6 +55,7 @@ export const ModelName = {
   User: 'User',
   Session: 'Session',
   WorkspaceUser: 'WorkspaceUser',
+  WorkspaceRolePermission: 'WorkspaceRolePermission',
   OtpCode: 'OtpCode',
   Customer: 'Customer',
   Product: 'Product',
@@ -146,6 +147,19 @@ export const WorkspaceUserScalarFieldEnum = {
 } as const
 
 export type WorkspaceUserScalarFieldEnum = (typeof WorkspaceUserScalarFieldEnum)[keyof typeof WorkspaceUserScalarFieldEnum]
+
+
+export const WorkspaceRolePermissionScalarFieldEnum = {
+  id: 'id',
+  workspace_id: 'workspace_id',
+  role: 'role',
+  permissions: 'permissions',
+  updated_by_user_id: 'updated_by_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+} as const
+
+export type WorkspaceRolePermissionScalarFieldEnum = (typeof WorkspaceRolePermissionScalarFieldEnum)[keyof typeof WorkspaceRolePermissionScalarFieldEnum]
 
 
 export const OtpCodeScalarFieldEnum = {

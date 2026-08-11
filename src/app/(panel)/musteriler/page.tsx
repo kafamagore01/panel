@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { getAuthContext } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { redirect } from "next/navigation";
+import { getEffectivePermissions, hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
 import {
   FORM_OPTION_LIMIT,
@@ -26,6 +27,9 @@ export default async function CustomersPage({
   searchParams: Promise<SearchParams>;
 }) {
   const ctx = await getAuthContext();
+  if (!ctx?.workspaceId || !ctx.role) redirect("/yetkisiz");
+  const permissions = await getEffectivePermissions(ctx.workspaceId, ctx.role);
+  if (!hasPermission(ctx.role, "customers.view", permissions)) redirect("/yetkisiz");
   const { page, skip, take, search, status } = parseListParams(await searchParams);
 
   const db = await getTenantDb();
@@ -91,8 +95,9 @@ export default async function CustomersPage({
     },
   }));
 
-  const canManage = hasPermission(ctx?.role ?? null, "record.manage");
-  const canArchive = hasPermission(ctx?.role ?? null, "record.archive");
+  const canCreate = hasPermission(ctx.role, "customers.create", permissions);
+  const canUpdate = hasPermission(ctx.role, "customers.update", permissions);
+  const canDelete = hasPermission(ctx.role, "customers.delete", permissions);
   const parentOptions = parentCustomers.map((customer) => ({
     id: customer.id,
     label: customer.legal_name,
@@ -111,8 +116,9 @@ export default async function CustomersPage({
       <CustomersView
         customers={rows}
         parentOptions={parentOptions}
-        canManage={canManage}
-        canArchive={canArchive}
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
       <PaginationBar page={page} totalPages={pageCount(total)} totalItems={total} />
     </div>

@@ -1,5 +1,10 @@
 import { getAuthContext } from "@/lib/auth/context";
-import { hasPermission, assignableRolesFor } from "@/lib/auth/permissions";
+import { redirect } from "next/navigation";
+import {
+  hasPermission,
+  assignableRolesFor,
+  getEffectivePermissions,
+} from "@/lib/auth/permissions";
 import { prisma } from "@/lib/db/prisma";
 import { PageHeader } from "@/components/page-header";
 import {
@@ -13,13 +18,20 @@ export const metadata = { title: "Ekip · Operasyon Merkezi" };
 
 export default async function TeamPage() {
   const ctx = await getAuthContext();
-  if (!ctx) return null;
+  if (!ctx?.workspaceId || !ctx.role) redirect("/yetkisiz");
 
-  const memberships = await prisma.workspaceUser.findMany({
+  const permissions = await getEffectivePermissions(ctx.workspaceId, ctx.role);
+  const can = (action: Parameters<typeof hasPermission>[1]) =>
+    hasPermission(ctx.role, action, permissions);
+  const canViewMembers = can("team.view");
+  const canViewWorkspaces = can("workspaces.view");
+  if (!canViewMembers && !canViewWorkspaces) redirect("/yetkisiz");
+
+  const memberships = canViewWorkspaces ? await prisma.workspaceUser.findMany({
     where: { user_id: ctx.user.id },
     take: FORM_OPTION_LIMIT,
     include: { workspace: { select: { id: true, name: true, deleted_at: true } } },
-  });
+  }) : [];
 
   const workspaces: WorkspaceItem[] = memberships
     .filter((m) => !m.workspace.deleted_at)
@@ -31,7 +43,7 @@ export default async function TeamPage() {
     }));
 
   let members: MemberItem[] = [];
-  if (ctx.workspaceId) {
+  if (canViewMembers) {
     const rows = await prisma.workspaceUser.findMany({
       where: { workspace_id: ctx.workspaceId },
       take: FORM_OPTION_LIMIT,
@@ -48,8 +60,9 @@ export default async function TeamPage() {
     }));
   }
 
-  const canManage = hasPermission(ctx.role, "team.manage");
-  const assignableRoles = ctx.role ? assignableRolesFor(ctx.role) : [];
+  const canCreateMember = can("team.create");
+  const canUpdateMember = can("team.update");
+  const assignableRoles = canCreateMember || canUpdateMember ? assignableRolesFor(ctx.role) : [];
 
   return (
     <div className="space-y-6">
@@ -59,7 +72,13 @@ export default async function TeamPage() {
         currentWorkspaceId={ctx.workspaceId ?? ""}
         members={members}
         assignableRoles={assignableRoles}
-        canManage={canManage}
+        canViewWorkspaces={canViewWorkspaces}
+        canCreateWorkspace={can("workspaces.create")}
+        canDeleteWorkspace={can("workspaces.delete")}
+        canViewMembers={canViewMembers}
+        canCreateMember={canCreateMember}
+        canUpdateMember={canUpdateMember}
+        canDeleteMember={can("team.delete")}
       />
     </div>
   );

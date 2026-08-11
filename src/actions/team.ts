@@ -251,8 +251,7 @@ export async function changeMemberRole(
         });
         if (
           !actorMembership ||
-          actorMembership.status !== "active" ||
-          !["owner", "admin"].includes(actorMembership.role)
+          actorMembership.status !== "active"
         ) {
           return {
             kind: "error",
@@ -275,12 +274,12 @@ export async function changeMemberRole(
           };
         }
         if (
-          membership.role === "owner" &&
+          ["owner", "admin"].includes(membership.role) &&
           actorMembership.role !== "owner"
         ) {
           return {
             kind: "error",
-            message: "Owner rolündeki bir üyeyi yalnızca Owner değiştirebilir.",
+            message: "Sahip veya Yönetici rolündeki bir üyeyi yalnızca Sahip değiştirebilir.",
           };
         }
 
@@ -363,8 +362,7 @@ export async function changeMemberStatus(
         });
         if (
           !actorMembership ||
-          actorMembership.status !== "active" ||
-          !["owner", "admin"].includes(actorMembership.role)
+          actorMembership.status !== "active"
         ) {
           return {
             kind: "error",
@@ -385,12 +383,12 @@ export async function changeMemberStatus(
           };
         }
         if (
-          membership.role === "owner" &&
+          ["owner", "admin"].includes(membership.role) &&
           actorMembership.role !== "owner"
         ) {
           return {
             kind: "error",
-            message: "Owner üyeliğini yalnızca Owner değiştirebilir.",
+            message: "Sahip veya Yönetici üyeliğini yalnızca Sahip değiştirebilir.",
           };
         }
         if (
@@ -439,6 +437,108 @@ export async function changeMemberStatus(
   }
 }
 
+/** Kullanıcıyı çalışma alanından kalıcı olarak kaldırır; global hesabı korunur. */
+export async function removeMember(
+  membershipId: string
+): Promise<ActionResponse<null>> {
+  try {
+    const ctx = await requirePermission("team.delete");
+    if (!membershipIdSchema.safeParse(membershipId).success) {
+      return fail("Üyelik kimliği geçersiz.");
+    }
+
+    type RemoveResult =
+      | { kind: "error"; message: string }
+      | { kind: "ok"; userId: string; email: string; role: MembershipRole };
+
+    const result = await prisma.$transaction(async (tx): Promise<RemoveResult> => {
+      if (!(await lockWorkspaceForOwnerChange(tx, ctx.workspaceId))) {
+        return { kind: "error", message: "Çalışma alanı bulunamadı." };
+      }
+
+      const actorMembership = await tx.workspaceUser.findUnique({
+        where: {
+          workspace_id_user_id: {
+            workspace_id: ctx.workspaceId,
+            user_id: ctx.user.id,
+          },
+        },
+      });
+      if (!actorMembership || actorMembership.status !== "active") {
+        return {
+          kind: "error",
+          message: "Üyelik yetkiniz bu sırada değişti. Sayfayı yenileyin.",
+        };
+      }
+
+      const membership = await tx.workspaceUser.findFirst({
+        where: { id: membershipId, workspace_id: ctx.workspaceId },
+        include: { user: { select: { email: true, current_workspace_id: true } } },
+      });
+      if (!membership) return { kind: "error", message: "Üyelik bulunamadı." };
+      if (membership.user_id === ctx.user.id) {
+        return { kind: "error", message: "Kendi üyeliğinizi silemezsiniz." };
+      }
+      if (
+        ["owner", "admin"].includes(membership.role) &&
+        actorMembership.role !== "owner"
+      ) {
+        return {
+          kind: "error",
+          message: "Sahip veya Yönetici üyeliğini yalnızca Sahip silebilir.",
+        };
+      }
+      if (membership.role === "owner" && membership.status === "active") {
+        const activeOwners = await tx.workspaceUser.count({
+          where: { workspace_id: ctx.workspaceId, role: "owner", status: "active" },
+        });
+        if (activeOwners <= 1) {
+          return { kind: "error", message: "Son aktif Sahip silinemez." };
+        }
+      }
+
+      await tx.workspaceUser.delete({ where: { id: membership.id } });
+      if (membership.user.current_workspace_id === ctx.workspaceId) {
+        const fallback = await tx.workspaceUser.findFirst({
+          where: {
+            user_id: membership.user_id,
+            status: "active",
+            workspace: { deleted_at: null },
+          },
+          orderBy: { created_at: "asc" },
+          select: { workspace_id: true },
+        });
+        await tx.user.update({
+          where: { id: membership.user_id },
+          data: { current_workspace_id: fallback?.workspace_id ?? null },
+        });
+      }
+
+      return {
+        kind: "ok",
+        userId: membership.user_id,
+        email: membership.user.email,
+        role: membership.role,
+      };
+    });
+    if (result.kind === "error") return fail(result.message);
+
+    await writeAudit({
+      workspace_id: ctx.workspaceId,
+      actor_user_id: ctx.user.id,
+      action: "REMOVE_MEMBER",
+      auditable_type: "workspace_user",
+      auditable_id: membershipId,
+      before_data: { user_id: result.userId, email: result.email, role: result.role },
+    });
+
+    revalidatePath("/ekip");
+    return ok(null, "Kullanıcı çalışma alanından silindi.");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 const workspaceSchema = z.object({
   name: z.string().trim().min(2, "Çalışma alanı adı zorunludur.").max(150),
 });
@@ -448,11 +548,7 @@ export async function createWorkspace(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await getAuthContext();
-    if (!ctx) return fail("Oturum bulunamadı.");
-    if (isPasswordResetRequired(ctx)) {
-      return fail(PASSWORD_RESET_REQUIRED_MESSAGE);
-    }
+    const ctx = await requirePermission("workspaces.create");
     const parsed = workspaceSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -489,6 +585,83 @@ export async function createWorkspace(
   }
 }
 
+/** Aktif çalışma alanını siler ve kullanıcıları erişilebilir alanlarına taşır. */
+export async function deleteWorkspace(
+  workspaceId: string
+): Promise<ActionResponse<null>> {
+  try {
+    const ctx = await requirePermission("workspaces.delete");
+    if (!z.uuid().safeParse(workspaceId).success || workspaceId !== ctx.workspaceId) {
+      return fail("Yalnızca aktif çalışma alanı silinebilir.");
+    }
+
+    const actorFallback = await prisma.workspaceUser.findFirst({
+      where: {
+        user_id: ctx.user.id,
+        workspace_id: { not: workspaceId },
+        status: "active",
+        workspace: { deleted_at: null },
+      },
+      orderBy: { created_at: "asc" },
+      select: { workspace_id: true },
+    });
+    if (!actorFallback) {
+      return fail("Son erişilebilir çalışma alanınızı silemezsiniz.");
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const workspace = await tx.workspace.findFirst({
+        where: { id: workspaceId, deleted_at: null },
+        select: { id: true, name: true },
+      });
+      if (!workspace) return null;
+
+      const affectedUsers = await tx.user.findMany({
+        where: { current_workspace_id: workspaceId },
+        select: { id: true },
+      });
+      for (const user of affectedUsers) {
+        const fallback = await tx.workspaceUser.findFirst({
+          where: {
+            user_id: user.id,
+            workspace_id: { not: workspaceId },
+            status: "active",
+            workspace: { deleted_at: null },
+          },
+          orderBy: { created_at: "asc" },
+          select: { workspace_id: true },
+        });
+        await tx.user.update({
+          where: { id: user.id },
+          data: { current_workspace_id: fallback?.workspace_id ?? null },
+        });
+      }
+
+      await tx.workspace.update({
+        where: { id: workspaceId },
+        data: { deleted_at: new Date() },
+      });
+      return workspace;
+    });
+    if (!result) return fail("Çalışma alanı bulunamadı veya daha önce silinmiş.");
+
+    await writeAudit({
+      workspace_id: workspaceId,
+      actor_user_id: ctx.user.id,
+      action: "DELETE_WORKSPACE",
+      auditable_type: "workspace",
+      auditable_id: workspaceId,
+      before_data: { name: result.name, deleted_at: null },
+      after_data: { deleted_at: new Date().toISOString() },
+    });
+
+    revalidatePath("/", "layout");
+    return ok(null, "Çalışma alanı silindi.");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
 /** Aktif çalışma alanını değiştir (yalnızca üyesi olunan alanlar). */
 export async function switchWorkspace(
   workspaceId: string
@@ -504,8 +677,13 @@ export async function switchWorkspace(
       where: {
         workspace_id_user_id: { workspace_id: workspaceId, user_id: ctx.user.id },
       },
+      include: { workspace: { select: { deleted_at: true } } },
     });
-    if (!membership || membership.status !== "active") {
+    if (
+      !membership ||
+      membership.status !== "active" ||
+      membership.workspace.deleted_at
+    ) {
       return fail("Bu çalışma alanına erişiminiz yok.");
     }
 

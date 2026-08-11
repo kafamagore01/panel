@@ -13,7 +13,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field } from "@/components/form-field";
-import { createServer, updateServer } from "@/actions/servers";
+import {
+  createServer,
+  revealServerSshPassword,
+  updateServer,
+} from "@/actions/servers";
 import { useRouter } from "next/navigation";
 import { COST_PERIOD_OPTIONS } from "@/lib/validation/server";
 import {
@@ -73,6 +77,7 @@ export function ServerForm({
   const [values, setValues] = useState<ServerFormValues>({ ...EMPTY, ...initial });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [showSshPassword, setShowSshPassword] = useState(false);
+  const [isRevealingPassword, startRevealTransition] = useTransition();
   const [isPending, startTransition] = useTransition();
 
   function set<K extends keyof ServerFormValues>(key: K, value: ServerFormValues[K]) {
@@ -98,6 +103,32 @@ export function ServerForm({
           counterpart: isYearly ? (amount * fx.value) / 12 : amount * fx.value * 12,
         }
       : null;
+
+  function toggleSshPasswordVisibility() {
+    if (showSshPassword) {
+      setShowSshPassword(false);
+      return;
+    }
+
+    const serverId = initial?.id;
+    if (values.ssh_password || !serverId || !values.has_ssh_password) {
+      setShowSshPassword(true);
+      return;
+    }
+
+    startRevealTransition(async () => {
+      const res = await revealServerSshPassword(serverId);
+      if (res.success) {
+        setValues((prev) => ({
+          ...prev,
+          ssh_password: res.data.sshPassword,
+        }));
+        setShowSshPassword(true);
+      } else {
+        toast.error(res.error);
+      }
+    });
+  }
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -197,7 +228,7 @@ export function ServerForm({
         error={errors.ssh_password}
         hint={
           values.has_ssh_password
-            ? "Kayıtlı parola korunur; değiştirmek için yeni parolayı girin."
+            ? "Göz ikonuyla kayıtlı parolayı görüntüleyebilir veya yeni parolayla değiştirebilirsiniz."
             : "Parola şifreli olarak saklanır."
         }
       >
@@ -216,10 +247,13 @@ export function ServerForm({
             variant="ghost"
             size="icon"
             className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-            onClick={() => setShowSshPassword((visible) => !visible)}
+            onClick={toggleSshPasswordVisibility}
+            disabled={isRevealingPassword}
             aria-label={showSshPassword ? "Parolayı gizle" : "Parolayı göster"}
           >
-            {showSshPassword ? (
+            {isRevealingPassword ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : showSshPassword ? (
               <EyeOff className="h-4 w-4" />
             ) : (
               <Eye className="h-4 w-4" />

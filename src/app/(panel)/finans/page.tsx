@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { getEffectivePermissions, hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
 import { PageHeader } from "@/components/page-header";
 import { KpiCard } from "@/components/kpi-card";
@@ -18,12 +18,14 @@ export const metadata = { title: "Finans · Operasyon Merkezi" };
 
 export default async function FinancePage() {
   const ctx = await getAuthContext();
-  if (!hasPermission(ctx?.role ?? null, "finance.manage")) {
-    // Finans yalnızca owner/admin/finance rollerine açıktır; UI gizlemek
-    // sunucu tarafındaki veri sorgularının yetki sınırı değildir.
-    redirect("/dashboard");
+  if (!ctx?.workspaceId || !ctx.role) redirect("/yetkisiz");
+  const permissions = await getEffectivePermissions(ctx.workspaceId, ctx.role);
+  if (!hasPermission(ctx.role, "finance.view", permissions)) {
+    redirect("/yetkisiz");
   }
-  const canManage = hasPermission(ctx?.role ?? null, "finance.manage");
+  const canCreate = hasPermission(ctx.role, "finance.create", permissions);
+  const canUpdate = hasPermission(ctx.role, "finance.update", permissions);
+  const canDelete = hasPermission(ctx.role, "finance.delete", permissions);
 
   const db = await getTenantDb();
 
@@ -170,7 +172,9 @@ export default async function FinancePage() {
         customers={customerOptions}
         projects={projectOptions}
         rates={rates}
-        canManage={canManage}
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
       />
     </div>
   );

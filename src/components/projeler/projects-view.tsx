@@ -58,8 +58,9 @@ export function ProjectsView({
   members,
   sourceProjects,
   rates,
-  canManage,
-  canArchive,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: {
   projects: ProjectRow[];
   customers: Option[];
@@ -69,8 +70,9 @@ export function ProjectsView({
   sourceProjects: SourceProjectOption[];
   /** TCMB günlük kur bülteni; dövizli bütçelerin TL karşılığı için. */
   rates: ExchangeRates | null;
-  canManage: boolean;
-  canArchive: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
@@ -88,16 +90,16 @@ export function ProjectsView({
 
   return (
     <>
-      {canManage && (
+      {(canCreate || canUpdate || canDelete) && (
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => setCatalogOpen(true)}>
             <Package className="mr-1 h-4 w-4" />
             Ürün Kataloğu
           </Button>
-          <Button onClick={openNew} className="bg-[#5267ff] hover:bg-[#4254e1]">
+          {canCreate && <Button onClick={openNew} className="bg-[#5267ff] hover:bg-[#4254e1]">
             <Plus className="mr-1 h-4 w-4" />
             Yeni Proje
-          </Button>
+          </Button>}
         </div>
       )}
 
@@ -155,7 +157,7 @@ export function ProjectsView({
                   <TableCell className="text-sm tabular-nums">{p.license_count}</TableCell>
                   <TableCell><StatusBadge status={p.status} /></TableCell>
                   <TableCell>
-                    {(canManage || canArchive) && (
+                    {(canUpdate || canDelete) && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -163,13 +165,13 @@ export function ProjectsView({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {canManage && (
+                          {canUpdate && (
                             <DropdownMenuItem onClick={() => openEdit(p)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               Düzenle
                             </DropdownMenuItem>
                           )}
-                          {canArchive && p.status !== "archived" && (
+                          {canDelete && p.status !== "archived" && (
                             <ConfirmDialog
                               trigger={
                                 <DropdownMenuItem
@@ -215,7 +217,14 @@ export function ProjectsView({
         />
       </FormDrawer>
 
-      <ProductCatalog open={catalogOpen} onOpenChange={setCatalogOpen} products={catalog} />
+      <ProductCatalog
+        open={catalogOpen}
+        onOpenChange={setCatalogOpen}
+        products={catalog}
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
+      />
     </>
   );
 }

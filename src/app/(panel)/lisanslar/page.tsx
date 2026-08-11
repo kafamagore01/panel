@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { getAuthContext } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { redirect } from "next/navigation";
+import { getEffectivePermissions, hasPermission } from "@/lib/auth/permissions";
 import { getTenantDb } from "@/lib/db/tenant";
 import {
   FORM_OPTION_LIMIT,
@@ -20,12 +21,41 @@ import { buildLicenseDomainCandidates } from "@/lib/licenses/domain-candidates";
 
 export const metadata = { title: "Lisanslar · Operasyon Merkezi" };
 
+const licenseDateFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: "Europe/Istanbul",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function toDateInputValue(value: Date | null): string {
+  if (!value) return "";
+  const parts = Object.fromEntries(
+    licenseDateFormatter
+      .formatToParts(value)
+      .filter((part) => part.type !== "literal")
+      .map((part) => [part.type, part.value])
+  );
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+function graceDayCount(expiresAt: Date | null, graceEndsAt: Date | null): number {
+  if (!expiresAt || !graceEndsAt) return 0;
+  return Math.max(
+    0,
+    Math.round((graceEndsAt.getTime() - expiresAt.getTime()) / (24 * 60 * 60 * 1000))
+  );
+}
+
 export default async function LicensesPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
   const ctx = await getAuthContext();
+  if (!ctx?.workspaceId || !ctx.role) redirect("/yetkisiz");
+  const permissions = await getEffectivePermissions(ctx.workspaceId, ctx.role);
+  if (!hasPermission(ctx.role, "licenses.view", permissions)) redirect("/yetkisiz");
   const { page, skip, take, search, status } = parseListParams(await searchParams);
   const db = await getTenantDb();
 
@@ -39,6 +69,11 @@ export default async function LicensesPage({
       {
         domains: {
           some: { normalized_domain: { contains: search, mode: "insensitive" } },
+        },
+      },
+      {
+        project: {
+          customer: { legal_name: { contains: search, mode: "insensitive" } },
         },
       },
     ];
@@ -63,7 +98,13 @@ export default async function LicensesPage({
         skip,
         take,
         include: {
-          project: { select: { code: true } },
+          project: {
+            select: {
+              code: true,
+              name: true,
+              customer: { select: { legal_name: true } },
+            },
+          },
           domains: true,
           _count: { select: { activations: { where: { status: "active" } } } },
         },
@@ -103,11 +144,22 @@ export default async function LicensesPage({
     id: l.id,
     key_prefix: l.key_prefix,
     product_name: l.product_name,
+    customer_name: l.project.customer.legal_name,
+    project_name: l.project.name,
     project_code: l.project.code,
     status: l.status,
     expires_at: l.expires_at ? l.expires_at.toISOString() : null,
+    starts_at_input: toDateInputValue(l.starts_at),
+    expires_at_input: toDateInputValue(l.expires_at),
+    grace_days: graceDayCount(l.expires_at, l.grace_ends_at),
     active_activations: l._count.activations,
     activation_limit: l.activation_limit,
+    auto_suspend: l.auto_suspend,
+    features: Array.isArray(l.features)
+      ? l.features
+          .filter((feature): feature is string => typeof feature === "string")
+          .join(", ")
+      : "",
     domains: l.domains.map(
       (d): DomainItem => ({
         id: d.id,
@@ -123,6 +175,7 @@ export default async function LicensesPage({
   const projectOptions = projects.map((p) => ({
     id: p.id,
     label: `${p.name} - ${p.customer.legal_name}`,
+    customer_name: p.customer.legal_name,
     product_name: p.product?.name ?? p.name,
     domain_candidates: buildLicenseDomainCandidates({
       liveUrl: p.live_url,
@@ -135,8 +188,9 @@ export default async function LicensesPage({
     }),
   }));
 
-  const canManage = hasPermission(ctx?.role ?? null, "record.manage");
-  const canRotate = hasPermission(ctx?.role ?? null, "license.rotate");
+  const canCreate = hasPermission(ctx.role, "licenses.create", permissions);
+  const canUpdate = hasPermission(ctx.role, "licenses.update", permissions);
+  const canDelete = hasPermission(ctx.role, "licenses.delete", permissions);
 
   return (
     <div className="space-y-6">
@@ -148,8 +202,17 @@ export default async function LicensesPage({
         <KpiCard title="Askıda" value={suspendedCount} icon="Ban" tone="danger" />
       </div>
 
-      <ListToolbar statusOptions={LICENSE_STATUS_OPTIONS} searchPlaceholder="Ürün adı veya anahtar öneki ara..." />
-      <LicensesView licenses={rows} projects={projectOptions} canManage={canManage} canRotate={canRotate} />
+      <ListToolbar
+        statusOptions={LICENSE_STATUS_OPTIONS}
+        searchPlaceholder="Ürün, müşteri, domain veya anahtar ara..."
+      />
+      <LicensesView
+        licenses={rows}
+        projects={projectOptions}
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
+      />
       <PaginationBar page={page} totalPages={pageCount(total)} totalItems={total} />
     </div>
   );

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTenantDb } from "@/lib/db/tenant";
 import { PageHeader } from "@/components/page-header";
 import { KpiCard } from "@/components/kpi-card";
@@ -14,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { formatMoney, formatDate, toNumber } from "@/lib/format";
 import { getAuthContext } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { getEffectivePermissions, hasPermission } from "@/lib/auth/permissions";
 import { getExchangeRates } from "@/lib/exchange-rate";
 import { BASE_CURRENCY, sumInBaseCurrency } from "@/lib/currency";
 
@@ -22,7 +23,10 @@ export const metadata = { title: "Genel Bakış · Operasyon Merkezi" };
 
 export default async function DashboardPage() {
   const ctx = await getAuthContext();
-  const canViewFinance = hasPermission(ctx?.role ?? null, "finance.manage");
+  if (!ctx?.workspaceId || !ctx.role) redirect("/yetkisiz");
+  const permissions = await getEffectivePermissions(ctx.workspaceId, ctx.role);
+  if (!hasPermission(ctx.role, "dashboard.view", permissions)) redirect("/yetkisiz");
+  const canViewFinance = hasPermission(ctx.role, "finance.view", permissions);
   const db = await getTenantDb();
   const now = new Date();
   const in30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);

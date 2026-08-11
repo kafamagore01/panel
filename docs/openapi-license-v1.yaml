@@ -1,0 +1,294 @@
+openapi: 3.1.0
+info:
+  title: Ops Center License API
+  version: 1.0.0
+  description: >-
+    Storage- and framework-agnostic license validation and activation release API.
+    License credentials may be supplied by any application-specific provider.
+servers:
+  - url: https://panel.example.com
+    description: Replace with the Ops Center deployment URL
+paths:
+  /api/v1/licenses/validate:
+    post:
+      operationId: validateLicense
+      summary: Validate or activate a license installation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseValidationRequest'
+      responses:
+        '200':
+          description: License is valid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseValidationSuccess'
+        '403':
+          description: License, domain, state, activation, or token rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseError'
+        '404':
+          description: License key not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseError'
+        '413':
+          description: Request body is too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseError'
+        '422':
+          description: Invalid request, key format, or domain
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseError'
+        '500':
+          description: Temporary server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseError'
+  /api/v1/licenses/deactivate:
+    post:
+      operationId: deactivateLicense
+      summary: Release an installation activation seat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseDeactivationRequest'
+      responses:
+        '200':
+          description: Activation is deactivated or was already inactive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseDeactivationSuccess'
+        '403':
+          description: Activation token rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivationError'
+        '404':
+          description: License key not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivationError'
+        '413':
+          description: Request body is too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivationError'
+        '422':
+          description: Invalid request or key format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivationError'
+        '429':
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivationError'
+        '500':
+          description: Temporary server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeactivationError'
+components:
+  schemas:
+    DomainEnvironment:
+      type: string
+      enum: [production, staging, local]
+      default: production
+    LicenseValidationRequest:
+      type: object
+      required: [license_key, domain, instance_id]
+      properties:
+        license_key:
+          type: string
+          maxLength: 128
+          pattern: '^PT-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}$'
+        domain:
+          type: string
+          maxLength: 253
+          examples: [example.com]
+        environment:
+          $ref: '#/components/schemas/DomainEnvironment'
+        instance_id:
+          type: string
+          minLength: 3
+          maxLength: 200
+        activation_token:
+          type: string
+          pattern: '^PAT-[A-Za-z0-9_-]{43}$'
+          description: Omit for the first activation; persist the value returned by the API.
+        app_version:
+          type: string
+          maxLength: 50
+    LicenseValidationSuccess:
+      type: object
+      required:
+        - valid
+        - status
+        - domain
+        - environment
+        - instance_id
+        - product
+        - expires_at
+        - grace_ends_at
+        - in_grace_period
+        - features
+        - checked_at
+        - check_interval_seconds
+        - next_check_at
+        - offline_grace_seconds
+        - offline_grace_until
+      properties:
+        valid:
+          type: boolean
+          const: true
+        status:
+          type: string
+          enum: [active, grace]
+        domain:
+          type: string
+        environment:
+          $ref: '#/components/schemas/DomainEnvironment'
+        instance_id:
+          type: string
+        product:
+          type: string
+        expires_at:
+          oneOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        grace_ends_at:
+          oneOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+        in_grace_period:
+          type: boolean
+        features:
+          type: array
+          items:
+            type: string
+        checked_at:
+          type: string
+          format: date-time
+        check_interval_seconds:
+          type: integer
+          minimum: 1
+          examples: [600]
+        next_check_at:
+          type: string
+          format: date-time
+        offline_grace_seconds:
+          type: integer
+          minimum: 0
+          examples: [86400]
+        offline_grace_until:
+          type: string
+          format: date-time
+        activation_token:
+          type: string
+          pattern: '^PAT-[A-Za-z0-9_-]{43}$'
+          description: Present only when a new activation token is issued.
+    LicenseDeactivationRequest:
+      type: object
+      required: [license_key, instance_id, activation_token]
+      properties:
+        license_key:
+          type: string
+          maxLength: 128
+        instance_id:
+          type: string
+          minLength: 3
+          maxLength: 200
+        activation_token:
+          type: string
+          pattern: '^PAT-[A-Za-z0-9_-]{43}$'
+    LicenseDeactivationSuccess:
+      type: object
+      required: [deactivated, released]
+      properties:
+        deactivated:
+          type: boolean
+          const: true
+        released:
+          type: integer
+          enum: [0, 1]
+    LicenseError:
+      type: object
+      required: [valid, error]
+      properties:
+        valid:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - domain_mismatch
+            - activation_domain_mismatch
+            - activation_token_required
+            - invalid_activation_token
+            - activation_limit_exceeded
+            - pending
+            - not_started
+            - expired
+            - suspended
+            - revoked
+            - not_found
+            - body_too_large
+            - invalid_body
+            - invalid_key_format
+            - invalid_domain
+            - rate_limited
+            - server_error
+    DeactivationError:
+      type: object
+      required: [deactivated, error]
+      properties:
+        deactivated:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - invalid_activation_token
+            - not_found
+            - body_too_large
+            - invalid_body
+            - invalid_key_format
+            - rate_limited
+            - server_error

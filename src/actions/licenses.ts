@@ -18,6 +18,7 @@ import {
 import { normalizeDomain } from "@/lib/domain";
 import {
   createLicenseSchema,
+  updateLicenseSchema,
   changeStatusSchema,
   licenseDomainSchema,
   domainStatusSchema,
@@ -212,6 +213,148 @@ export async function createLicense(
       { id: created.id, licenseKey },
       "Lisans domain bağlantısıyla birlikte üretildi."
     );
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+/** Lisansın kullanıcı tarafından düzenlenebilen alanlarını tek işlemde günceller. */
+export async function updateLicense(input: unknown): Promise<ActionResponse<null>> {
+  try {
+    const ctx = await requirePermission("licenses.update");
+    const parsed = updateLicenseSchema.safeParse(input);
+    if (!parsed.success) return zodFail(parsed.error);
+    const data = parsed.data;
+
+    const startsAt = data.starts_at ? licenseStartsAt(data.starts_at) : null;
+    const expiresAt = licenseExpiresAt(data.expires_at);
+    const graceEndsAt = addLicenseGraceDays(expiresAt, data.grace_days);
+
+    const result = await prisma.$transaction(
+      async (tx) => {
+        const license = await lockTenantLicense(
+          tx,
+          ctx.workspaceId,
+          data.license_id
+        );
+        if (!license) {
+          return { kind: "error" as const, message: "Lisans bulunamadı." };
+        }
+
+        const activeActivationCount = await tx.licenseActivation.count({
+          where: { license_id: license.id, status: "active" },
+        });
+        if (data.activation_limit < activeActivationCount) {
+          return {
+            kind: "error" as const,
+            message: `Aktivasyon limiti aktif kurulum sayısından (${activeActivationCount}) düşük olamaz.`,
+          };
+        }
+
+        const now = new Date();
+        if (data.status === "active" && expiresAt && expiresAt < now) {
+          return {
+            kind: "error" as const,
+            message: "Süresi dolmuş lisans aktif durumda kaydedilemez.",
+          };
+        }
+        if (
+          data.status === "grace" &&
+          !(graceEndsAt && graceEndsAt >= now)
+        ) {
+          return {
+            kind: "error" as const,
+            message: "Ek süre durumu için geçerli bir bitiş tarihi ve ek süre girilmelidir.",
+          };
+        }
+
+        const before = {
+          product_name: license.product_name,
+          status: license.status,
+          starts_at: license.starts_at,
+          expires_at: license.expires_at,
+          grace_ends_at: license.grace_ends_at,
+          activation_limit: license.activation_limit,
+          auto_suspend: license.auto_suspend,
+          features: license.features,
+        };
+        const features = data.features
+          ? data.features.split(",").map((feature) => feature.trim()).filter(Boolean)
+          : [];
+        const updated = await tx.license.update({
+          where: { id: license.id },
+          data: {
+            product_name: data.product_name,
+            status: data.status,
+            starts_at: startsAt,
+            expires_at: expiresAt,
+            grace_ends_at: graceEndsAt,
+            activation_limit: data.activation_limit,
+            auto_suspend: data.auto_suspend,
+            features,
+          },
+          select: {
+            product_name: true,
+            status: true,
+            starts_at: true,
+            expires_at: true,
+            grace_ends_at: true,
+            activation_limit: true,
+            auto_suspend: true,
+            features: true,
+          },
+        });
+
+        if (license.status !== data.status) {
+          await tx.licenseEvent.create({
+            data: {
+              license_id: license.id,
+              actor_user_id: ctx.user.id,
+              type: "status_changed",
+              previous_status: license.status,
+              new_status: data.status,
+              reason: data.reason ?? null,
+            },
+          });
+        }
+
+        const deliveryId = await createLicenseWebhookDelivery(
+          tx,
+          ctx.workspaceId,
+          license.project_id,
+          license.id,
+          "license.updated",
+          {
+            license_id: license.id,
+            product: updated.product_name,
+            previous_status: license.status,
+            status: updated.status,
+            starts_at: updated.starts_at?.toISOString() ?? null,
+            expires_at: updated.expires_at?.toISOString() ?? null,
+            grace_ends_at: updated.grace_ends_at?.toISOString() ?? null,
+            activation_limit: updated.activation_limit,
+          }
+        );
+
+        return { kind: "ok" as const, before, updated, deliveryId };
+      },
+      { maxWait: 5_000, timeout: 15_000 }
+    );
+    if (result.kind === "error") return fail(result.message);
+
+    await writeAudit({
+      workspace_id: ctx.workspaceId,
+      actor_user_id: ctx.user.id,
+      action: "UPDATE",
+      auditable_type: "license",
+      auditable_id: data.license_id,
+      before_data: result.before,
+      after_data: { ...result.updated, reason: data.reason ?? null },
+    });
+    await publishOutbox(result.deliveryId);
+
+    revalidatePath("/lisanslar");
+    return ok(null, "Lisans güncellendi.");
   } catch (error) {
     return handleError(error);
   }
@@ -769,6 +912,83 @@ export async function removeLicenseDomain(
 
     revalidatePath("/lisanslar");
     return ok(null, "Domain kaldırıldı.");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+/** Lisansı ve ona bağlı domain, aktivasyon ve olay kayıtlarını kalıcı olarak siler. */
+export async function deleteLicense(licenseId: string): Promise<ActionResponse<null>> {
+  try {
+    const ctx = await requirePermission("licenses.delete");
+    if (!licenseIdSchema.safeParse(licenseId).success) {
+      return fail("Lisans kimliği geçersiz.");
+    }
+
+    const result = await prisma.$transaction(
+      async (tx) => {
+        const license = await lockTenantLicense(tx, ctx.workspaceId, licenseId);
+        if (!license) {
+          return { kind: "error" as const, message: "Lisans bulunamadı." };
+        }
+
+        const [domainCount, activationCount, eventCount] = await Promise.all([
+          tx.licenseDomain.count({ where: { license_id: license.id } }),
+          tx.licenseActivation.count({ where: { license_id: license.id } }),
+          tx.licenseEvent.count({ where: { license_id: license.id } }),
+        ]);
+        const deliveryId = await createLicenseWebhookDelivery(
+          tx,
+          ctx.workspaceId,
+          license.project_id,
+          license.id,
+          "license.deleted",
+          {
+            license_id: license.id,
+            product: license.product_name,
+            status: license.status,
+            key_prefix: license.key_prefix,
+          }
+        );
+
+        await tx.license.delete({ where: { id: license.id } });
+        return {
+          kind: "ok" as const,
+          deliveryId,
+          before: {
+            id: license.id,
+            project_id: license.project_id,
+            product_name: license.product_name,
+            key_prefix: license.key_prefix,
+            status: license.status,
+            starts_at: license.starts_at,
+            expires_at: license.expires_at,
+            grace_ends_at: license.grace_ends_at,
+            activation_limit: license.activation_limit,
+            auto_suspend: license.auto_suspend,
+            features: license.features,
+            domain_count: domainCount,
+            activation_count: activationCount,
+            event_count: eventCount,
+          },
+        };
+      },
+      { maxWait: 5_000, timeout: 15_000 }
+    );
+    if (result.kind === "error") return fail(result.message);
+
+    await writeAudit({
+      workspace_id: ctx.workspaceId,
+      actor_user_id: ctx.user.id,
+      action: "DELETE",
+      auditable_type: "license",
+      auditable_id: licenseId,
+      before_data: result.before,
+    });
+    await publishOutbox(result.deliveryId);
+
+    revalidatePath("/lisanslar");
+    return ok(null, "Lisans silindi.");
   } catch (error) {
     return handleError(error);
   }

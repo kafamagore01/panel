@@ -7,7 +7,7 @@ import { writeAudit } from "@/lib/audit";
 import { serverSchema, projectServerSchema } from "@/lib/validation/server";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
 import { logError } from "@/lib/logger";
-import { encryptSecret } from "@/lib/crypto/encryption";
+import { decryptSecret, encryptSecret } from "@/lib/crypto/encryption";
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
@@ -119,6 +119,38 @@ export async function updateServer(
 
     revalidatePath("/sunucular");
     return ok({ id }, "Sunucu güncellendi.");
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+/** Yetkili kullanıcı için kayıtlı SSH parolasını çözer ve erişimi denetim izine yazar. */
+export async function revealServerSshPassword(
+  id: string
+): Promise<ActionResponse<{ sshPassword: string }>> {
+  try {
+    const ctx = await requirePermission("servers.update");
+    const db = await getTenantDb();
+    const server = await db.server.findUnique({
+      where: { id },
+      select: { id: true, ssh_password_encrypted: true },
+    });
+    if (!server) return fail("Sunucu bulunamadı.");
+    if (!server.ssh_password_encrypted) {
+      return fail("Bu sunucu için kayıtlı SSH parolası bulunamadı.");
+    }
+
+    const sshPassword = decryptSecret(server.ssh_password_encrypted);
+
+    await writeAudit({
+      workspace_id: ctx.workspaceId,
+      actor_user_id: ctx.user.id,
+      action: "REVEAL_SSH_PASSWORD",
+      auditable_type: "server",
+      auditable_id: server.id,
+    });
+
+    return ok({ sshPassword });
   } catch (error) {
     return handleError(error);
   }

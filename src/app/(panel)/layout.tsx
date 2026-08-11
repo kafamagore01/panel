@@ -5,7 +5,7 @@ import {
   SessionUnavailableError,
   type AuthContext,
 } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { getEffectivePermissions, hasPermission } from "@/lib/auth/permissions";
 import { NAV_ITEMS } from "@/lib/navigation";
 import { roleLabel } from "@/lib/roles";
 import { SidebarNav } from "@/components/layout/sidebar-nav";
@@ -79,9 +79,18 @@ export default async function PanelLayout({
     }
   }
 
-  const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.requires || hasPermission(ctx.role, item.requires)
-  );
+  const permissions = await getEffectivePermissions(ctx.workspaceId, ctx.role);
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    if (item.requires && !hasPermission(ctx.role, item.requires, permissions)) {
+      return false;
+    }
+    return (
+      !item.requiresAny ||
+      item.requiresAny.some((action) =>
+        hasPermission(ctx.role, action, permissions)
+      )
+    );
+  });
 
   // Üst bardaki seçici için geçiş yapılabilir üyelikler: getAuthContext ile
   // aynı sorguda geldiği için burada ek round trip yok.

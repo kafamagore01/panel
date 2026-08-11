@@ -3,7 +3,7 @@ import {
   getAuthContext,
   isPasswordResetRequired,
 } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { hasWorkspacePermission } from "@/lib/auth/permissions";
 import {
   OAUTH_STATE_COOKIE,
   OAUTH_STATE_TTL_SECONDS,
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     settings.searchParams.set("github", "password_reset_required");
     return NextResponse.redirect(settings);
   }
-  if (!hasPermission(ctx?.role ?? null, "system.manage")) {
+  if (!(await hasWorkspacePermission(ctx?.workspaceId ?? null, ctx?.role ?? null, "settings.update"))) {
     settings.searchParams.set("github", "forbidden");
     return NextResponse.redirect(settings);
   }

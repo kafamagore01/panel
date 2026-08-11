@@ -62,7 +62,7 @@ export function GithubCard({
 }: {
   connection: GithubConnectionSummary | null;
   oauthEnabled: boolean;
-  /** system.manage yetkisi — yalnızca Owner bağlar/kaldırır. */
+  /** Çalışma alanına özel settings.update yetkisi. */
   canManage: boolean;
   notice?: string;
 }) {

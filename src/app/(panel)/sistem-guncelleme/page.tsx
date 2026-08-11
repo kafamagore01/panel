@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth/context";
-import { hasPermission } from "@/lib/auth/permissions";
+import { getEffectivePermissions, hasPermission } from "@/lib/auth/permissions";
 import { PageHeader } from "@/components/page-header";
 import { formatDateTime } from "@/lib/format";
 import { getGithubAppVersion } from "@/lib/github/repos";
@@ -10,8 +10,10 @@ export const metadata = { title: "Sistem Özellikleri · Operasyon Merkezi" };
 
 export default async function SystemUpdatePage() {
   const ctx = await getAuthContext();
-  if (!ctx?.workspaceId || !hasPermission(ctx.role, "system.manage")) {
-    redirect("/dashboard");
+  if (!ctx?.workspaceId || !ctx.role) redirect("/yetkisiz");
+  const permissions = await getEffectivePermissions(ctx.workspaceId, ctx.role);
+  if (!hasPermission(ctx.role, "system.view", permissions)) {
+    redirect("/yetkisiz");
   }
 
   // Deployment bilgileri build sırasında sabitlenir; ortak sürüm GitHub'dan canlı okunur.
@@ -38,7 +40,7 @@ export default async function SystemUpdatePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Sistem Özellikleri" description="Sürüm bilgisi ve çalışma ortamı (yalnızca Owner)." />
+      <PageHeader title="Sistem Özellikleri" description="Sürüm bilgisi ve çalışma ortamı." />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <InfoCard

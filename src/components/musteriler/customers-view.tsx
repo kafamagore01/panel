@@ -44,13 +44,15 @@ export type CustomerRow = {
 export function CustomersView({
   customers,
   parentOptions,
-  canManage,
-  canArchive,
+  canCreate,
+  canUpdate,
+  canDelete,
 }: {
   customers: CustomerRow[];
   parentOptions: CustomerParentOption[];
-  canManage: boolean;
-  canArchive: boolean;
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editing, setEditing] = useState<CustomerFormValues | undefined>();
@@ -66,7 +68,7 @@ export function CustomersView({
 
   return (
     <>
-      {canManage && (
+      {canCreate && (
         <div className="flex justify-end">
           <Button onClick={openNew} className="bg-[#5267ff] hover:bg-[#4254e1]">
             <Plus className="mr-1 h-4 w-4" />
@@ -119,7 +121,7 @@ export function CustomersView({
                     <StatusBadge status={c.status} />
                   </TableCell>
                   <TableCell>
-                    {(canManage || canArchive) && (
+                    {(canUpdate || canDelete) && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -127,13 +129,13 @@ export function CustomersView({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {canManage && (
+                          {canUpdate && (
                             <DropdownMenuItem onClick={() => openEdit(c)}>
                               <Pencil className="mr-2 h-4 w-4" />
                               Düzenle
                             </DropdownMenuItem>
                           )}
-                          {canArchive && c.status !== "archived" && (
+                          {canDelete && c.status !== "archived" && (
                             <ConfirmDialog
                               trigger={
                                 <DropdownMenuItem
