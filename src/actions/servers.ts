@@ -7,6 +7,7 @@ import { writeAudit } from "@/lib/audit";
 import { serverSchema, projectServerSchema } from "@/lib/validation/server";
 import { ok, fail, zodFail, type ActionResponse } from "@/lib/action-response";
 import { logError } from "@/lib/logger";
+import { encryptSecret } from "@/lib/crypto/encryption";
 
 function handleError(error: unknown): ActionResponse<never> {
   if (error instanceof PermissionError) return fail(error.message);
@@ -51,8 +52,17 @@ export async function createServer(
     if (!parsed.success) return zodFail(parsed.error);
 
     const db = await getTenantDb();
+    const encryptedPassword = parsed.data.ssh_password
+      ? encryptSecret(parsed.data.ssh_password)
+      : undefined;
     const created = await db.server.create({
-      data: { ...buildData(parsed.data), workspace_id: ctx.workspaceId },
+      data: {
+        ...buildData(parsed.data),
+        workspace_id: ctx.workspaceId,
+        ...(encryptedPassword
+          ? { ssh_password_encrypted: encryptedPassword }
+          : {}),
+      },
     });
 
     await writeAudit({
@@ -84,7 +94,18 @@ export async function updateServer(
     const before = await db.server.findUnique({ where: { id } });
     if (!before) return fail("Sunucu bulunamadı.");
 
-    const updated = await db.server.update({ where: { id }, data: buildData(parsed.data) });
+    const encryptedPassword = parsed.data.ssh_password
+      ? encryptSecret(parsed.data.ssh_password)
+      : undefined;
+    const updated = await db.server.update({
+      where: { id },
+      data: {
+        ...buildData(parsed.data),
+        ...(encryptedPassword
+          ? { ssh_password_encrypted: encryptedPassword }
+          : {}),
+      },
+    });
 
     await writeAudit({
       workspace_id: ctx.workspaceId,

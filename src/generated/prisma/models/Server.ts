@@ -61,6 +61,7 @@ export type ServerMinAggregateOutputType = {
   management_url: string | null
   ssh_port: number | null
   ssh_user: string | null
+  ssh_password_encrypted: string | null
   status: $Enums.ServerStatus | null
   renewal_at: Date | null
   monthly_cost: runtime.Decimal | null
@@ -89,6 +90,7 @@ export type ServerMaxAggregateOutputType = {
   management_url: string | null
   ssh_port: number | null
   ssh_user: string | null
+  ssh_password_encrypted: string | null
   status: $Enums.ServerStatus | null
   renewal_at: Date | null
   monthly_cost: runtime.Decimal | null
@@ -117,6 +119,7 @@ export type ServerCountAggregateOutputType = {
   management_url: number
   ssh_port: number
   ssh_user: number
+  ssh_password_encrypted: number
   status: number
   renewal_at: number
   monthly_cost: number
@@ -165,6 +168,7 @@ export type ServerMinAggregateInputType = {
   management_url?: true
   ssh_port?: true
   ssh_user?: true
+  ssh_password_encrypted?: true
   status?: true
   renewal_at?: true
   monthly_cost?: true
@@ -193,6 +197,7 @@ export type ServerMaxAggregateInputType = {
   management_url?: true
   ssh_port?: true
   ssh_user?: true
+  ssh_password_encrypted?: true
   status?: true
   renewal_at?: true
   monthly_cost?: true
@@ -221,6 +226,7 @@ export type ServerCountAggregateInputType = {
   management_url?: true
   ssh_port?: true
   ssh_user?: true
+  ssh_password_encrypted?: true
   status?: true
   renewal_at?: true
   monthly_cost?: true
@@ -336,6 +342,7 @@ export type ServerGroupByOutputType = {
   management_url: string | null
   ssh_port: number
   ssh_user: string | null
+  ssh_password_encrypted: string | null
   status: $Enums.ServerStatus
   renewal_at: Date | null
   monthly_cost: runtime.Decimal | null
@@ -387,6 +394,7 @@ export type ServerWhereInput = {
   management_url?: Prisma.StringNullableFilter<"Server"> | string | null
   ssh_port?: Prisma.IntFilter<"Server"> | number
   ssh_user?: Prisma.StringNullableFilter<"Server"> | string | null
+  ssh_password_encrypted?: Prisma.StringNullableFilter<"Server"> | string | null
   status?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   renewal_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   monthly_cost?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -417,6 +425,7 @@ export type ServerOrderByWithRelationInput = {
   management_url?: Prisma.SortOrderInput | Prisma.SortOrder
   ssh_port?: Prisma.SortOrder
   ssh_user?: Prisma.SortOrderInput | Prisma.SortOrder
+  ssh_password_encrypted?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrderInput | Prisma.SortOrder
   monthly_cost?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -450,6 +459,7 @@ export type ServerWhereUniqueInput = Prisma.AtLeast<{
   management_url?: Prisma.StringNullableFilter<"Server"> | string | null
   ssh_port?: Prisma.IntFilter<"Server"> | number
   ssh_user?: Prisma.StringNullableFilter<"Server"> | string | null
+  ssh_password_encrypted?: Prisma.StringNullableFilter<"Server"> | string | null
   status?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   renewal_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   monthly_cost?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -480,6 +490,7 @@ export type ServerOrderByWithAggregationInput = {
   management_url?: Prisma.SortOrderInput | Prisma.SortOrder
   ssh_port?: Prisma.SortOrder
   ssh_user?: Prisma.SortOrderInput | Prisma.SortOrder
+  ssh_password_encrypted?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrderInput | Prisma.SortOrder
   monthly_cost?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -516,6 +527,7 @@ export type ServerScalarWhereWithAggregatesInput = {
   management_url?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   ssh_port?: Prisma.IntWithAggregatesFilter<"Server"> | number
   ssh_user?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
+  ssh_password_encrypted?: Prisma.StringNullableWithAggregatesFilter<"Server"> | string | null
   status?: Prisma.EnumServerStatusWithAggregatesFilter<"Server"> | $Enums.ServerStatus
   renewal_at?: Prisma.DateTimeNullableWithAggregatesFilter<"Server"> | Date | string | null
   monthly_cost?: Prisma.DecimalNullableWithAggregatesFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -543,6 +555,7 @@ export type ServerCreateInput = {
   management_url?: string | null
   ssh_port?: number
   ssh_user?: string | null
+  ssh_password_encrypted?: string | null
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -573,6 +586,7 @@ export type ServerUncheckedCreateInput = {
   management_url?: string | null
   ssh_port?: number
   ssh_user?: string | null
+  ssh_password_encrypted?: string | null
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -601,6 +615,7 @@ export type ServerUpdateInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -631,6 +646,7 @@ export type ServerUncheckedUpdateInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -660,6 +676,7 @@ export type ServerCreateManyInput = {
   management_url?: string | null
   ssh_port?: number
   ssh_user?: string | null
+  ssh_password_encrypted?: string | null
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -687,6 +704,7 @@ export type ServerUpdateManyMutationInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -715,6 +733,7 @@ export type ServerUncheckedUpdateManyInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -753,6 +772,7 @@ export type ServerCountOrderByAggregateInput = {
   management_url?: Prisma.SortOrder
   ssh_port?: Prisma.SortOrder
   ssh_user?: Prisma.SortOrder
+  ssh_password_encrypted?: Prisma.SortOrder
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrder
   monthly_cost?: Prisma.SortOrder
@@ -790,6 +810,7 @@ export type ServerMaxOrderByAggregateInput = {
   management_url?: Prisma.SortOrder
   ssh_port?: Prisma.SortOrder
   ssh_user?: Prisma.SortOrder
+  ssh_password_encrypted?: Prisma.SortOrder
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrder
   monthly_cost?: Prisma.SortOrder
@@ -818,6 +839,7 @@ export type ServerMinOrderByAggregateInput = {
   management_url?: Prisma.SortOrder
   ssh_port?: Prisma.SortOrder
   ssh_user?: Prisma.SortOrder
+  ssh_password_encrypted?: Prisma.SortOrder
   status?: Prisma.SortOrder
   renewal_at?: Prisma.SortOrder
   monthly_cost?: Prisma.SortOrder
@@ -935,6 +957,7 @@ export type ServerCreateWithoutWorkspaceInput = {
   management_url?: string | null
   ssh_port?: number
   ssh_user?: string | null
+  ssh_password_encrypted?: string | null
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -963,6 +986,7 @@ export type ServerUncheckedCreateWithoutWorkspaceInput = {
   management_url?: string | null
   ssh_port?: number
   ssh_user?: string | null
+  ssh_password_encrypted?: string | null
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1021,6 +1045,7 @@ export type ServerScalarWhereInput = {
   management_url?: Prisma.StringNullableFilter<"Server"> | string | null
   ssh_port?: Prisma.IntFilter<"Server"> | number
   ssh_user?: Prisma.StringNullableFilter<"Server"> | string | null
+  ssh_password_encrypted?: Prisma.StringNullableFilter<"Server"> | string | null
   status?: Prisma.EnumServerStatusFilter<"Server"> | $Enums.ServerStatus
   renewal_at?: Prisma.DateTimeNullableFilter<"Server"> | Date | string | null
   monthly_cost?: Prisma.DecimalNullableFilter<"Server"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1048,6 +1073,7 @@ export type ServerCreateWithoutProject_linksInput = {
   management_url?: string | null
   ssh_port?: number
   ssh_user?: string | null
+  ssh_password_encrypted?: string | null
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1077,6 +1103,7 @@ export type ServerUncheckedCreateWithoutProject_linksInput = {
   management_url?: string | null
   ssh_port?: number
   ssh_user?: string | null
+  ssh_password_encrypted?: string | null
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1120,6 +1147,7 @@ export type ServerUpdateWithoutProject_linksInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1149,6 +1177,7 @@ export type ServerUncheckedUpdateWithoutProject_linksInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1176,6 +1205,7 @@ export type ServerCreateManyWorkspaceInput = {
   management_url?: string | null
   ssh_port?: number
   ssh_user?: string | null
+  ssh_password_encrypted?: string | null
   status?: $Enums.ServerStatus
   renewal_at?: Date | string | null
   monthly_cost?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1203,6 +1233,7 @@ export type ServerUpdateWithoutWorkspaceInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1231,6 +1262,7 @@ export type ServerUncheckedUpdateWithoutWorkspaceInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1259,6 +1291,7 @@ export type ServerUncheckedUpdateManyWithoutWorkspaceInput = {
   management_url?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ssh_port?: Prisma.IntFieldUpdateOperationsInput | number
   ssh_user?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ssh_password_encrypted?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumServerStatusFieldUpdateOperationsInput | $Enums.ServerStatus
   renewal_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   monthly_cost?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1318,6 +1351,7 @@ export type ServerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   management_url?: boolean
   ssh_port?: boolean
   ssh_user?: boolean
+  ssh_password_encrypted?: boolean
   status?: boolean
   renewal_at?: boolean
   monthly_cost?: boolean
@@ -1349,6 +1383,7 @@ export type ServerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   management_url?: boolean
   ssh_port?: boolean
   ssh_user?: boolean
+  ssh_password_encrypted?: boolean
   status?: boolean
   renewal_at?: boolean
   monthly_cost?: boolean
@@ -1378,6 +1413,7 @@ export type ServerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   management_url?: boolean
   ssh_port?: boolean
   ssh_user?: boolean
+  ssh_password_encrypted?: boolean
   status?: boolean
   renewal_at?: boolean
   monthly_cost?: boolean
@@ -1407,6 +1443,7 @@ export type ServerSelectScalar = {
   management_url?: boolean
   ssh_port?: boolean
   ssh_user?: boolean
+  ssh_password_encrypted?: boolean
   status?: boolean
   renewal_at?: boolean
   monthly_cost?: boolean
@@ -1418,7 +1455,7 @@ export type ServerSelectScalar = {
   deleted_at?: boolean
 }
 
-export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "provider" | "external_ref" | "name" | "type" | "hostname" | "primary_ip" | "region" | "operating_system" | "cpu_cores" | "ram_mb" | "disk_gb" | "management_url" | "ssh_port" | "ssh_user" | "status" | "renewal_at" | "monthly_cost" | "cost_period" | "currency" | "manual_fx_rate" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["server"]>
+export type ServerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspace_id" | "provider" | "external_ref" | "name" | "type" | "hostname" | "primary_ip" | "region" | "operating_system" | "cpu_cores" | "ram_mb" | "disk_gb" | "management_url" | "ssh_port" | "ssh_user" | "ssh_password_encrypted" | "status" | "renewal_at" | "monthly_cost" | "cost_period" | "currency" | "manual_fx_rate" | "created_at" | "updated_at" | "deleted_at", ExtArgs["result"]["server"]>
 export type ServerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   project_links?: boolean | Prisma.Server$project_linksArgs<ExtArgs>
@@ -1454,6 +1491,7 @@ export type $ServerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     management_url: string | null
     ssh_port: number
     ssh_user: string | null
+    ssh_password_encrypted: string | null
     status: $Enums.ServerStatus
     renewal_at: Date | null
     monthly_cost: runtime.Decimal | null
@@ -1907,6 +1945,7 @@ export interface ServerFieldRefs {
   readonly management_url: Prisma.FieldRef<"Server", 'String'>
   readonly ssh_port: Prisma.FieldRef<"Server", 'Int'>
   readonly ssh_user: Prisma.FieldRef<"Server", 'String'>
+  readonly ssh_password_encrypted: Prisma.FieldRef<"Server", 'String'>
   readonly status: Prisma.FieldRef<"Server", 'ServerStatus'>
   readonly renewal_at: Prisma.FieldRef<"Server", 'DateTime'>
   readonly monthly_cost: Prisma.FieldRef<"Server", 'Decimal'>

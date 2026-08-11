@@ -111,6 +111,8 @@ export default async function ServersPage({
       management_url: s.management_url ?? "",
       ssh_port: s.ssh_port.toString(),
       ssh_user: s.ssh_user ?? "",
+      ssh_password: "",
+      has_ssh_password: Boolean(s.ssh_password_encrypted),
       status: s.status,
       renewal_at: s.renewal_at ? s.renewal_at.toISOString().slice(0, 10) : "",
       monthly_cost: s.monthly_cost ? s.monthly_cost.toString() : "",

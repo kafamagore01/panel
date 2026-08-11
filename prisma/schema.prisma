@@ -498,6 +498,7 @@ model Server {
   management_url   String?
   ssh_port         Int          @default(22)
   ssh_user         String?
+  ssh_password_encrypted String?
   status           ServerStatus @default(active)
   renewal_at       DateTime?
   monthly_cost     Decimal?     @db.Decimal(14, 2)

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,6 +41,8 @@ export type ServerFormValues = {
   management_url: string;
   ssh_port: string;
   ssh_user: string;
+  ssh_password: string;
+  has_ssh_password: boolean;
   status: string;
   renewal_at: string;
   monthly_cost: string;
@@ -53,6 +55,7 @@ const EMPTY: ServerFormValues = {
   name: "", provider: "", external_ref: "", type: "vps", hostname: "",
   primary_ip: "", region: "", operating_system: "", cpu_cores: "", ram_mb: "",
   disk_gb: "", management_url: "", ssh_port: "22", ssh_user: "", status: "active",
+  ssh_password: "", has_ssh_password: false,
   renewal_at: "", monthly_cost: "", cost_period: "monthly", currency: "TRY",
   manual_fx_rate: "",
 };
@@ -69,6 +72,7 @@ export function ServerForm({
   const router = useRouter();
   const [values, setValues] = useState<ServerFormValues>({ ...EMPTY, ...initial });
   const [errors, setErrors] = useState<Record<string, string[]>>({});
+  const [showSshPassword, setShowSshPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function set<K extends keyof ServerFormValues>(key: K, value: ServerFormValues[K]) {
@@ -187,6 +191,42 @@ export function ServerForm({
           <Input value={values.ssh_user} onChange={(e) => set("ssh_user", e.target.value)} />
         </Field>
       </div>
+
+      <Field
+        label="SSH Parolası"
+        error={errors.ssh_password}
+        hint={
+          values.has_ssh_password
+            ? "Kayıtlı parola korunur; değiştirmek için yeni parolayı girin."
+            : "Parola şifreli olarak saklanır."
+        }
+      >
+        <div className="relative">
+          <Input
+            type={showSshPassword ? "text" : "password"}
+            value={values.ssh_password}
+            onChange={(e) => set("ssh_password", e.target.value)}
+            autoComplete="new-password"
+            spellCheck={false}
+            className="pr-10"
+            placeholder={initial?.id ? "Değiştirmek için yeni parola girin" : ""}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
+            onClick={() => setShowSshPassword((visible) => !visible)}
+            aria-label={showSshPassword ? "Parolayı gizle" : "Parolayı göster"}
+          >
+            {showSshPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      </Field>
 
       <Field label="Yönetim URL" error={errors.management_url}>
         <Input value={values.management_url} onChange={(e) => set("management_url", e.target.value)} />

@@ -12,6 +12,8 @@ import { logError } from "@/lib/logger";
 const SENSITIVE_KEYS = new Set([
   "password",
   "password_hash",
+  "ssh_password",
+  "ssh_password_encrypted",
   "key_hash",
   "key_secret",
   "webhook_secret",

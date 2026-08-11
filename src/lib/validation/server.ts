@@ -47,6 +47,11 @@ export const serverSchema = z.object({
       message: "SSH portu 1-65535 arasında olmalıdır.",
     }),
   ssh_user: optStr(100),
+  ssh_password: z
+    .string()
+    .max(1000, "SSH parolası en fazla 1000 karakter olabilir.")
+    .optional()
+    .transform((v) => (v === "" || v === undefined ? undefined : v)),
   status: z.enum(["active", "maintenance", "suspended", "terminated"]).default("active"),
   renewal_at: z
     .union([z.string(), z.literal("")])

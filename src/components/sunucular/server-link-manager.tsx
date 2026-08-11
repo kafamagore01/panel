@@ -73,6 +73,8 @@ export function ServerLinkManager({
         toast.success(res.message ?? "Eklendi.");
         setProjectId("");
         setRole("");
+        setEnvironment("production");
+        onOpenChange(false);
         router.refresh();
       } else {
         toast.error(res.error);

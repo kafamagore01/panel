@@ -2266,6 +2266,7 @@ export const ServerScalarFieldEnum = {
   management_url: 'management_url',
   ssh_port: 'ssh_port',
   ssh_user: 'ssh_user',
+  ssh_password_encrypted: 'ssh_password_encrypted',
   status: 'status',
   renewal_at: 'renewal_at',
   monthly_cost: 'monthly_cost',
