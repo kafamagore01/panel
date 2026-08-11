@@ -64,7 +64,12 @@ export default async function LicensesPage({
         where: { status: { not: "archived" } },
         orderBy: { code: "asc" },
         take: FORM_OPTION_LIMIT,
-        select: { id: true, code: true, name: true, product: { select: { name: true } } },
+        select: {
+          id: true,
+          name: true,
+          customer: { select: { legal_name: true } },
+          product: { select: { name: true } },
+        },
       }),
     ]);
 
@@ -91,7 +96,7 @@ export default async function LicensesPage({
 
   const projectOptions = projects.map((p) => ({
     id: p.id,
-    label: `${p.code} · ${p.name}`,
+    label: `${p.name} - ${p.customer.legal_name}`,
     product_name: p.product?.name ?? p.name,
   }));
 

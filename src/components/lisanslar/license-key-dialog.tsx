@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, TriangleAlert } from "lucide-react";
+import { Copy, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-/** Lisans anahtarını tek seferlik gösteren modal ("Şimdi Kaydet" uyarısıyla). */
+/** Lisans anahtarını kopyalama eylemiyle gösteren modal. */
 export function LicenseKeyDialog({
   licenseKey,
   onClose,
@@ -38,11 +38,6 @@ export function LicenseKeyDialog({
             Bu anahtar yalnızca şimdi gösterilecek. Güvenli bir yere kaydedin.
           </DialogDescription>
         </DialogHeader>
-
-        <div className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
-          <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>Pencereyi kapattıktan sonra anahtar tekrar gösterilemez.</span>
-        </div>
 
         <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
           <code className="flex-1 break-all font-mono text-sm font-semibold text-[#141821]">
