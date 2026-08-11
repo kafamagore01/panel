@@ -2,9 +2,8 @@ import { Client } from "@upstash/qstash";
 import { applicationBaseUrl } from "@/lib/env";
 
 /**
- * QStash istemcisi. Token tanımlı değilse null döner: webhook outbox kayıtları
- * "pending" durumunda bekler ve reconciliation cron'u yeniden yayınlamayı
- * dener. Webhook teslimi isteniyorsa token tanımlanmalıdır.
+ * QStash istemcisi. Token tanımlı değilse null döner; outbox teslimleri
+ * CRON_SECRET ile korunan dahili uç üzerinden doğrudan çalıştırılır.
  */
 
 let client: Client | null | undefined;

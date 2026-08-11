@@ -36,7 +36,7 @@ import { LicenseForm } from "./license-form";
 import { LicenseKeyDialog } from "./license-key-dialog";
 import { StatusChangeDialog } from "./status-change-dialog";
 import { DomainManager, type DomainItem } from "./domain-manager";
-import type { Option } from "@/components/projeler/project-form";
+import type { LicenseProjectOption } from "@/lib/licenses/domain-candidates";
 import {
   renewLicense,
   revealLicenseKey,
@@ -65,7 +65,7 @@ export function LicensesView({
   canRotate,
 }: {
   licenses: LicenseRow[];
-  projects: Array<Option & { product_name: string }>;
+  projects: LicenseProjectOption[];
   canManage: boolean;
   canRotate: boolean;
 }) {
@@ -104,6 +104,7 @@ export function LicensesView({
               <TableRow className="hover:bg-transparent">
                 <TableHead>Anahtar</TableHead>
                 <TableHead>Ürün / Proje</TableHead>
+                <TableHead>Domain</TableHead>
                 <TableHead>Aktivasyon</TableHead>
                 <TableHead>Bitiş</TableHead>
                 <TableHead>Durum</TableHead>
@@ -117,6 +118,25 @@ export function LicensesView({
                   <TableCell>
                     <div className="font-semibold text-[#141821]">{l.product_name}</div>
                     <div className="text-xs text-muted-foreground">{l.project_code}</div>
+                  </TableCell>
+                  <TableCell>
+                    {l.domains.length > 0 ? (
+                      <>
+                        <div className="text-sm font-medium text-[#141821]">
+                          {(l.domains.find((domain) => domain.is_primary) ?? l.domains[0])
+                            .normalized_domain}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {(l.domains.find((domain) => domain.is_primary) ?? l.domains[0])
+                            .environment}
+                          {l.domains.length > 1 ? ` +${l.domains.length - 1}` : ""}
+                        </div>
+                      </>
+                    ) : (
+                      <span className="rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-800">
+                        Domain eksik
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="text-sm tabular-nums">
                     {l.active_activations} / {l.activation_limit}
@@ -210,7 +230,7 @@ export function LicensesView({
         open={createOpen}
         onOpenChange={setCreateOpen}
         title="Yeni Lisans Üret"
-        description="Proje ve süre bilgilerini girin. Anahtar tek seferlik gösterilecektir."
+        description="Proje, domain ve süre bilgilerini girin."
       >
         <LicenseForm
           projects={projects}

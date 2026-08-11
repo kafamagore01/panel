@@ -35,7 +35,7 @@ export function LicenseKeyDialog({
         <DialogHeader>
           <DialogTitle>Lisans Anahtarı</DialogTitle>
           <DialogDescription>
-            Bu anahtar yalnızca şimdi gösterilecek. Güvenli bir yere kaydedin.
+            Anahtarı müşterinin sunucusundaki lisans ayarlarına kaydedin.
           </DialogDescription>
         </DialogHeader>
 
@@ -50,7 +50,7 @@ export function LicenseKeyDialog({
 
         <DialogFooter>
           <Button onClick={onClose} className="bg-[#5267ff] hover:bg-[#4254e1]">
-            Kaydettim, Kapat
+            Kapat
           </Button>
         </DialogFooter>
       </DialogContent>

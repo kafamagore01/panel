@@ -76,7 +76,7 @@ export async function previewNextProjectCode(
   sourceProjectId?: string
 ): Promise<ActionResponse<{ code: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("projects.create");
     const code = await prisma.$transaction((tx) =>
       generateProjectCode(
         tx,
@@ -94,7 +94,7 @@ export async function createProject(
   input: unknown
 ): Promise<ActionResponse<{ id: string; code: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("projects.create");
     const parsed = projectSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const data = parsed.data;
@@ -211,7 +211,7 @@ export async function updateProject(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("projects.update");
     const parsed = projectSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const data = parsed.data;
@@ -287,10 +287,10 @@ export async function updateProject(
   }
 }
 
-/** Arşivleme: lisansı veya sunucusu olan proje arşivlenemez. */
-export async function archiveProject(id: string): Promise<ActionResponse<null>> {
+/** Soft delete: lisansı veya sunucusu olan proje silinemez. */
+export async function deleteProject(id: string): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.archive");
+    const ctx = await requirePermission("projects.delete");
     if (!projectIdSchema.safeParse(id).success) {
       return fail("Proje kimliği geçersiz.");
     }
@@ -331,7 +331,7 @@ export async function archiveProject(id: string): Promise<ActionResponse<null>> 
           return {
             kind: "error" as const,
             message:
-              "Bu projeye bağlı lisans veya sunucu bulunduğu için arşivlenemez. Önce bağlantıları kaldırın.",
+              "Bu projeye bağlı lisans veya sunucu bulunduğu için silinemez. Önce bağlantıları kaldırın.",
           };
         }
 
@@ -348,14 +348,14 @@ export async function archiveProject(id: string): Promise<ActionResponse<null>> 
     await writeAudit({
       workspace_id: ctx.workspaceId,
       actor_user_id: ctx.user.id,
-      action: "ARCHIVE",
+      action: "DELETE",
       auditable_type: "project",
       auditable_id: id,
       before_data: result.project,
     });
 
     revalidatePath("/projeler");
-    return ok(null, "Proje arşivlendi.");
+    return ok(null, "Proje silindi.");
   } catch (error) {
     return handleError(error);
   }

@@ -282,6 +282,7 @@ export const LicenseActivationScalarFieldEnum = {
   license_id: 'license_id',
   license_domain_id: 'license_domain_id',
   instance_id: 'instance_id',
+  activation_token_hash: 'activation_token_hash',
   status: 'status',
   first_seen_at: 'first_seen_at',
   last_seen_at: 'last_seen_at',

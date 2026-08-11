@@ -60,7 +60,7 @@ export async function connectGithubWithToken(
   input: unknown
 ): Promise<ActionResponse<{ account_login: string }>> {
   try {
-    const ctx = await requirePermission("system.manage");
+    const ctx = await requirePermission("settings.update");
     const parsed = tokenSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -93,7 +93,7 @@ export async function connectGithubWithToken(
 
 export async function disconnectGithub(): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("system.manage");
+    const ctx = await requirePermission("settings.update");
     const { removed, account_login } = await removeConnection(ctx.workspaceId);
     if (!removed) return fail("Kaldırılacak bir GitHub bağlantısı yok.");
 
@@ -122,7 +122,7 @@ export async function verifyGithubConnection(): Promise<
   ActionResponse<{ account_login: string }>
 > {
   try {
-    const ctx = await requirePermission("system.manage");
+    const ctx = await requirePermission("settings.update");
     const viewer = await refreshConnection(ctx.workspaceId);
     revalidatePath("/ayarlar");
     return ok(
@@ -139,7 +139,7 @@ export async function fetchGithubConnection(): Promise<
   ActionResponse<GithubConnectionSummary | null>
 > {
   try {
-    const ctx = await requirePermission("module.view");
+    const ctx = await requirePermission("settings.view");
     return ok(await getConnectionSummary(ctx.workspaceId));
   } catch (error) {
     return handleError(error);
@@ -151,7 +151,7 @@ export async function fetchGithubConnection(): Promise<
 /** Proje formundaki hızlı seçim listesi. */
 export async function fetchGithubRepos(): Promise<ActionResponse<RepoOption[]>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("projects.view");
     const repos = await listRepoOptions(ctx.workspaceId);
     if (repos.length === 0) {
       const summary = await getConnectionSummary(ctx.workspaceId);
@@ -168,7 +168,7 @@ export async function fetchRepoSnapshot(
   fullName: string
 ): Promise<ActionResponse<RepoSnapshot | null>> {
   try {
-    const ctx = await requirePermission("module.view");
+    const ctx = await requirePermission("projects.view");
     if (typeof fullName !== "string" || !fullName.includes("/")) {
       return fail("Geçersiz repo adı.");
     }
@@ -183,7 +183,7 @@ export async function fetchRepoSnapshots(
   fullNames: string[]
 ): Promise<ActionResponse<Record<string, SnapshotResult>>> {
   try {
-    const ctx = await requirePermission("module.view");
+    const ctx = await requirePermission("projects.view");
     if (!Array.isArray(fullNames)) return fail("Geçersiz istek.");
     // Sayfa başına satır sayısıyla sınırlı tutulur; istemciden gelen liste
     // şişirilerek oran limiti tüketilmesin.

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isLicenseDate } from "@/lib/licenses/dates";
 
 export const LICENSE_STATUS_OPTIONS = [
   { value: "pending", label: "Beklemede" },
@@ -12,11 +13,16 @@ export const LICENSE_STATUS_OPTIONS = [
 const optDate = z
   .union([z.string(), z.literal("")])
   .optional()
-  .transform((v) => (v ? v : undefined));
+  .transform((v) => (v ? v : undefined))
+  .refine((v) => !v || isLicenseDate(v), {
+    message: "Geçerli bir tarih seçin.",
+  });
 
 export const createLicenseSchema = z
   .object({
     project_id: z.uuid("Proje seçilmelidir."),
+    domain: z.string().trim().min(3, "Domain zorunludur.").max(253),
+    environment: z.enum(["production", "staging", "local"]).default("production"),
     product_name: z.string().trim().min(2, "Ürün adı zorunludur.").max(150),
     starts_at: optDate,
     expires_at: optDate,
@@ -42,7 +48,7 @@ export const createLicenseSchema = z
     if (data.starts_at && data.expires_at) {
       const starts = new Date(data.starts_at).getTime();
       const expires = new Date(data.expires_at).getTime();
-      if (Number.isFinite(starts) && Number.isFinite(expires) && expires <= starts) {
+      if (Number.isFinite(starts) && Number.isFinite(expires) && expires < starts) {
         ctx.addIssue({
           code: "custom",
           path: ["expires_at"],

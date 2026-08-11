@@ -47,7 +47,7 @@ export async function inviteMember(
   input: unknown
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("team.manage");
+    const ctx = await requirePermission("team.create");
     const parsed = inviteSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const { name, email, role } = parsed.data;
@@ -222,7 +222,7 @@ export async function changeMemberRole(
   newRole: MembershipRole
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("team.manage");
+    const ctx = await requirePermission("team.update");
     const workspaceId = ctx.workspaceId;
     if (!membershipIdSchema.safeParse(membershipId).success) {
       return fail("Üyelik kimliği geçersiz.");
@@ -335,7 +335,7 @@ export async function changeMemberStatus(
   active: boolean
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("team.manage");
+    const ctx = await requirePermission("team.update");
     const workspaceId = ctx.workspaceId;
     if (
       !membershipIdSchema.safeParse(membershipId).success ||

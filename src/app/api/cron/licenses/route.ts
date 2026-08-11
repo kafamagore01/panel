@@ -1,13 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { authorizeCron } from "@/lib/queue/verify";
 import { runLicenseCron } from "@/lib/cron/licenses";
+import { authorizeCron } from "@/lib/queue/verify";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-/** Lisans durum senkronizasyonu cron'u (QStash Schedule veya CRON_SECRET ile korunur). */
-export async function POST(req: NextRequest) {
-  const body = await req.text();
+async function handleCron(req: NextRequest, body: string) {
   const authorized = await authorizeCron(
     req.headers.get("upstash-signature"),
     body,
@@ -24,4 +22,13 @@ export async function POST(req: NextRequest) {
     console.error("License cron hatası:", error);
     return NextResponse.json({ error: "cron_failed" }, { status: 500 });
   }
+}
+
+/** Vercel Cron GET, QStash Schedule ise imzalı POST kullanabilir. */
+export async function GET(req: NextRequest) {
+  return handleCron(req, "");
+}
+
+export async function POST(req: NextRequest) {
+  return handleCron(req, await req.text());
 }

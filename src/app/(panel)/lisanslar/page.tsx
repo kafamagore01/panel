@@ -16,6 +16,7 @@ import { LicensesView, type LicenseRow } from "@/components/lisanslar/licenses-v
 import { LICENSE_STATUS_OPTIONS } from "@/lib/validation/license";
 import type { DomainItem } from "@/components/lisanslar/domain-manager";
 import { parseOptionValue } from "@/lib/query-params";
+import { buildLicenseDomainCandidates } from "@/lib/licenses/domain-candidates";
 
 export const metadata = { title: "Lisanslar · Operasyon Merkezi" };
 
@@ -35,13 +36,26 @@ export default async function LicensesPage({
     where.OR = [
       { product_name: { contains: search, mode: "insensitive" } },
       { key_prefix: { contains: search, mode: "insensitive" } },
+      {
+        domains: {
+          some: { normalized_domain: { contains: search, mode: "insensitive" } },
+        },
+      },
     ];
   }
 
   const now = new Date();
   const in30 = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-  const [licenses, total, activeCount, expiringCount, suspendedCount, projects] =
+  const [
+    licenses,
+    total,
+    activeCount,
+    expiringCount,
+    suspendedCount,
+    projects,
+    inventoryDomains,
+  ] =
     await Promise.all([
       db.license.findMany({
         where,
@@ -66,9 +80,21 @@ export default async function LicensesPage({
         take: FORM_OPTION_LIMIT,
         select: {
           id: true,
+          customer_id: true,
           name: true,
+          live_url: true,
+          admin_url: true,
           customer: { select: { legal_name: true } },
           product: { select: { name: true } },
+        },
+      }),
+      db.domain.findMany({
+        where: { status: "active" },
+        select: {
+          name: true,
+          normalized_name: true,
+          customer_id: true,
+          project_id: true,
         },
       }),
     ]);
@@ -98,6 +124,15 @@ export default async function LicensesPage({
     id: p.id,
     label: `${p.name} - ${p.customer.legal_name}`,
     product_name: p.product?.name ?? p.name,
+    domain_candidates: buildLicenseDomainCandidates({
+      liveUrl: p.live_url,
+      adminUrl: p.admin_url,
+      inventoryDomains: inventoryDomains.filter(
+        (domain) =>
+          domain.project_id === p.id ||
+          (domain.project_id === null && domain.customer_id === p.customer_id)
+      ),
+    }),
   }));
 
   const canManage = hasPermission(ctx?.role ?? null, "record.manage");

@@ -182,6 +182,7 @@ model Workspace {
   webhook_deliveries WebhookDelivery[]
   audit_logs         AuditLog[]
   github_connection  GithubConnection?
+  role_permissions   WorkspaceRolePermission[]
 
   @@map("workspaces")
 }
@@ -209,6 +210,7 @@ model User {
   audit_logs        AuditLog[]
 
   github_connections GithubConnection[] @relation("GithubConnectionAuthor")
+  role_permission_updates WorkspaceRolePermission[] @relation("RolePermissionUpdatedBy")
 
   @@map("users")
 }
@@ -249,6 +251,24 @@ model WorkspaceUser {
   @@index([workspace_id])
   @@index([user_id])
   @@map("workspace_user")
+}
+
+model WorkspaceRolePermission {
+  id                 String         @id @default(uuid(4)) @db.Uuid
+  workspace_id       String         @db.Uuid
+  role               MembershipRole
+  permissions        Json
+  updated_by_user_id String?        @db.Uuid
+  created_at         DateTime       @default(now())
+  updated_at         DateTime       @updatedAt
+
+  workspace  Workspace @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+  updated_by User?     @relation("RolePermissionUpdatedBy", fields: [updated_by_user_id], references: [id], onDelete: SetNull)
+
+  @@unique([workspace_id, role])
+  @@index([workspace_id])
+  @@index([updated_by_user_id])
+  @@map("workspace_role_permissions")
 }
 
 model OtpCode {
@@ -441,18 +461,19 @@ model LicenseDomain {
 }
 
 model LicenseActivation {
-  id                String           @id @default(uuid(4)) @db.Uuid
-  license_id        String           @db.Uuid
-  license_domain_id String?          @db.Uuid
-  instance_id       String
-  status            ActivationStatus @default(active)
-  first_seen_at     DateTime         @default(now())
-  last_seen_at      DateTime         @default(now())
-  last_ip           String?
-  app_version       String?
-  metadata          Json?
-  created_at        DateTime         @default(now())
-  updated_at        DateTime         @updatedAt
+  id                    String           @id @default(uuid(4)) @db.Uuid
+  license_id            String           @db.Uuid
+  license_domain_id     String?          @db.Uuid
+  instance_id           String
+  activation_token_hash String?          @unique
+  status                ActivationStatus @default(active)
+  first_seen_at         DateTime         @default(now())
+  last_seen_at          DateTime         @default(now())
+  last_ip               String?
+  app_version           String?
+  metadata              Json?
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
 
   license License        @relation(fields: [license_id], references: [id], onDelete: Cascade)
   domain  LicenseDomain? @relation(fields: [license_domain_id], references: [id], onDelete: SetNull)

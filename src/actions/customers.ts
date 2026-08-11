@@ -151,7 +151,7 @@ export async function createCustomer(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("customers.create");
     const parsed = customerSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -191,7 +191,7 @@ export async function updateCustomer(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("customers.update");
     const parsed = customerSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -237,12 +237,12 @@ export async function updateCustomer(
   }
 }
 
-/** Arşivleme: projesi olan müşteri arşivlenemez. */
-export async function archiveCustomer(
+/** Soft delete: projesi veya bağlı şubesi olan müşteri silinemez. */
+export async function deleteCustomer(
   id: string
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.archive");
+    const ctx = await requirePermission("customers.delete");
     if (!customerIdSchema.safeParse(id).success) {
       return fail("Müşteri kimliği geçersiz.");
     }
@@ -291,14 +291,14 @@ export async function archiveCustomer(
           return {
             kind: "error",
             message:
-              "Bu ana merkeze bağlı şubeler bulunduğu için arşivlenemez. Önce şubeleri başka bir ana merkeze taşıyın veya arşivleyin.",
+              "Bu ana merkeze bağlı şubeler bulunduğu için silinemez. Önce şubeleri başka bir ana merkeze taşıyın veya silin.",
           };
         }
         if (projectCount > 0) {
           return {
             kind: "error",
             message:
-              "Bu müşteriye ait projeler bulunduğu için arşivlenemez. Önce projeleri arşivleyin.",
+              "Bu müşteriye ait projeler bulunduğu için silinemez. Önce projeleri silin.",
           };
         }
 
@@ -315,14 +315,14 @@ export async function archiveCustomer(
     await writeAudit({
       workspace_id: ctx.workspaceId,
       actor_user_id: ctx.user.id,
-      action: "ARCHIVE",
+      action: "DELETE",
       auditable_type: "customer",
       auditable_id: id,
       before_data: result.customer,
     });
 
     revalidatePath("/musteriler");
-    return ok(null, "Müşteri arşivlendi.");
+    return ok(null, "Müşteri silindi.");
   } catch (error) {
     return handleError(error);
   }

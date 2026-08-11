@@ -116,9 +116,9 @@ export function validateEnvironment(
       );
     }
 
-    // QStash opsiyoneldir: tanımsızsa webhook'lar outbox'ta bekler ve cron
-    // yeniden yayınlamayı dener. Tanımlıysa QStash imzalı istek gönderdiği
-    // için imza anahtarları olmadan cron uçları isteği doğrulayamaz.
+    // QStash opsiyoneldir: tanımsızsa webhook outbox teslimleri CRON_SECRET ile
+    // korunan dahili uç üzerinden doğrudan çalışır. Tanımlıysa imza anahtarları
+    // QStash isteklerini doğrulamak için birlikte bulunmalıdır.
     if (value(env, "QSTASH_TOKEN")) {
       required("QSTASH_CURRENT_SIGNING_KEY");
       required("QSTASH_NEXT_SIGNING_KEY");

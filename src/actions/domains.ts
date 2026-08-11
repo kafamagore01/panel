@@ -64,7 +64,7 @@ export async function createDomain(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("domains.create");
     const parsed = domainSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -116,7 +116,7 @@ export async function updateDomain(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("domains.update");
     const parsed = domainSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -161,7 +161,7 @@ export async function updateDomain(
 
 export async function archiveDomain(id: string): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.archive");
+    const ctx = await requirePermission("domains.delete");
     const db = await getTenantDb();
     const domain = await db.domain.findUnique({ where: { id } });
     if (!domain) return fail("Alan adı bulunamadı.");
@@ -195,7 +195,7 @@ export async function importLicenseDomain(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("domains.create");
     const parsed = importLicenseDomainSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const { license_domain_id } = parsed.data;

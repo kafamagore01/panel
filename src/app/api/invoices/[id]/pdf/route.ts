@@ -22,7 +22,7 @@ export async function GET(
   context: RouteContext<"/api/invoices/[id]/pdf">
 ) {
   try {
-    await requirePermission("module.view");
+    await requirePermission("finance.view");
     const { id } = await context.params;
     if (!z.uuid().safeParse(id).success) {
       return new Response("Geçersiz fatura kimliği.", { status: 400 });

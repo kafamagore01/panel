@@ -28,10 +28,15 @@ import {
   publishWebhookDelivery,
 } from "@/lib/queue/webhook-dispatch";
 import { logError } from "@/lib/logger";
+import {
+  addLicenseGraceDays,
+  addLicenseYear,
+  licenseExpiresAt,
+  licenseStartsAt,
+} from "@/lib/licenses/dates";
 
 /** Aynı lisansın bu süre içinde ikinci kez yenilenmesi engellenir. */
 const RENEWAL_LOCK_MS = 15_000;
-const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 const licenseIdSchema = z.uuid("Lisans kimliği geçersiz.");
 
 function handleError(error: unknown): ActionResponse<never> {
@@ -83,22 +88,24 @@ async function publishOutbox(deliveryId: string | null): Promise<void> {
   }
 }
 
-/** Yeni lisans üretir. Düz anahtar yalnızca yanıtta tek kez döner. */
+/** Yeni lisansı ve birincil domain bağını aynı transaction içinde üretir. */
 export async function createLicense(
   input: unknown
 ): Promise<ActionResponse<{ id: string; licenseKey: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("licenses.create");
     const parsed = createLicenseSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const data = parsed.data;
 
+    const normalizedDomain = normalizeDomain(data.domain);
+    if (!normalizedDomain) {
+      return fail("Geçersiz domain biçimi.", { domain: ["Geçerli bir domain girin."] });
+    }
+
     const licenseKey = generateLicenseKey();
-    const expiresAt = data.expires_at ? new Date(data.expires_at) : null;
-    const graceEndsAt =
-      expiresAt && data.grace_days > 0
-        ? new Date(expiresAt.getTime() + data.grace_days * 24 * 60 * 60 * 1000)
-        : null;
+    const expiresAt = licenseExpiresAt(data.expires_at);
+    const graceEndsAt = addLicenseGraceDays(expiresAt, data.grace_days);
 
     const result = await prisma.$transaction(async (tx) => {
       const project = await tx.project.findFirst({
@@ -107,7 +114,7 @@ export async function createLicense(
           workspace_id: ctx.workspaceId,
           deleted_at: null,
         },
-        select: { id: true },
+        select: { id: true, customer_id: true },
       });
       if (!project) return null;
 
@@ -120,7 +127,7 @@ export async function createLicense(
           key_hash: hashLicenseKey(licenseKey),
           key_secret: encryptSecret(licenseKey),
           status: "active",
-          starts_at: data.starts_at ? new Date(data.starts_at) : new Date(),
+          starts_at: licenseStartsAt(data.starts_at),
           expires_at: expiresAt,
           grace_ends_at: graceEndsAt,
           activation_limit: data.activation_limit,
@@ -129,6 +136,33 @@ export async function createLicense(
             ? data.features.split(",").map((s) => s.trim()).filter(Boolean)
             : [],
         },
+      });
+      await tx.licenseDomain.create({
+        data: {
+          license_id: created.id,
+          domain: normalizedDomain,
+          normalized_domain: normalizedDomain,
+          environment: data.environment,
+          is_primary: true,
+          status: "active",
+        },
+      });
+      await tx.domain.upsert({
+        where: {
+          workspace_id_normalized_name: {
+            workspace_id: ctx.workspaceId,
+            normalized_name: normalizedDomain,
+          },
+        },
+        create: {
+          workspace_id: ctx.workspaceId,
+          customer_id: project.customer_id,
+          project_id: project.id,
+          name: normalizedDomain,
+          normalized_name: normalizedDomain,
+          status: "active",
+        },
+        update: {},
       });
       await tx.licenseEvent.create({
         data: {
@@ -148,6 +182,8 @@ export async function createLicense(
           license_id: created.id,
           product: created.product_name,
           status: created.status,
+          domain: normalizedDomain,
+          environment: data.environment,
           expires_at: created.expires_at?.toISOString() ?? null,
         }
       );
@@ -162,7 +198,11 @@ export async function createLicense(
       action: "CREATE",
       auditable_type: "license",
       auditable_id: created.id,
-      after_data: created,
+      after_data: {
+        ...created,
+        primary_domain: normalizedDomain,
+        environment: data.environment,
+      },
     });
 
     await publishOutbox(deliveryId);
@@ -170,7 +210,7 @@ export async function createLicense(
     revalidatePath("/lisanslar");
     return ok(
       { id: created.id, licenseKey },
-      "Lisans üretildi. Anahtarı şimdi kaydedin, tekrar gösterilmeyecek."
+      "Lisans domain bağlantısıyla birlikte üretildi."
     );
   } catch (error) {
     return handleError(error);
@@ -181,7 +221,7 @@ export async function changeLicenseStatus(
   input: unknown
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("licenses.update");
     const parsed = changeStatusSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const { license_id, status, reason } = parsed.data;
@@ -283,7 +323,7 @@ export async function renewLicense(
   licenseId: string
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("licenses.update");
     if (!licenseIdSchema.safeParse(licenseId).success) {
       return fail("Lisans kimliği geçersiz.");
     }
@@ -327,7 +367,7 @@ export async function renewLicense(
         const now = Date.now();
         const currentExpiry = license.expires_at?.getTime() ?? 0;
         const base = currentExpiry > now ? currentExpiry : now;
-        const newExpiry = new Date(base + YEAR_MS);
+        const newExpiry = addLicenseYear(new Date(base));
 
         let newGrace: Date | null = null;
         if (license.grace_ends_at && license.expires_at) {
@@ -421,12 +461,12 @@ export async function renewLicense(
   }
 }
 
-/** Anahtarı çöz ve tek seferlik göster (record.manage). */
+/** Yetkili kullanıcı için şifreli anahtarı çözer ve erişimi denetim izine yazar. */
 export async function revealLicenseKey(
   licenseId: string
 ): Promise<ActionResponse<{ licenseKey: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("licenses.update");
     const db = await getTenantDb();
     const license = await db.license.findUnique({ where: { id: licenseId } });
     if (!license) return fail("Lisans bulunamadı.");
@@ -452,7 +492,7 @@ export async function resetActivations(
   licenseId: string
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("licenses.update");
     if (!licenseIdSchema.safeParse(licenseId).success) {
       return fail("Lisans kimliği geçersiz.");
     }
@@ -516,7 +556,7 @@ export async function rotateLicenseKey(
   licenseId: string
 ): Promise<ActionResponse<{ licenseKey: string }>> {
   try {
-    const ctx = await requirePermission("license.rotate");
+    const ctx = await requirePermission("licenses.update");
     if (!licenseIdSchema.safeParse(licenseId).success) {
       return fail("Lisans kimliği geçersiz.");
     }
@@ -588,7 +628,7 @@ export async function addLicenseDomain(
   input: unknown
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("licenses.create");
     const parsed = licenseDomainSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const { license_id, domain, environment, is_primary } = parsed.data;
@@ -651,7 +691,7 @@ export async function setLicenseDomainStatus(
   input: unknown
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("licenses.update");
     const parsed = domainStatusSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const { license_id, domain_id, status } = parsed.data;
@@ -690,7 +730,7 @@ export async function removeLicenseDomain(
   domainId: string
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("licenses.delete");
     const db = await getTenantDb();
     const license = await db.license.findUnique({ where: { id: licenseId } });
     if (!license) return fail("Lisans bulunamadı.");

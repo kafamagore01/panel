@@ -29,6 +29,7 @@ export type LicenseActivationMinAggregateOutputType = {
   license_id: string | null
   license_domain_id: string | null
   instance_id: string | null
+  activation_token_hash: string | null
   status: $Enums.ActivationStatus | null
   first_seen_at: Date | null
   last_seen_at: Date | null
@@ -43,6 +44,7 @@ export type LicenseActivationMaxAggregateOutputType = {
   license_id: string | null
   license_domain_id: string | null
   instance_id: string | null
+  activation_token_hash: string | null
   status: $Enums.ActivationStatus | null
   first_seen_at: Date | null
   last_seen_at: Date | null
@@ -57,6 +59,7 @@ export type LicenseActivationCountAggregateOutputType = {
   license_id: number
   license_domain_id: number
   instance_id: number
+  activation_token_hash: number
   status: number
   first_seen_at: number
   last_seen_at: number
@@ -74,6 +77,7 @@ export type LicenseActivationMinAggregateInputType = {
   license_id?: true
   license_domain_id?: true
   instance_id?: true
+  activation_token_hash?: true
   status?: true
   first_seen_at?: true
   last_seen_at?: true
@@ -88,6 +92,7 @@ export type LicenseActivationMaxAggregateInputType = {
   license_id?: true
   license_domain_id?: true
   instance_id?: true
+  activation_token_hash?: true
   status?: true
   first_seen_at?: true
   last_seen_at?: true
@@ -102,6 +107,7 @@ export type LicenseActivationCountAggregateInputType = {
   license_id?: true
   license_domain_id?: true
   instance_id?: true
+  activation_token_hash?: true
   status?: true
   first_seen_at?: true
   last_seen_at?: true
@@ -190,6 +196,7 @@ export type LicenseActivationGroupByOutputType = {
   license_id: string
   license_domain_id: string | null
   instance_id: string
+  activation_token_hash: string | null
   status: $Enums.ActivationStatus
   first_seen_at: Date
   last_seen_at: Date
@@ -226,6 +233,7 @@ export type LicenseActivationWhereInput = {
   license_id?: Prisma.UuidFilter<"LicenseActivation"> | string
   license_domain_id?: Prisma.UuidNullableFilter<"LicenseActivation"> | string | null
   instance_id?: Prisma.StringFilter<"LicenseActivation"> | string
+  activation_token_hash?: Prisma.StringNullableFilter<"LicenseActivation"> | string | null
   status?: Prisma.EnumActivationStatusFilter<"LicenseActivation"> | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFilter<"LicenseActivation"> | Date | string
   last_seen_at?: Prisma.DateTimeFilter<"LicenseActivation"> | Date | string
@@ -243,6 +251,7 @@ export type LicenseActivationOrderByWithRelationInput = {
   license_id?: Prisma.SortOrder
   license_domain_id?: Prisma.SortOrderInput | Prisma.SortOrder
   instance_id?: Prisma.SortOrder
+  activation_token_hash?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   first_seen_at?: Prisma.SortOrder
   last_seen_at?: Prisma.SortOrder
@@ -257,6 +266,7 @@ export type LicenseActivationOrderByWithRelationInput = {
 
 export type LicenseActivationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  activation_token_hash?: string
   license_id_instance_id?: Prisma.LicenseActivationLicense_idInstance_idCompoundUniqueInput
   AND?: Prisma.LicenseActivationWhereInput | Prisma.LicenseActivationWhereInput[]
   OR?: Prisma.LicenseActivationWhereInput[]
@@ -274,13 +284,14 @@ export type LicenseActivationWhereUniqueInput = Prisma.AtLeast<{
   updated_at?: Prisma.DateTimeFilter<"LicenseActivation"> | Date | string
   license?: Prisma.XOR<Prisma.LicenseScalarRelationFilter, Prisma.LicenseWhereInput>
   domain?: Prisma.XOR<Prisma.LicenseDomainNullableScalarRelationFilter, Prisma.LicenseDomainWhereInput> | null
-}, "id" | "license_id_instance_id">
+}, "id" | "activation_token_hash" | "license_id_instance_id">
 
 export type LicenseActivationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   license_id?: Prisma.SortOrder
   license_domain_id?: Prisma.SortOrderInput | Prisma.SortOrder
   instance_id?: Prisma.SortOrder
+  activation_token_hash?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   first_seen_at?: Prisma.SortOrder
   last_seen_at?: Prisma.SortOrder
@@ -302,6 +313,7 @@ export type LicenseActivationScalarWhereWithAggregatesInput = {
   license_id?: Prisma.UuidWithAggregatesFilter<"LicenseActivation"> | string
   license_domain_id?: Prisma.UuidNullableWithAggregatesFilter<"LicenseActivation"> | string | null
   instance_id?: Prisma.StringWithAggregatesFilter<"LicenseActivation"> | string
+  activation_token_hash?: Prisma.StringNullableWithAggregatesFilter<"LicenseActivation"> | string | null
   status?: Prisma.EnumActivationStatusWithAggregatesFilter<"LicenseActivation"> | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeWithAggregatesFilter<"LicenseActivation"> | Date | string
   last_seen_at?: Prisma.DateTimeWithAggregatesFilter<"LicenseActivation"> | Date | string
@@ -315,6 +327,7 @@ export type LicenseActivationScalarWhereWithAggregatesInput = {
 export type LicenseActivationCreateInput = {
   id?: string
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -332,6 +345,7 @@ export type LicenseActivationUncheckedCreateInput = {
   license_id: string
   license_domain_id?: string | null
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -345,6 +359,7 @@ export type LicenseActivationUncheckedCreateInput = {
 export type LicenseActivationUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -362,6 +377,7 @@ export type LicenseActivationUncheckedUpdateInput = {
   license_id?: Prisma.StringFieldUpdateOperationsInput | string
   license_domain_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -377,6 +393,7 @@ export type LicenseActivationCreateManyInput = {
   license_id: string
   license_domain_id?: string | null
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -390,6 +407,7 @@ export type LicenseActivationCreateManyInput = {
 export type LicenseActivationUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -405,6 +423,7 @@ export type LicenseActivationUncheckedUpdateManyInput = {
   license_id?: Prisma.StringFieldUpdateOperationsInput | string
   license_domain_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -435,6 +454,7 @@ export type LicenseActivationCountOrderByAggregateInput = {
   license_id?: Prisma.SortOrder
   license_domain_id?: Prisma.SortOrder
   instance_id?: Prisma.SortOrder
+  activation_token_hash?: Prisma.SortOrder
   status?: Prisma.SortOrder
   first_seen_at?: Prisma.SortOrder
   last_seen_at?: Prisma.SortOrder
@@ -450,6 +470,7 @@ export type LicenseActivationMaxOrderByAggregateInput = {
   license_id?: Prisma.SortOrder
   license_domain_id?: Prisma.SortOrder
   instance_id?: Prisma.SortOrder
+  activation_token_hash?: Prisma.SortOrder
   status?: Prisma.SortOrder
   first_seen_at?: Prisma.SortOrder
   last_seen_at?: Prisma.SortOrder
@@ -464,6 +485,7 @@ export type LicenseActivationMinOrderByAggregateInput = {
   license_id?: Prisma.SortOrder
   license_domain_id?: Prisma.SortOrder
   instance_id?: Prisma.SortOrder
+  activation_token_hash?: Prisma.SortOrder
   status?: Prisma.SortOrder
   first_seen_at?: Prisma.SortOrder
   last_seen_at?: Prisma.SortOrder
@@ -564,6 +586,7 @@ export type EnumActivationStatusFieldUpdateOperationsInput = {
 export type LicenseActivationCreateWithoutLicenseInput = {
   id?: string
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -579,6 +602,7 @@ export type LicenseActivationUncheckedCreateWithoutLicenseInput = {
   id?: string
   license_domain_id?: string | null
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -623,6 +647,7 @@ export type LicenseActivationScalarWhereInput = {
   license_id?: Prisma.UuidFilter<"LicenseActivation"> | string
   license_domain_id?: Prisma.UuidNullableFilter<"LicenseActivation"> | string | null
   instance_id?: Prisma.StringFilter<"LicenseActivation"> | string
+  activation_token_hash?: Prisma.StringNullableFilter<"LicenseActivation"> | string | null
   status?: Prisma.EnumActivationStatusFilter<"LicenseActivation"> | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFilter<"LicenseActivation"> | Date | string
   last_seen_at?: Prisma.DateTimeFilter<"LicenseActivation"> | Date | string
@@ -636,6 +661,7 @@ export type LicenseActivationScalarWhereInput = {
 export type LicenseActivationCreateWithoutDomainInput = {
   id?: string
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -651,6 +677,7 @@ export type LicenseActivationUncheckedCreateWithoutDomainInput = {
   id?: string
   license_id: string
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -691,6 +718,7 @@ export type LicenseActivationCreateManyLicenseInput = {
   id?: string
   license_domain_id?: string | null
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -704,6 +732,7 @@ export type LicenseActivationCreateManyLicenseInput = {
 export type LicenseActivationUpdateWithoutLicenseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -719,6 +748,7 @@ export type LicenseActivationUncheckedUpdateWithoutLicenseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   license_domain_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -733,6 +763,7 @@ export type LicenseActivationUncheckedUpdateManyWithoutLicenseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   license_domain_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -747,6 +778,7 @@ export type LicenseActivationCreateManyDomainInput = {
   id?: string
   license_id: string
   instance_id: string
+  activation_token_hash?: string | null
   status?: $Enums.ActivationStatus
   first_seen_at?: Date | string
   last_seen_at?: Date | string
@@ -760,6 +792,7 @@ export type LicenseActivationCreateManyDomainInput = {
 export type LicenseActivationUpdateWithoutDomainInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -775,6 +808,7 @@ export type LicenseActivationUncheckedUpdateWithoutDomainInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   license_id?: Prisma.StringFieldUpdateOperationsInput | string
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -789,6 +823,7 @@ export type LicenseActivationUncheckedUpdateManyWithoutDomainInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   license_id?: Prisma.StringFieldUpdateOperationsInput | string
   instance_id?: Prisma.StringFieldUpdateOperationsInput | string
+  activation_token_hash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumActivationStatusFieldUpdateOperationsInput | $Enums.ActivationStatus
   first_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   last_seen_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -806,6 +841,7 @@ export type LicenseActivationSelect<ExtArgs extends runtime.Types.Extensions.Int
   license_id?: boolean
   license_domain_id?: boolean
   instance_id?: boolean
+  activation_token_hash?: boolean
   status?: boolean
   first_seen_at?: boolean
   last_seen_at?: boolean
@@ -823,6 +859,7 @@ export type LicenseActivationSelectCreateManyAndReturn<ExtArgs extends runtime.T
   license_id?: boolean
   license_domain_id?: boolean
   instance_id?: boolean
+  activation_token_hash?: boolean
   status?: boolean
   first_seen_at?: boolean
   last_seen_at?: boolean
@@ -840,6 +877,7 @@ export type LicenseActivationSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   license_id?: boolean
   license_domain_id?: boolean
   instance_id?: boolean
+  activation_token_hash?: boolean
   status?: boolean
   first_seen_at?: boolean
   last_seen_at?: boolean
@@ -857,6 +895,7 @@ export type LicenseActivationSelectScalar = {
   license_id?: boolean
   license_domain_id?: boolean
   instance_id?: boolean
+  activation_token_hash?: boolean
   status?: boolean
   first_seen_at?: boolean
   last_seen_at?: boolean
@@ -867,7 +906,7 @@ export type LicenseActivationSelectScalar = {
   updated_at?: boolean
 }
 
-export type LicenseActivationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "license_id" | "license_domain_id" | "instance_id" | "status" | "first_seen_at" | "last_seen_at" | "last_ip" | "app_version" | "metadata" | "created_at" | "updated_at", ExtArgs["result"]["licenseActivation"]>
+export type LicenseActivationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "license_id" | "license_domain_id" | "instance_id" | "activation_token_hash" | "status" | "first_seen_at" | "last_seen_at" | "last_ip" | "app_version" | "metadata" | "created_at" | "updated_at", ExtArgs["result"]["licenseActivation"]>
 export type LicenseActivationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   license?: boolean | Prisma.LicenseDefaultArgs<ExtArgs>
   domain?: boolean | Prisma.LicenseActivation$domainArgs<ExtArgs>
@@ -892,6 +931,7 @@ export type $LicenseActivationPayload<ExtArgs extends runtime.Types.Extensions.I
     license_id: string
     license_domain_id: string | null
     instance_id: string
+    activation_token_hash: string | null
     status: $Enums.ActivationStatus
     first_seen_at: Date
     last_seen_at: Date
@@ -1329,6 +1369,7 @@ export interface LicenseActivationFieldRefs {
   readonly license_id: Prisma.FieldRef<"LicenseActivation", 'String'>
   readonly license_domain_id: Prisma.FieldRef<"LicenseActivation", 'String'>
   readonly instance_id: Prisma.FieldRef<"LicenseActivation", 'String'>
+  readonly activation_token_hash: Prisma.FieldRef<"LicenseActivation", 'String'>
   readonly status: Prisma.FieldRef<"LicenseActivation", 'ActivationStatus'>
   readonly first_seen_at: Prisma.FieldRef<"LicenseActivation", 'DateTime'>
   readonly last_seen_at: Prisma.FieldRef<"LicenseActivation", 'DateTime'>

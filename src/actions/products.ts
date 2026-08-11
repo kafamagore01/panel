@@ -26,7 +26,7 @@ export async function createProduct(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("projects.create");
     const parsed = productSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -61,7 +61,7 @@ export async function updateProduct(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("projects.update");
     const parsed = productSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -94,7 +94,7 @@ export async function updateProduct(
 
 export async function deleteProduct(id: string): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.archive");
+    const ctx = await requirePermission("projects.delete");
     if (!productIdSchema.safeParse(id).success) {
       return fail("Ürün kimliği geçersiz.");
     }

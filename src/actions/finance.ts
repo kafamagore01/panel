@@ -27,7 +27,7 @@ export async function createInvoice(
   input: unknown
 ): Promise<ActionResponse<{ id: string; invoice_no: string }>> {
   try {
-    const ctx = await requirePermission("finance.manage");
+    const ctx = await requirePermission("finance.create");
     const parsed = invoiceSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const data = parsed.data;
@@ -110,7 +110,7 @@ export async function updateInvoice(
   input: unknown
 ): Promise<ActionResponse<{ id: string; invoice_no: string }>> {
   try {
-    const ctx = await requirePermission("finance.manage");
+    const ctx = await requirePermission("finance.update");
     const parsed = invoiceSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const data = parsed.data;
@@ -232,7 +232,7 @@ export async function updateInvoice(
 /** Fatura iptal: yalnızca issued/overdue ve paid_total == 0 olan faturalar. */
 export async function voidInvoice(id: string): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("finance.manage");
+    const ctx = await requirePermission("finance.delete");
     type VoidResult =
       | { kind: "error"; message: string }
       | { kind: "ok"; previousStatus: string };
@@ -299,7 +299,7 @@ export async function recordPayment(
   input: unknown
 ): Promise<ActionResponse<{ status: string }>> {
   try {
-    const ctx = await requirePermission("finance.manage");
+    const ctx = await requirePermission("finance.create");
     const parsed = paymentSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const data = parsed.data;
@@ -430,7 +430,7 @@ export async function createSchedule(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("finance.manage");
+    const ctx = await requirePermission("finance.create");
     const parsed = scheduleSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const data = parsed.data;
@@ -489,7 +489,7 @@ export async function toggleSchedule(
   pause: boolean
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("finance.manage");
+    const ctx = await requirePermission("finance.update");
     const db = await getTenantDb();
     const schedule = await db.billingSchedule.findUnique({ where: { id } });
     if (!schedule) return fail("Plan bulunamadı.");

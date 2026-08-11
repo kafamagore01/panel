@@ -47,7 +47,7 @@ export async function createServer(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("servers.create");
     const parsed = serverSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -86,7 +86,7 @@ export async function updateServer(
   input: unknown
 ): Promise<ActionResponse<{ id: string }>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("servers.update");
     const parsed = serverSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
 
@@ -126,7 +126,7 @@ export async function updateServer(
 
 export async function archiveServer(id: string): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.archive");
+    const ctx = await requirePermission("servers.delete");
     const db = await getTenantDb();
     const server = await db.server.findUnique({ where: { id } });
     if (!server) return fail("Sunucu bulunamadı.");
@@ -157,7 +157,7 @@ export async function linkProjectServer(
   input: unknown
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("servers.update");
     const parsed = projectServerSchema.safeParse(input);
     if (!parsed.success) return zodFail(parsed.error);
     const { server_id, project_id, role, environment, is_primary } = parsed.data;
@@ -200,7 +200,7 @@ export async function unlinkProjectServer(
   projectId: string
 ): Promise<ActionResponse<null>> {
   try {
-    const ctx = await requirePermission("record.manage");
+    const ctx = await requirePermission("servers.update");
     const db = await getTenantDb();
     const server = await db.server.findUnique({ where: { id: serverId } });
     if (!server) return fail("Sunucu bulunamadı.");

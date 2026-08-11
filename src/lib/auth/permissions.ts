@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { MembershipRole } from "@/generated/prisma/client";
 import {
   getAuthContext,
@@ -6,41 +7,15 @@ import {
   type AuthContext,
 } from "@/lib/auth/context";
 import { writeAudit } from "@/lib/audit";
+import { prisma } from "@/lib/db/prisma";
+import {
+  DEFAULT_ROLE_PERMISSIONS,
+  IMMUTABLE_ROLES,
+  normalizePermissions,
+  type PermissionAction,
+} from "@/lib/auth/permission-catalog";
 
-/**
- * Rol tabanlı yetkilendirme (RBAC) matrisi.
- *
- * | İşlem                    | owner | admin | technical | finance | viewer |
- * |--------------------------|-------|-------|-----------|---------|--------|
- * | record.manage            |  ✅   |  ✅   |    ✅     |   ❌    |   ❌   |
- * | record.archive           |  ✅   |  ✅   |    ❌     |   ❌    |   ❌   |
- * | license.rotate           |  ✅   |  ✅   |    ❌     |   ❌    |   ❌   |
- * | finance.manage           |  ✅   |  ✅   |    ❌     |   ✅    |   ❌   |
- * | team.manage              |  ✅   |  ✅*  |    ❌     |   ❌    |   ❌   |
- * | system.manage            |  ✅   |  ❌   |    ❌     |   ❌    |   ❌   |
- * | module.view              |  ✅   |  ✅   |    ✅     |   ✅    |   ✅   |
- *
- * *Admin yalnızca technical/finance/viewer rolü atayabilir (assignableRolesFor).
- */
-
-export type PermissionAction =
-  | "record.manage"
-  | "record.archive"
-  | "license.rotate"
-  | "finance.manage"
-  | "team.manage"
-  | "system.manage"
-  | "module.view";
-
-const MATRIX: Record<PermissionAction, readonly MembershipRole[]> = {
-  "record.manage": ["owner", "admin", "technical"],
-  "record.archive": ["owner", "admin"],
-  "license.rotate": ["owner", "admin"],
-  "finance.manage": ["owner", "admin", "finance"],
-  "team.manage": ["owner", "admin"],
-  "system.manage": ["owner"],
-  "module.view": ["owner", "admin", "technical", "finance", "viewer"],
-};
+export type { PermissionAction } from "@/lib/auth/permission-catalog";
 
 export class PermissionError extends Error {
   readonly status = 403;
@@ -48,12 +23,49 @@ export class PermissionError extends Error {
 
 export function hasPermission(
   role: MembershipRole | null,
-  action: PermissionAction
+  action: PermissionAction,
+  grantedPermissions?: readonly PermissionAction[]
 ): boolean {
-  return role !== null && MATRIX[action].includes(role);
+  if (!role) return false;
+  if (IMMUTABLE_ROLES.includes(role)) return true;
+  if (action === "roles.manage") return false;
+
+  const permissions = grantedPermissions ?? DEFAULT_ROLE_PERMISSIONS[role];
+  return permissions.includes(action);
 }
 
-/** Rolün atayabileceği roller: Owner her rolü, Admin yalnız alt rolleri verir. */
+/** Bir çalışma alanındaki rolün varsayılan veya özelleştirilmiş etkin izinleri. */
+export const getEffectivePermissions = cache(
+  async (
+    workspaceId: string,
+    role: MembershipRole
+  ): Promise<readonly PermissionAction[]> => {
+    if (IMMUTABLE_ROLES.includes(role)) {
+      return DEFAULT_ROLE_PERMISSIONS[role];
+    }
+
+    const override = await prisma.workspaceRolePermission.findUnique({
+      where: { workspace_id_role: { workspace_id: workspaceId, role } },
+      select: { permissions: true },
+    });
+
+    return override
+      ? normalizePermissions(override.permissions)
+      : DEFAULT_ROLE_PERMISSIONS[role];
+  }
+);
+
+export async function hasWorkspacePermission(
+  workspaceId: string | null,
+  role: MembershipRole | null,
+  action: PermissionAction
+): Promise<boolean> {
+  if (!workspaceId || !role) return false;
+  const permissions = await getEffectivePermissions(workspaceId, role);
+  return hasPermission(role, action, permissions);
+}
+
+/** Rolün atayabileceği roller: Sahip her rolü, Yönetici yalnız alt rolleri verir. */
 export function assignableRolesFor(role: MembershipRole): MembershipRole[] {
   if (role === "owner") {
     return ["owner", "admin", "technical", "finance", "viewer"];
@@ -69,10 +81,7 @@ export type AuthorizedContext = AuthContext & {
   role: MembershipRole;
 };
 
-/**
- * Her Server Action girişinde çağrılır. Yetkisiz erişimde güvenlik günlüğü
- * oluşturur ve PermissionError (403) fırlatır.
- */
+/** Her Server Action girişinde güncel çalışma alanı rol izinlerini doğrular. */
 export async function requirePermission(
   action: PermissionAction
 ): Promise<AuthorizedContext> {
@@ -88,7 +97,7 @@ export async function requirePermission(
       "Aktif çalışma alanı bulunamadı veya üyeliğiniz pasif durumda."
     );
   }
-  if (!hasPermission(ctx.role, action)) {
+  if (!(await hasWorkspacePermission(ctx.workspaceId, ctx.role, action))) {
     await writeAudit({
       workspace_id: ctx.workspaceId,
       actor_user_id: ctx.user.id,

@@ -52,7 +52,7 @@ export async function createLicenseWebhookDelivery(
       license_id: licenseId,
       idempotency_key: crypto.randomUUID(),
       event_type: eventType,
-      payload: { event: eventType, ...payload, delivered_via: "qstash" },
+      payload: { event: eventType, ...payload, delivery_mode: "outbox" },
       status: "pending",
       next_publish_at: new Date(),
     },
@@ -86,7 +86,47 @@ export async function publishWebhookDelivery(
   }
 
   const qstash = getQStash();
-  if (!qstash) return false;
+  if (!qstash) {
+    const secret = process.env.CRON_SECRET;
+    if (!secret) {
+      logError(
+        "webhook.direct_delivery_unavailable",
+        new Error("CRON_SECRET tanımlı değil."),
+        { delivery_id: delivery.id }
+      );
+      return false;
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+    try {
+      const response = await fetch(`${appBaseUrl()}/api/qstash/webhook-deliver`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${secret}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ delivery_id: delivery.id }),
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      return response.ok;
+    } catch (error) {
+      logError("webhook.direct_delivery_failed", error, {
+        delivery_id: delivery.id,
+      });
+      await prisma.webhookDelivery.updateMany({
+        where: { id: delivery.id, delivered_at: null, status: "pending" },
+        data: {
+          next_publish_at: new Date(Date.now() + PUBLISH_BACKOFF_MS),
+          last_error: "Doğrudan teslim başlatılamadı.",
+        },
+      });
+      return false;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 
   try {
     await withPublishTimeout(

@@ -1,31 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { z } from "zod";
+import {
+  activationTokenMatches,
+  hashLicenseKey,
+  LICENSE_KEY_REGEX,
+} from "@/lib/crypto/license-key";
 import { prisma } from "@/lib/db/prisma";
-import { hashLicenseKey, LICENSE_KEY_REGEX } from "@/lib/crypto/license-key";
 import { limitDeactivateApi } from "@/lib/security/rate-limit";
+import { deactivateLicenseApiSchema } from "@/lib/validation/license-api";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Aktivasyon bırakma (koltuk iadesi) API'si.
- * POST /api/v1/licenses/deactivate
- *
- * Sunucu değiştiren veya kurulumu kaldıran istemci, kullandığı koltuğu bu uçla
- * serbest bırakır. Aksi hâlde aktivasyon limiti dolduğunda yalnızca panelden
- * "Aktivasyonları Sıfırla" ile kurtarılabilirdi.
- *
- * Yanıt kodları: 200 bırakıldı, 404 not_found, 422 invalid_body /
- * invalid_key_format, 429 rate_limited.
- */
-
-const bodySchema = z.object({
-  license_key: z.string().min(1),
-  instance_id: z.string().min(1).max(200),
-});
+const MAX_BODY_BYTES = 4_096;
 
 function clientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  return fwd?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "0.0.0.0";
+  const forwarded = req.headers.get("x-forwarded-for");
+  return forwarded?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || "0.0.0.0";
 }
 
 function json(status: number, payload: Record<string, unknown>) {
@@ -50,18 +39,28 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: unknown;
+  let rawBody: string;
   try {
-    body = await req.json();
+    rawBody = await req.text();
   } catch {
     return json(422, { deactivated: false, error: "invalid_body" });
   }
-  const parsed = bodySchema.safeParse(body);
+  if (rawBody.length > MAX_BODY_BYTES) {
+    return json(413, { deactivated: false, error: "body_too_large" });
+  }
+
+  let decoded: unknown;
+  try {
+    decoded = JSON.parse(rawBody);
+  } catch {
+    return json(422, { deactivated: false, error: "invalid_body" });
+  }
+  const parsed = deactivateLicenseApiSchema.safeParse(decoded);
   if (!parsed.success) {
     return json(422, { deactivated: false, error: "invalid_body" });
   }
 
-  const licenseKey = parsed.data.license_key.trim().toUpperCase();
+  const licenseKey = parsed.data.license_key.toUpperCase();
   if (!LICENSE_KEY_REGEX.test(licenseKey)) {
     return json(422, { deactivated: false, error: "invalid_key_format" });
   }
@@ -73,17 +72,34 @@ export async function POST(req: NextRequest) {
     });
     if (!license) return json(404, { deactivated: false, error: "not_found" });
 
-    const result = await prisma.licenseActivation.updateMany({
+    const activation = await prisma.licenseActivation.findUnique({
       where: {
-        license_id: license.id,
-        instance_id: parsed.data.instance_id,
-        status: "active",
+        license_id_instance_id: {
+          license_id: license.id,
+          instance_id: parsed.data.instance_id,
+        },
       },
+      select: { id: true, status: true, activation_token_hash: true },
+    });
+    if (
+      !activation?.activation_token_hash ||
+      !activationTokenMatches(
+        activation.activation_token_hash,
+        parsed.data.activation_token
+      )
+    ) {
+      return json(403, {
+        deactivated: false,
+        error: "invalid_activation_token",
+      });
+    }
+
+    const result = await prisma.licenseActivation.updateMany({
+      where: { id: activation.id, status: "active" },
       data: { status: "deactivated" },
     });
 
-    // Zaten pasif ya da hiç var olmayan bir kurulum için de 200 döneriz:
-    // istemci tarafında tekrar denemek güvenli olmalıdır (idempotent).
+    // Geçerli tokenla yinelenen bırakma isteği güvenle 200 döner.
     return json(200, { deactivated: true, released: result.count });
   } catch (error) {
     console.error("Aktivasyon bırakma hatası:", error);

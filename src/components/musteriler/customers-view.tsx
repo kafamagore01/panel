@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, MoreHorizontal, Pencil, Archive } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -26,7 +26,7 @@ import {
   type CustomerFormValues,
   type CustomerParentOption,
 } from "./customer-form";
-import { archiveCustomer } from "@/actions/customers";
+import { deleteCustomer } from "@/actions/customers";
 
 export type CustomerRow = {
   id: string;
@@ -140,15 +140,15 @@ export function CustomersView({
                                   onSelect={(e) => e.preventDefault()}
                                   className="text-rose-600 focus:text-rose-600"
                                 >
-                                  <Archive className="mr-2 h-4 w-4" />
-                                  Arşivle
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Sil
                                 </DropdownMenuItem>
                               }
-                              title="Müşteriyi Arşivle"
-                              description={`"${c.legal_name}" arşivlenecek. Projesi olan müşteriler arşivlenemez.`}
-                              confirmLabel="Arşivle"
+                              title="Müşteriyi Sil"
+                              description={`"${c.legal_name}" silinecek. Projesi veya bağlı şubesi olan müşteriler silinemez.`}
+                              confirmLabel="Sil"
                               destructive
-                              action={() => archiveCustomer(c.id)}
+                              action={() => deleteCustomer(c.id)}
                             />
                           )}
                         </DropdownMenuContent>

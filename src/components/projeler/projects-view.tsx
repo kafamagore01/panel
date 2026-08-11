@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, MoreHorizontal, Pencil, Archive, ExternalLink, Package } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, ExternalLink, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -32,7 +32,7 @@ import {
 } from "./project-form";
 import { ProductCatalog, type CatalogProduct } from "./product-catalog";
 import { RepoCell } from "./repo-cell";
-import { archiveProject } from "@/actions/projects";
+import { deleteProject } from "@/actions/projects";
 import { fetchRepoSnapshots } from "@/actions/github";
 import type { SnapshotResult } from "@/lib/github/repos";
 
@@ -176,15 +176,15 @@ export function ProjectsView({
                                   onSelect={(e) => e.preventDefault()}
                                   className="text-rose-600 focus:text-rose-600"
                                 >
-                                  <Archive className="mr-2 h-4 w-4" />
-                                  Arşivle
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Sil
                                 </DropdownMenuItem>
                               }
-                              title="Projeyi Arşivle"
-                              description={`"${p.name}" arşivlenecek. Lisansı veya sunucusu olan projeler arşivlenemez.`}
-                              confirmLabel="Arşivle"
+                              title="Projeyi Sil"
+                              description={`"${p.name}" silinecek. Lisansı veya sunucusu olan projeler silinemez.`}
+                              confirmLabel="Sil"
                               destructive
-                              action={() => archiveProject(p.id)}
+                              action={() => deleteProject(p.id)}
                             />
                           )}
                         </DropdownMenuContent>

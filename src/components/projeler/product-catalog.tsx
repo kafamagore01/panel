@@ -74,10 +74,10 @@ export function ProductCatalog({
         <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
           <div className="grid grid-cols-2 gap-2">
             <Field label="Kod" error={errors.code} required>
-              <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="SIGORTA" />
+              <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="MHSB" />
             </Field>
             <Field label="Ad" error={errors.name} required>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Sigorta Portalı" />
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Muhasebe Portalı" />
             </Field>
           </div>
           <Field label="Repo URL" error={errors.repository_url}>
